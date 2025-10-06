@@ -4,14 +4,12 @@ const {
   GITHUB_CLIENT_SECRET,
   OAUTH_REDIRECT_URI,
   GITHUB_SCOPE = "public_repo,user:email",
-  ALLOWED_ORIGINS, 
+  ALLOWED_ORIGINS, // np. "https://fundacjazaplon.netlify.app,https://fundacjazaplon.pl"
 } = process.env;
 
-// 🔑 whitelist + wybór originu z nagłówka
+// whitelist originów (pierwszy to domyślny)
 const allowlist = (ALLOWED_ORIGINS || "https://fundacjazaplon.netlify.app")
-  .split(",")
-  .map(s => s.trim())
-  .filter(Boolean);
+  .split(",").map(s => s.trim()).filter(Boolean);
 
 function pickOrigin(event) {
   const hdr = event.headers || {};
@@ -30,7 +28,9 @@ function corsHeaders(origin) {
 
 function parseCookies(cookieHeader = "") {
   return Object.fromEntries(
-    cookieHeader.split(";").map(c => c.trim().split("=").map(decodeURIComponent)).filter(p => p[0])
+    cookieHeader.split(";")
+      .map(c => c.trim().split("=").map(decodeURIComponent))
+      .filter(p => p[0])
   );
 }
 
@@ -45,7 +45,7 @@ export async function handler(event) {
   const url = new URL(event.rawUrl || `https://${event.headers.host}${event.path}`);
   const pathname = url.pathname;
 
-  // 1) start OAuth
+  // 1) Start OAuth
   if (pathname.endsWith("/auth")) {
     const state = crypto.randomUUID();
     const params = new URLSearchParams({
@@ -64,7 +64,7 @@ export async function handler(event) {
     };
   }
 
-  // 2) callback -> postMessage + zamknięcie okna
+  // 2) Callback -> postMessage do okna głównego
   if (pathname.endsWith("/auth/callback")) {
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
@@ -72,16 +72,22 @@ export async function handler(event) {
 
     const cookies = parseCookies(event.headers.cookie);
     if (!state || cookies.gh_oauth_state !== state) {
-      const html = `<!doctype html><meta charset="utf-8"><script>
+      const htmlErr = `<!doctype html><meta charset="utf-8"><script>
         (function(){
           var msg = 'authorization:github:error:' + JSON.stringify({message:'Invalid state'});
           if (window.opener && window.opener.postMessage) {
             window.opener.postMessage(msg, ${JSON.stringify(ORIGIN)});
             window.close();
-          } else { document.body.innerText='Invalid state'; }
+          } else {
+            document.body.innerText = 'Invalid state. You can close this window.';
+          }
         })();
       </script>`;
-      return { statusCode: 401, headers: { ...CORS, "Content-Type": "text/html" }, body: html };
+      return {
+        statusCode: 401,
+        headers: { ...CORS, "Content-Type": "text/html" },
+        body: htmlErr,
+      };
     }
 
     const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
@@ -105,7 +111,9 @@ export async function handler(event) {
         if (window.opener && window.opener.postMessage) {
           window.opener.postMessage(msg, ${JSON.stringify(ORIGIN)});
           window.close();
-        } else { document.body.innerText = ${JSON.stringify(ok ? "Logged in" : "OAuth error")}; }
+        } else {
+          document.body.innerText = ${JSON.stringify(ok ? "Logged in. You can close this window." : "OAuth error. You can close this window.")};
+        }
       })();
     </script>`;
 
