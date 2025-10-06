@@ -1,5 +1,5 @@
 backend:
-  name: github # lub gitlab/bitbucket; alternatywnie: git-gateway (Netlify)
+  name: git-gateway 
   repo: fniemczewski2/fundacjazaplon 
   branch: main
 media_folder: "public/images"        # gdzie lądują uploady
