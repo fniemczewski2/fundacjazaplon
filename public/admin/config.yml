@@ -1,0 +1,77 @@
+backend:
+  name: github # lub gitlab/bitbucket; alternatywnie: git-gateway (Netlify)
+  repo: your-org/your-repo # <- ZMIEŃ
+  branch: main
+media_folder: "public/images"        # gdzie lądują uploady
+public_folder: "/images"             # jak będą referencjonowane w treści
+
+publish_mode: editorial_workflow      # draft → review → publish
+locale: 'pl'
+
+collections:
+  - name: "settings"
+    label: "Ustawienia"
+    files:
+      - file: "content/settings/site.json"
+        label: "Strona – ustawienia"
+        name: "site"
+        fields:
+          - { label: "Nazwa organizacji", name: "name", widget: "string" }
+          - { label: "Opis", name: "tagline", widget: "string" }
+          - { label: "Logo", name: "logo", widget: "image", required: false }
+          - label: "Kolory"
+            name: "colors"
+            widget: "object"
+            fields:
+              - { label: "Brand (H,S,L)", name: "brand", widget: "string", hint: "np. 210 90% 55%" }
+              - { label: "Tło 100", name: "base100", widget: "string", default: "0 0% 100%" }
+              - { label: "Tło 200", name: "base200", widget: "string", default: "210 20% 98%" }
+              - { label: "Tekst", name: "text", widget: "string", default: "222 47% 11%" }
+
+  - name: "pages"
+    label: "Strony"
+    folder: "content/pages"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tytuł", name: "title", widget: "string" }
+      - { label: "Treść", name: "body", widget: "markdown" }
+      - { label: "Hero obraz", name: "hero", widget: "image", required: false }
+
+  - name: "team"
+    label: "Zespół/Zarząd"
+    folder: "content/team"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Imię i nazwisko", name: "name", widget: "string" }
+      - { label: "Rola", name: "role", widget: "string" }
+      - { label: "Zdjęcie", name: "avatar", widget: "image", required: false }
+      - { label: "Bio", name: "bio", widget: "text", required: false }
+      - { label: "Kolejność", name: "order", widget: "number", value_type: "int", min: 1, default: 1 }
+      - { label: "Publikuj?", name: "published", widget: "boolean", default: true }
+
+  - name: "projects"
+    label: "Projekty"
+    folder: "content/projects"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Tytuł", name: "title", widget: "string" }
+      - { label: "Data", name: "date", widget: "datetime" }
+      - { label: "Miniatura", name: "cover", widget: "image", required: false }
+      - { label: "Treść", name: "body", widget: "markdown" }
+      - { label: "Tagi", name: "tags", widget: "list", required: false }
+      - { label: "Publikuj?", name: "published", widget: "boolean", default: true }
+
+  - name: "posts"
+    label: "Aktualności/Blog"
+    folder: "content/posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Tytuł", name: "title", widget: "string" }
+      - { label: "Data", name: "date", widget: "datetime" }
+      - { label: "Obraz wyróżniający", name: "cover", widget: "image", required: false }
+      - { label: "Treść", name: "body", widget: "markdown" }
+      - { label: "Publikuj?", name: "published", widget: "boolean", default: true }
