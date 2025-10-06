@@ -4,7 +4,7 @@ const {
   GITHUB_CLIENT_SECRET,
   OAUTH_REDIRECT_URI,
   GITHUB_SCOPE = "public_repo,user:email",
-  ALLOWED_ORIGINS, // opcjonalnie: "https://fundacjazaplon.netlify.app,https://fundacjazaplon.pl"
+  ALLOWED_ORIGINS, 
 } = process.env;
 
 // 🔑 whitelist + wybór originu z nagłówka
