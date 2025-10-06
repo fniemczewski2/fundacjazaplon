@@ -1,7 +1,3 @@
-// netlify/functions/auth.js
-const querystring = require("querystring");
-const fetch = (...args) => import("node-fetch").then(({default: f}) => f(...args));
-
 const {
   GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET,
@@ -9,37 +5,37 @@ const {
   GITHUB_SCOPE = "public_repo,user:email",
 } = process.env;
 
-exports.handler = async (event) => {
-  const url = new URL(event.rawUrl);
-  const path = url.pathname; // e.g. /.netlify/functions/auth or .../auth/callback
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
 
-  // proste CORS (Decap używa fetch z przeglądarki)
-  const cors = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
+export async function handler(event) {
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers: cors };
+    return { statusCode: 204, headers: CORS };
   }
 
+  const url = new URL(event.rawUrl || `https://${event.headers.host}${event.path}`);
+  const pathname = url.pathname;
+
   try {
-    // 1) Start OAuth: przekieruj na GitHub
-    if (path.endsWith("/auth")) {
-      const redirect = "https://github.com/login/oauth/authorize?" + querystring.stringify({
+    // 1) start OAuth: /.netlify/functions/auth
+    if (pathname.endsWith("/auth")) {
+      const params = new URLSearchParams({
         client_id: GITHUB_CLIENT_ID,
         redirect_uri: OAUTH_REDIRECT_URI,
         scope: GITHUB_SCOPE,
       });
       return {
         statusCode: 302,
-        headers: { Location: redirect, ...cors },
+        headers: { Location: `https://github.com/login/oauth/authorize?${params.toString()}`, ...CORS },
       };
     }
 
-    // 2) Callback: wymiana code -> access_token
-    if (path.endsWith("/auth/callback")) {
+    // 2) callback: /.netlify/functions/auth/callback?code=...
+    if (pathname.endsWith("/auth/callback")) {
       const code = url.searchParams.get("code");
-      if (!code) return { statusCode: 400, headers: cors, body: "Missing code" };
+      if (!code) return { statusCode: 400, headers: CORS, body: "Missing code" };
 
       const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
         method: "POST",
@@ -51,21 +47,22 @@ exports.handler = async (event) => {
           redirect_uri: OAUTH_REDIRECT_URI,
         }),
       });
+
       const json = await tokenRes.json();
       if (!json.access_token) {
-        return { statusCode: 401, headers: cors, body: JSON.stringify(json) };
+        return { statusCode: 401, headers: CORS, body: JSON.stringify(json) };
       }
 
-      // format, którego oczekuje Decap: { token: "..." }
+      // format oczekiwany przez Decap: { token: "..." }
       return {
         statusCode: 200,
-        headers: { "Content-Type": "application/json", ...cors },
+        headers: { "Content-Type": "application/json", ...CORS },
         body: JSON.stringify({ token: json.access_token }),
       };
     }
 
-    return { statusCode: 404, headers: cors, body: "Not found" };
+    return { statusCode: 404, headers: CORS, body: "Not found" };
   } catch (e) {
-    return { statusCode: 500, headers: cors, body: e.message };
+    return { statusCode: 500, headers: CORS, body: e.message || "Server error" };
   }
-};
+}
