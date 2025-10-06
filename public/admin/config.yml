@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: f.niemczewski2/fundacjazaplon
+  repo: fniemczewski2/fundacjazaplon
   branch: main
   api_root: "/.netlify/functions/gh"
 
