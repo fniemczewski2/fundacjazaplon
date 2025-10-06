@@ -4,7 +4,7 @@ export default function Hero({ title, subtitle, cta }: { title: string; subtitle
   return (
     <section className="container-max mt-8 grid md:grid-cols-2 gap-8 items-center">
       <div>
-        <h1 className="text-4xl md:text-6xl text-text-black font-bold tracking-tight text-text-black">
+        <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-text-black">
           {title}
         </h1>
         {subtitle && <p className="mt-4 text-lg opacity-80">{subtitle}</p>}

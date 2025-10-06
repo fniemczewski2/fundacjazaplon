@@ -1,13 +1,15 @@
 // netlify/functions/gh.js
-const OWNER = 'your-github-owner'; // e.g. 'fundacjazaplon' or your org
-const REPO  = 'your-repo-name';    // e.g. 'zaplon-www'
+const OWNER = 'fniemczewski2';
+const REPO  = 'fundacjazaplon';
 
-// Resolve allowed origins from env (comma-separated)
 const allowedOriginSet = new Set(
-  (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean)
+  (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
 );
 
-// Allow only these GitHub REST paths (prefix match)
+// Allow only these GitHub API path prefixes:
 const ALLOWED_PATHS = [
   `/repos/${OWNER}/${REPO}`,
   `/repos/${OWNER}/${REPO}/contents/`,
@@ -20,13 +22,13 @@ const ALLOWED_PATHS = [
 const ALLOWED_METHODS = new Set(['GET','POST','PUT','PATCH','DELETE','OPTIONS']);
 
 export async function handler(event) {
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) return { statusCode: 500, body: 'Missing GITHUB_TOKEN' };
-
+  const token  = process.env.GITHUB_TOKEN;
   const origin = event.headers.origin || event.headers.Origin || '';
   const method = event.httpMethod || 'GET';
 
-  // Handle CORS preflight quickly
+  if (!token) return { statusCode: 500, body: 'Missing GITHUB_TOKEN' };
+
+  // CORS preflight
   if (method === 'OPTIONS') {
     return {
       statusCode: 204,
@@ -48,7 +50,6 @@ export async function handler(event) {
     return { statusCode: 403, body: 'Forbidden origin' };
   }
 
-  // Strip the function base from the path
   const rawPath = (event.path || '').replace(/^\/\.netlify\/functions\/gh/, '') || '/';
   const isAllowedPath = ALLOWED_PATHS.some(p => rawPath === p || rawPath.startsWith(p));
   if (!isAllowedPath) {
@@ -63,15 +64,12 @@ export async function handler(event) {
     'Accept': 'application/vnd.github+json',
     'User-Agent': 'decap-netlify-proxy',
   };
-
-  if (event.headers['content-type']) {
-    headers['Content-Type'] = event.headers['content-type'];
-  }
+  if (event.headers['content-type']) headers['Content-Type'] = event.headers['content-type'];
 
   const res = await fetch(url, {
     method,
     headers,
-    body: ['GET','HEAD'].includes(method) ? undefined : event.body
+    body: ['GET','HEAD'].includes(method) ? undefined : event.body,
   });
 
   const text = await res.text();
