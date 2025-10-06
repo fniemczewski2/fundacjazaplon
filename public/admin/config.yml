@@ -2,7 +2,9 @@ backend:
   name: github
   repo: fniemczewski2/fundacjazaplon
   branch: main
-  api_root: "/.netlify/functions/gh"
+  base_url: "https://fundacjazaplon.netlify.app"
+  auth_endpoint: "/.netlify/functions/auth"
+  open_authoring: true
 
 publish_mode: editorial_workflow
 
