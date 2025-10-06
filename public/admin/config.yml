@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: twoja-nazwa-uzytkownika/nazwa-repozytorium
+  repo: f.niemczewski2/fundacjazaplon
   branch: main
   auth_type: implicit
 
