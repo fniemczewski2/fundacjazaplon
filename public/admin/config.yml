@@ -1,6 +1,6 @@
 backend:
   name: github # lub gitlab/bitbucket; alternatywnie: git-gateway (Netlify)
-  repo: your-org/your-repo # <- ZMIEŃ
+  repo: fniemczewski2/fundacjazaplon 
   branch: main
 media_folder: "public/images"        # gdzie lądują uploady
 public_folder: "/images"             # jak będą referencjonowane w treści
