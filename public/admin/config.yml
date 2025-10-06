@@ -2,7 +2,7 @@ backend:
   name: github
   repo: f.niemczewski2/fundacjazaplon
   branch: main
-  auth_type: implicit
+  api_root: "/.netlify/functions/gh"
 
 publish_mode: editorial_workflow
 
