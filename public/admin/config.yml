@@ -1,11 +1,14 @@
 backend:
-  name: git-gateway 
-  repo: fniemczewski2/fundacjazaplon 
+  name: github
+  repo: twoja-nazwa-uzytkownika/nazwa-repozytorium
   branch: main
-media_folder: "public/images"        # gdzie lądują uploady
-public_folder: "/images"             # jak będą referencjonowane w treści
+  auth_type: implicit
 
-publish_mode: editorial_workflow      # draft → review → publish
+publish_mode: editorial_workflow
+
+media_folder: "public/images"
+public_folder: "/images"
+
 locale: 'pl'
 
 collections:
@@ -17,26 +20,17 @@ collections:
         name: "site"
         fields:
           - { label: "Nazwa organizacji", name: "name", widget: "string" }
-          - { label: "Opis", name: "tagline", widget: "string" }
-          - { label: "Logo", name: "logo", widget: "image", required: false }
-          - label: "Kolory"
+          - { label: "Opis (tagline)", name: "tagline", widget: "string", required: false }
+          - { label: "Logo (jasne)", name: "logo", widget: "image", required: false }
+          - { label: "Logo (ciemne)", name: "logoDark", widget: "image", required: false }
+          - label: "Kolory (H S% L%)"
             name: "colors"
             widget: "object"
             fields:
-              - { label: "Brand (H,S,L)", name: "brand", widget: "string", hint: "np. 210 90% 55%" }
-              - { label: "Tło 100", name: "base100", widget: "string", default: "0 0% 100%" }
-              - { label: "Tło 200", name: "base200", widget: "string", default: "210 20% 98%" }
-              - { label: "Tekst", name: "text", widget: "string", default: "222 47% 11%" }
-
-  - name: "pages"
-    label: "Strony"
-    folder: "content/pages"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "Tytuł", name: "title", widget: "string" }
-      - { label: "Treść", name: "body", widget: "markdown" }
-      - { label: "Hero obraz", name: "hero", widget: "image", required: false }
+              - { label: "Brand",  name: "brand",  widget: "string", default: "208 63% 27%" }
+              - { label: "Base 100", name: "base100", widget: "string", default: "30 30% 98%" }
+              - { label: "Base 200", name: "base200", widget: "string", default: "48 100% 86%" }
+              - { label: "Text",    name: "text",    widget: "string", default: "0 0% 21%" }
 
   - name: "team"
     label: "Zespół/Zarząd"
@@ -72,6 +66,6 @@ collections:
     fields:
       - { label: "Tytuł", name: "title", widget: "string" }
       - { label: "Data", name: "date", widget: "datetime" }
-      - { label: "Obraz wyróżniający", name: "cover", widget: "image", required: false }
+      - { label: "Obraz", name: "cover", widget: "image", required: false }
       - { label: "Treść", name: "body", widget: "markdown" }
       - { label: "Publikuj?", name: "published", widget: "boolean", default: true }
