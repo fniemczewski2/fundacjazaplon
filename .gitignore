@@ -59,7 +59,6 @@ vite.cache/
 storybook-static/
 
 # TypeScript build output
-lib/
 tsconfig.tsbuildinfo
 
 # Optional: ignore uploaded media locally
