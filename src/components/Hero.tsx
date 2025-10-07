@@ -2,18 +2,26 @@ import React from 'react'
 
 export default function Hero({ title, subtitle, cta }: { title: string; subtitle?: string; cta?: { label: string; href: string } }) {
   return (
-    <section className="container-max mt-8 grid md:grid-cols-2 gap-8 items-center">
+    <section className="container-max mt-8 gap-8 items-center flex justify-between">
       <div>
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-text-black">
+        <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-text-black">
           {title}
         </h1>
         {subtitle && <p className="mt-4 text-lg opacity-80">{subtitle}</p>}
         {cta && <a href={cta.href} className="btn btn-primary mt-6 inline-flex">{cta.label}</a>}
       </div>
-      <div className="relative">
-        <img src="/images/hero.jpg" alt="Działania organizacji" className="rounded-2xl shadow-lg" loading="lazy" />
-        <div className="absolute inset-0 rounded-2xl ring-1 ring-white/20 pointer-events-none text-text-black"></div>
-      </div>
+      <img
+        src="/images/main-logo.svg"
+        alt="Działania organizacji"
+        className="hidden dark:hidden md:block rounded-2xl shadow-md shadow-accent-orange/70 px-10"
+        loading="lazy"
+      />
+      <img
+        src="/images/main-logo-dark.svg"
+        alt="Działania organizacji"
+        className="hidden md:dark:block rounded-2xl shadow-md shadow-accent-orange/70 px-10"
+        loading="lazy"
+      />
     </section>
   )
 }

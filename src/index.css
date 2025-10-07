@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Kolory marki i akcentów */
+  --brand: 208 63% 27%;        /* #194770 – główny kolor marki (zostawiam Twoje HSL) */
+
+  /* Tła */
+  --base-100: 30 30% 98%;      /* #FAF6F3 – tło strony (niebieski był tu pomyłką) */
+  --base-200: 208 69% 80%;    /* #FFEEB5 – delikatne tło kart/sekcji */
+
+  /* Tekst */
+  --black: 0 0% 21%;        /* #363636 – główny kolor tekstu */
+  --white: 0 0% 100%;       /* biały tekst na brand */
+
+  /* Akcenty */
+  --accent-orange: 28 100% 69%;/* #FFA962 – CTA/przyciski akcentowe */
+}
+
+/* Tryb ciemny – kontrast i jaśniejszy brand */
+html[data-theme="dark"]:root {
+  /* Brand */
+  --brand: 208 63% 54%;
+
+  /* Tła */
+  --base-100: 210 28% 11%;
+  --base-200: 210 22% 16%;
+  --base-300: 210 18% 24%;
+
+  /* Tekst – najważniejsza zmiana 👇 */
+  --black: 0 0% 100%;   /* główny tekst teraz biały */
+  --white: 0 0% 14%;    /* jeśli potrzebujesz ciemnego tekstu na jasnych elementach */
+
+  /* Akcent */
+  --accent-orange: 28 92% 62%;
+}
+
+/* Użyteczne utilsy projektu */
+img[loading="lazy"] { filter: saturate(1.02); }
+.container-max { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+
+/* Komponenty */
+.card {
+  /* w light: solid z base-200; w dark: subtelne półprzezroczyste tło */
+  @apply bg-base-100 dark:bg-white/5 border border-white/20 rounded-2xl shadow-md shadow-text-black/30;
+}
+.btn {
+  @apply inline-flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition hover:opacity-90 focus:outline-none;
+}
+.btn-primary { @apply bg-brand text-white; }
+.btn-secondary { @apply border-brand border-solid border-2 text-brand hover:bg-brand hover:text-white; }
+.btn-ghost { @apply bg-transparent; }
+.badge { @apply inline-flex px-2 py-1 rounded-full text-sm border border-white/20; }
+.section-title { @apply text-text-black w-full text-center text-3xl md:text-4xl font-semibold tracking-tight font-["Signika"]; }
+
+/* Zmiana logo w trybie dark */
+html[data-theme="dark"] img.logo {
+  content: url("/images/logo_dark.svg");
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Signika", sans-serif;
+  color: hsl(var(--black));
+}
+
+html, p, a, li, span, div, input, textarea, button {
+  font-family: "Work Sans", sans-serif;
+  color: hsl(var(--black));
+}

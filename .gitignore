@@ -1,0 +1,66 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# Build output
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.swn
+*.swm
+
+# IDE settings
+.vscode/
+.idea/
+*.iml
+
+# Coverage / testing
+coverage/
+*.lcov
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+.eslintcache
+.stylelintcache
+.next/
+out/
+.tmp/
+.temp/
+vite.cache/
+*.tsbuildinfo
+
+# Supabase local data
+.supabase/
+
+# Misc
+*.local
+*.bak
+*.orig
+
+# Storybook (if used)
+storybook-static/
+
+# TypeScript build output
+lib/
+tsconfig.tsbuildinfo
+
+# Optional: ignore uploaded media locally
+public/uploads/
