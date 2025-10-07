@@ -1,4 +1,5 @@
 # Node
+node_modules/*
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -59,6 +60,8 @@ vite.cache/
 storybook-static/
 
 # TypeScript build output
+lib/**/*.js
+lib/**/*.d.ts
 tsconfig.tsbuildinfo
 
 # Optional: ignore uploaded media locally
