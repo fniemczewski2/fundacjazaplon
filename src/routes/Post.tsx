@@ -59,7 +59,7 @@ export default function Post() {
 
   return (
     <>
-      <Seo title={`${title} | Fundacja Zapłon`} description={excerpt ?? undefined} />
+      <Seo title={`${title} | Fundacja „Zapłon”`} description={excerpt ?? undefined} />
       <h1 className="section-title">{title}</h1>
 
       <article className="container mx-auto mt-6 p-4 grid w-full max-w-[1200px]">

@@ -23,7 +23,7 @@ export default function About() {
 
   return (
     <>
-      <Seo title="O nas | Fundacja Zapłon" />
+      <Seo title="O nas | Fundacja „Zapłon”" />
       <h1 className="section-title">O nas</h1>
       <div className="container mx-auto mt-6 p-4 space-y-8">
 

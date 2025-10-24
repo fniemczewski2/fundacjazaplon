@@ -9,7 +9,7 @@ export default function Team() {
 
   return (
     <>
-      <Seo title="Zespół | Fundacja Zapłon" />
+      <Seo title="Zespół | Fundacja „Zapłon”" />
       <h1 className="section-title">Zespół fundacji</h1>
       <div className="mt-6 p-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {team.map(member => (

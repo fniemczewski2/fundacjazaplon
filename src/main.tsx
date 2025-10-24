@@ -1,7 +1,7 @@
 // src/main.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, redirect } from 'react-router-dom';
 
 import './index.css';
 
@@ -27,6 +27,39 @@ import JoinUsEdit from './routes/admin/pages/JoinUsEdit';
 import Documents from './routes/Documents';
 import AdminDocuments from './routes/admin/Documents';
 
+import { supabase } from './lib/supabase';
+
+/**
+ * Loader that requires an authenticated session.
+ * If no session -> redirect to /admin/login
+ */
+const requireAuth = async () => {
+  // getSession is async and returns { data: { session }, error }
+  const { data } = await supabase.auth.getSession();
+  const session = data?.session ?? null;
+
+  if (!session) {
+    // redirect to login if not authenticated
+    return redirect('/admin/login');
+  }
+
+  // return null or any data you want available to the route
+  return null;
+};
+
+/**
+ * Loader for login route: if already authenticated, send to /admin
+ */
+const redirectIfAuthed = async () => {
+  const { data } = await supabase.auth.getSession();
+  const session = data?.session ?? null;
+
+  if (session) {
+    return redirect('/admin'); // already signed in
+  }
+  return null;
+};
+
 const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -36,14 +69,18 @@ const router = createBrowserRouter([
       { path: '/aktualnosci/:slug', element: <Post /> },
       { path: '/o-nas', element: <About /> },
       { path: '/zespol', element: <Team /> },
-      { path: '/dokumenty', element: <Documents/> },
+      { path: '/dokumenty', element: <Documents /> },
       { path: '/kontakt', element: <Contact /> },
     ],
   },
 
-  { path: '/admin/login', element: <AdminLogin /> },
+  // Login route: redirect away if already logged in
+  { path: '/admin/login', element: <AdminLogin />, loader: redirectIfAuthed },
+
+  // Protect the /admin parent with requireAuth loader
   {
     path: '/admin',
+    loader: requireAuth, // will run before showing any child routes
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: 'aktualnosci', element: <PostsList /> },

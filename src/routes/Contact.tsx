@@ -25,14 +25,14 @@ export default function Contact() {
 
   return (
     <>
-      <Seo title="Kontakt | Fundacja Zapłon" />
+      <Seo title="Kontakt | Fundacja „Zapłon”" />
       <h1 className="section-title">Kontakt</h1>
       <div className="container mt-6 p-4 max-w-4xl space-6 grid md:grid-cols-2 gap-6">
         <ContactForm />
         <Card>
           {data && (
             <>
-              <h2 className='text-2xl font-semibold mb-4'>Fundacja "Zapłon"</h2>
+              <h2 className='text-2xl font-semibold mb-4'>Fundacja „Zapłon”</h2>
               <div className="space-y-4 w-full">
                 {data.address && (
                   <div>

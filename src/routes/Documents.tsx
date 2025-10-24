@@ -27,7 +27,7 @@ export default function Documents() {
 
   return (
     <>
-      <Seo title="Dokumenty | Fundacja Zapłon" />
+      <Seo title="Dokumenty | Fundacja „Zapłon”" />
       <h1 className="section-title">Dokumenty</h1>
 
       <div className="container mx-auto mt-6 p-4 max-w-4xl gap-6 grid">

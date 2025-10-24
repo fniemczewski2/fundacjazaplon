@@ -31,7 +31,7 @@ export default function Navbar() {
         <Link to="/" className="flex items-center gap-3">
           {/* swap for dark if you have dark variant; otherwise keep single */}
           <img src="/images/logo.svg" alt="Logo" className="h-10 w-10 md:h-12 md:w-12 logo" />
-          <span className="font-bold text-text-black text-lg md:text-xl">Fundacja Zapłon</span>
+          <span className="font-bold text-text-black text-lg md:text-xl">Fundacja „Zapłon”</span>
         </Link>
 
         {/* Desktop nav */}

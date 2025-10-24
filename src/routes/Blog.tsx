@@ -27,7 +27,7 @@ export default function Blog() {
 
   return (
     <>
-      <Seo title="Aktualności | Fundacja Zapłon" />
+      <Seo title="Aktualności | Fundacja „Zapłon”" />
       <h1 className="section-title">Aktualności</h1>
 
       {loading && <Loader />}
