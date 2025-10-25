@@ -28,6 +28,7 @@ import Documents from './routes/Documents';
 import AdminDocuments from './routes/admin/Documents';
 
 import { supabase } from './lib/supabase';
+import ResetPasswordPage from './routes/admin/Password';
 
 /**
  * Loader that requires an authenticated session.
@@ -71,10 +72,11 @@ const router = createBrowserRouter([
       { path: '/zespol', element: <Team /> },
       { path: '/dokumenty', element: <Documents /> },
       { path: '/kontakt', element: <Contact /> },
+      
     ],
   },
 
-  // Login route: redirect away if already logged in
+  { path: '/reset-password', element: <ResetPasswordPage/>},
   { path: '/admin/login', element: <AdminLogin />, loader: redirectIfAuthed },
 
   // Protect the /admin parent with requireAuth loader
