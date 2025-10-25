@@ -9,7 +9,6 @@ export default function AdminLogin(): JSX.Element {
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Forgot password state
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotMsg, setForgotMsg] = useState<string | null>(null);
@@ -26,9 +25,6 @@ export default function AdminLogin(): JSX.Element {
         setErr(error.message);
         return;
       }
-
-      // Signed in successfully — navigate to your admin route.
-      // Make sure you have a route like <Route path="/admin" element={<AdminDashboard/>} />
       navigate('/admin', { replace: true });
     } catch (error) {
       setErr((error as Error)?.message ?? 'An unexpected error occurred');
@@ -45,11 +41,10 @@ export default function AdminLogin(): JSX.Element {
 
     try {
       if (!forgotEmail) {
-        setForgotMsg('Please enter your email.');
+        setForgotMsg('Podaj email');
         return;
       }
 
-      // Optional: customize redirectTo to point to your change-password page
       const redirectTo = `${window.location.origin}/reset-password`;
 
       const { data, error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
@@ -57,14 +52,13 @@ export default function AdminLogin(): JSX.Element {
       });
 
       if (error) {
-        setForgotMsg(error.message ?? 'Unable to send reset email');
+        setForgotMsg(error.message ?? 'Wystąpił błąd.');
         return;
       }
 
-      // The API does not return much on success. Show a friendly message.
-      setForgotMsg('If that email exists in our system, a password reset link has been sent.');
+      setForgotMsg('Jeżeli konto istnieje, email został wysłany.');
     } catch (error) {
-      setForgotMsg((error as Error)?.message ?? 'An unexpected error occurred');
+      setForgotMsg((error as Error)?.message ?? 'Wystąpił błąd.');
     } finally {
       setForgotLoading(false);
     }
@@ -111,7 +105,7 @@ export default function AdminLogin(): JSX.Element {
                   setForgotMsg(null);
                 }}
               >
-                Back
+                Powrót
               </button>
             </div>
           </>
@@ -131,7 +125,7 @@ export default function AdminLogin(): JSX.Element {
             </label>
 
             <label className="block">
-              <span className="sr-only">Password</span>
+              <span className="sr-only">Hasło</span>
               <input
                 className="w-full border p-2 rounded"
                 placeholder="Password"
@@ -166,7 +160,7 @@ export default function AdminLogin(): JSX.Element {
                   setForgotEmail(email || '');
                 }}
               >
-                Forgot password?
+                Zapomniał_ś hasła?
               </button>
             </div>
           </>
