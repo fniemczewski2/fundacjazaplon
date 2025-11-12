@@ -30,8 +30,7 @@ export default function Navbar() {
         {/* Logo + Brand */}
         <Link to="/" className="flex items-center gap-3">
           {/* swap for dark if you have dark variant; otherwise keep single */}
-          <img src="/images/logo.svg" alt="Logo" className="h-10 w-10 md:h-12 md:w-12 logo" />
-          <span className="font-bold text-text-black text-lg md:text-xl">Fundacja „Zapłon”</span>
+          <img src="/images/logo.svg" alt="Logo" className="h-16 w-26 md:h-14 md:w-26 logo" />
         </Link>
 
         {/* Desktop nav */}
