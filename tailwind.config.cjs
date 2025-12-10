@@ -22,6 +22,9 @@ module.exports = {
         accent: {
           orange: 'hsl(var(--accent-orange) / <alpha-value>)',
         },
+        button: {
+          DEFAULT: 'hsl(var(--button) / <alpha-value>)',
+        },
       },
       fontFamily: {
         sans: ['"Work Sans"', 'ui-sans-serif', 'system-ui'],

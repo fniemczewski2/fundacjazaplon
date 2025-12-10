@@ -22,7 +22,7 @@ export default function ThemeSwitcher() {
 
   return (
     <button
-      className="btn btn-ghost text-2xl text=text-black"
+      className="btn btn-ghost text-2xl text-text-navbar"
       onClick={() => setTheme(t => (t === 'light' ? 'dark' : 'light'))}
       aria-label="Przełącz motyw"
     >

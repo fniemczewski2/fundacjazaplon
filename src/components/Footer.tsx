@@ -11,7 +11,7 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-base-200 border-t border-white/10">
+    <footer className="bg-brand border-t border-white/10">
       <div className="container-max py-10 grid md:grid-cols-3 gap-8 text-sm text-text-black">
         <div>
           <img src="/images/logo.svg" alt="Logo" className="h-16 w-26 mb-3 logo" />

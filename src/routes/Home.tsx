@@ -13,7 +13,7 @@ export default function Home() {
         subtitle="Wspieramy osoby angażujące się społecznie i motywujemy do działania. Budujemy kapitał społeczny i zaufanie do organizacji pozarządowych. Dajemy narzędzia do zmiany."
         cta={{ label: 'Wesprzyj nas', href: '#donate' }}
       />
-      <DonateCard donateUrl='test' />
+      <DonateCard donateUrl='#' />
       <JoinUsCard />
     </>
   )

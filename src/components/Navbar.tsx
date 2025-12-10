@@ -25,16 +25,16 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-base-200/80 border-b">
+    <header className="sticky top-0 z-50 bg-brand border-b text-white shadow-md">
       <nav className="container-max flex items-center justify-between py-3 md:py-4">
         {/* Logo + Brand */}
         <Link to="/" className="flex items-center gap-3">
-          {/* swap for dark if you have dark variant; otherwise keep single */}
+          
           <img src="/images/logo.svg" alt="Logo" className="h-16 w-26 md:h-14 md:w-26 logo" />
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden md:flex text-sm lg:text-base lg:gap-6 gap-4 items-center text-text-black">
+        <ul className="hidden md:flex text-sm lg:text-base lg:gap-6 gap-4 items-center text-white">
           {NAV_ITEMS.map((item) => (
             <li key={item.to}>
               <NavLink
