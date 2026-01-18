@@ -75,3 +75,15 @@ html, p, a, li, span, div, input, textarea, button {
 nav *, footer *{
   color: hsl(var(--navbar))
 }
+
+@font-face {
+  font-family: 'Signika';
+  src: url('/fonts/Signika.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  src: url('/fonts/WorkSans.woff2') format('woff2');
+  font-display: swap;
+}

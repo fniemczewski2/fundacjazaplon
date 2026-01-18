@@ -1,3 +1,4 @@
+// src/routes/Contact.tsx
 import { useEffect, useState } from 'react';
 import Seo from '../components/Seo';
 import { getContact, type ContactInfo } from '../lib/contact';
@@ -17,87 +18,78 @@ export default function Contact() {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(label);
-      setTimeout(() => setCopied(null), 2000); 
+      setTimeout(() => setCopied(null), 2000);
     } catch (e) {
-      console.error("Copy failed:", e);
+      console.error('Copy failed:', e);
     }
   };
 
   return (
     <>
-      <Seo title="Kontakt | Fundacja „Zapłon”" />
+      <Seo
+        title="Kontakt | Fundacja „Zapłon”"
+        description="Skontaktuj się z Fundacją Zapłon. Dane adresowe, telefon, email, numer konta oraz formularz kontaktowy."
+      />
+
       <h1 className="section-title">Kontakt</h1>
-      <div className="container mt-6 p-4 max-w-4xl space-6 grid md:grid-cols-2 gap-6">
-        <ContactForm />
+
+      <div className="container mt-6 p-4 max-w-4xl grid md:grid-cols-2 gap-6">
+        <section aria-labelledby="contact-form">
+          <h2 id="contact-form" className="sr-only">
+            Formularz kontaktowy
+          </h2>
+          <ContactForm />
+        </section>
+
         <Card>
-          {data && (
-            <>
-              <h2 className='text-2xl font-semibold mb-4'>Fundacja „Zapłon”</h2>
+          <section aria-labelledby="contact-data">
+            <h2 id="contact-data" className="text-2xl font-semibold mb-4">
+              Fundacja „Zapłon”
+            </h2>
+
+            {!data && <p className="opacity-70">Wczytywanie danych…</p>}
+
+            {data && (
               <div className="space-y-4 w-full">
                 {data.address && (
                   <div>
                     <div className="text-sm text-text-black/70">Adres</div>
-                    <div className='text-lg'>{data.address}</div>
+                    <div className="text-lg">{data.address}</div>
                   </div>
                 )}
 
-                {data.krs && (
-                  <div className="group relative">
-                    <div className="text-sm text-text-black/70">KRS</div>
-                    <div className="flex items-center gap-2 text-lg">
-                      <span>{data.krs}</span>
-                      <button
-                        onClick={() => copyToClipboard("krs", data.krs!)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-black/70 hover:text-black"
-                        aria-label="Skopiuj KRS"
-                      >
-                        {copied === "krs" ? <FiCheck /> : <FiCopy />}
-                      </button>
+                {['krs', 'nip', 'regon', 'account_number'].map((key) => {
+                  const labelMap: Record<string, string> = {
+                    krs: 'KRS',
+                    nip: 'NIP',
+                    regon: 'REGON',
+                    account_number: 'Numer konta',
+                  };
+
+                  const value = (data as any)[key];
+                  if (!value) return null;
+
+                  return (
+                    <div key={key} className="group relative">
+                      <div className="text-sm text-text-black/70">{labelMap[key]}</div>
+
+                      <div className="flex items-center gap-2 text-lg">
+                        <span>{value}</span>
+                        <button
+                          onClick={() => copyToClipboard(key, value)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-text-black/70 hover:text-black"
+                          aria-label={`Skopiuj ${labelMap[key]}`}
+                        >
+                          {copied === key ? <FiCheck /> : <FiCopy />}
+                        </button>
+                      </div>
+
+                      {copied === key && (
+                        <div className="absolute text-xs text-brand mt-0.5">Skopiowano!</div>
+                      )}
                     </div>
-                    {copied === "krs" && (
-                      <div className="absolute text-xs text-brand mt-0.2">Skopiowano!</div>
-                    )}
-                  </div>
-                )}
-
-                {data.nip && (
-                  <div className="group relative">
-                    <div className="text-sm text-text-black/70">NIP</div>
-                    <div className="flex items-center gap-2 text-lg">
-                      <span>{data.nip}</span>
-                      <button
-                        onClick={() => copyToClipboard("nip", data.nip!)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-black/70 hover:text-black"
-                        aria-label="Skopiuj NIP"
-                      >
-                        {copied === "nip" ? <FiCheck /> : <FiCopy />}
-                      </button>
-                    </div>
-                    {copied === "nip" && (
-                      <div className="absolute text-xs text-brand mt-0.2">Skopiowano!</div>
-                    )}
-                  </div>
-                )}
-
-                {data.regon && (
-
-                  <div className="group relative">
-                    <div className="text-sm text-text-black/70">REGON</div>
-                    <div className="flex items-center gap-2 text-lg">
-                      <span>{data.regon}</span>
-                      <button
-                        onClick={() => copyToClipboard("regon", data.regon!)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-black/70 hover:text-black"
-                        aria-label="Skopiuj REGON"
-                      >
-                        {copied === "regon" ? <FiCheck /> : <FiCopy />}
-                      </button>
-                    </div>
-                    {copied === "regon" && (
-                      <div className="absolute text-xs text-brand mt-0.2">Skopiowano!</div>
-                    )}
-                  </div>
-                )}
+                  );
+                })}
 
                 {data.phone && (
                   <div>
@@ -116,30 +108,10 @@ export default function Contact() {
                     </a>
                   </div>
                 )}
-
-                {data.account_number && (
-                  <div className="group relative">
-                    <div className="text-sm text-text-black/70">Numer konta</div>
-                    <div className="flex items-center gap-2 text-lg">
-                      <span>{data.account_number}</span>
-                      <button
-                        onClick={() => copyToClipboard("account", data.account_number!)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-black/70 hover:text-black"
-                        aria-label="Skopiuj numer konta"
-                      >
-                        {copied === "account" ? <FiCheck /> : <FiCopy />}
-                      </button>
-                    </div>
-                    {copied === "account" && (
-                      <div className="absolute text-xs text-brand mt-0.2">Skopiowano!</div>
-                    )}
-                  </div>
-                )}
               </div>
-            </>      
-          )} 
+            )}
+          </section>
         </Card>
-        
       </div>
     </>
   );

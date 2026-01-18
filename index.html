@@ -1,22 +1,69 @@
 <!doctype html>
 <html lang="pl" data-theme="light">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta property="og:type" content="website" />
-        <meta property="og:description" content="Dołącz do naszych działań." />
-        <meta property="og:image" content="/images/hero.jpg" />
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link
-        href="https://fonts.googleapis.com/css2?family=Signika:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-        />
-        <title>Fundacja „Zapłon”</title>
-    </head>
-    <body class="bg-base-100 text-text-color">
-        <div id="root"></div>
-        <script type="module" src="/src/main.tsx"></script>
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Podstawowe SEO -->
+    <title>Fundacja „Zapłon” – wspieramy aktywność społeczną</title>
+    <meta
+      name="description"
+      content="Fundacja „Zapłon” wspiera aktywność społeczną, buduje kapitał społeczny i zaufanie do organizacji pozarządowych. Dołącz do naszych działań."
+    />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://zaplon.org.pl/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Fundacja „Zapłon” – wspieramy aktywność społeczną" />
+    <meta property="og:description" content="Dołącz do naszych działań. Wspieramy aktywność społeczną i organizacje pozarządowe." />
+    <meta property="og:image" content="/images/hero.jpg" />
+    <meta property="og:url" content="https://zaplon.org.pl/" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Fundacja „Zapłon” – wspieramy aktywność społeczną" />
+    <meta name="twitter:description" content="Wspieramy aktywność społeczną i organizacje pozarządowe." />
+    <meta name="twitter:image" content="/images/hero.jpg" />
+
+    <!-- Dane strukturalne NGO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "NGO",
+        "name": "Fundacja Zapłon",
+        "url": "https://zaplon.org.pl/",
+        "logo": "https://zaplon.org.pl/images/logo.svg",
+        "description": "Fundacja „Zapłon” wspiera aktywność społeczną, buduje kapitał społeczny i zaufanie do organizacji pozarządowych.",
+        "email": "biuro@zaplon.org.pl",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Baranówko 19B",
+          "postalCode": "62-050",
+          "addressLocality": "Mosina",
+          "addressCountry": "PL"
+        }
+      }
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <!-- Fonty -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Signika:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preload" href="/assets/index.css" as="style">
+    <link rel="stylesheet" href="/assets/index.css">
+
+  </head>
+
+  <body class="bg-base-100 text-text-color">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

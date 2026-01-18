@@ -14,7 +14,7 @@ export default function Footer() {
     <footer className="bg-brand border-t border-white/10">
       <div className="container-max py-10 grid md:grid-cols-3 gap-8 text-sm text-text-black">
         <div>
-          <img src="/images/logo.svg" alt="Logo" className="h-16 w-26 mb-3 logo" />
+          <img src="/images/logo.svg" alt="Logo" width="104" height="64" className="h-16 w-26 mb-3 logo" />
           <p>© {new Date().getFullYear()} Fundacja „Zapłon”. Wszelkie prawa zastrzeżone.</p>
         </div>
         <div>

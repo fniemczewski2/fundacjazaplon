@@ -1,3 +1,4 @@
+// src/routes/Blog.tsx
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
@@ -27,29 +28,51 @@ export default function Blog() {
 
   return (
     <>
-      <Seo title="Aktualności | Fundacja „Zapłon”" />
+      <Seo
+        title="Aktualności | Fundacja „Zapłon”"
+        description="Najnowsze aktualności, wydarzenia i projekty Fundacji Zapłon. Bądź na bieżąco z naszymi działaniami społecznymi."
+      />
+
       <h1 className="section-title">Aktualności</h1>
 
       {loading && <Loader />}
 
+      {!loading && err && (
+        <p className="text-red-600 mt-6">{err}</p>
+      )}
+
       {!loading && !err && (
         <>
           {posts.length === 0 ? (
-            <p className="text-text-black/70 mt-6">Brak opublikowanych aktualności.</p>
+            <p className="text-text-black/70 mt-6">
+              Brak opublikowanych aktualności.
+            </p>
           ) : (
-            <ul className="p-4 mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <section
+              aria-labelledby="news-list"
+              className="p-4 mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+            >
+              <h2 id="news-list" className="sr-only">
+                Lista aktualności
+              </h2>
+
               {posts.map((p) => (
-                <li
+                <article
                   key={p.id}
                   className="card overflow-hidden rounded-2xl shadow-sm hover:shadow-md transition"
                 >
                   <Link to={`/aktualnosci/${p.slug}`}>
-                    {p.cover_url && (
+                    {p.cover_url ? (
                       <img
                         src={p.cover_url}
-                        alt={p.title}
+                        alt={p.title || 'Okładka wpisu'}
                         className="w-full h-48 object-cover aspect-video"
+                        loading="lazy"
                       />
+                    ) : (
+                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+                        Brak zdjęcia
+                      </div>
                     )}
                   </Link>
 
@@ -73,9 +96,9 @@ export default function Blog() {
                       </p>
                     )}
                   </div>
-                </li>
+                </article>
               ))}
-            </ul>
+            </section>
           )}
         </>
       )}
