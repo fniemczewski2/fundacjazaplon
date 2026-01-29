@@ -7,6 +7,7 @@ import './index.css';
 
 import Layout from './components/Layout';
 import { supabase } from './lib/supabase';
+import Links from './routes/links';
 
 // --- Lazy loaded public routes ---
 const Home = React.lazy(() => import('./routes/Home'));
@@ -57,6 +58,7 @@ const router = createBrowserRouter([
       { path: '/zespol', element: <Team /> },
       { path: '/dokumenty', element: <Documents /> },
       { path: '/kontakt', element: <Contact /> },
+      { path: '/links', element: <Links /> },
     ],
   },
 

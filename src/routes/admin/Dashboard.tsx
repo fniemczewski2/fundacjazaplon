@@ -120,7 +120,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
   return (
-    <Link to={to} className="block w-full px-3 py-2 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-200">
+    <Link to={to} className="block w-full px-3 py-2 rounded-xl text-black hover:bg-gray-50 border border-transparent hover:border-gray-200">
       {children}
     </Link>
   );
