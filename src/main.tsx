@@ -7,7 +7,7 @@ import './index.css';
 
 import Layout from './components/Layout';
 import { supabase } from './lib/supabase';
-import Links from './routes/links';
+import Links from './routes/Links';
 
 // --- Lazy loaded public routes ---
 const Home = React.lazy(() => import('./routes/Home'));
