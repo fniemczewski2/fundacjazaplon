@@ -95,7 +95,7 @@ export default function Post() {
           <img
             src={cover_url}
             alt={`Okładka wpisu: ${title}`}
-            className="w-full rounded-xl mb-6 object-cover aspect-video max-h-60"
+            className="w-full rounded-xl mb-6 object-contain aspect-video max-h-[400px]"
             loading="lazy"
           />
         )}
