@@ -103,7 +103,7 @@ export default function Navbar() {
                 <NavLink
                   to={item.to}
                   className={({ isActive }) =>
-                    `block rounded-xl px-4 py-3 transition ${
+                    `block rounded-xl px-4 py-3 transition text-white ${
                       isActive ? 'underline underline-offset-8 decoration-brand' : ''
                     }`
                   }
