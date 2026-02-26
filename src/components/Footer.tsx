@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getSocialLinks, SocialLinks } from '../lib/social';
-import { FaInstagram, FaFacebook, FaXTwitter } from "react-icons/fa6";
+import { FaInstagram, FaFacebook, FaXTwitter, FaLinkedin } from "react-icons/fa6";
+import PrivacyPolicyLink from './PrivacyPolicyLink';
 
 export default function Footer() {
 
@@ -21,10 +22,11 @@ export default function Footer() {
           <p className="font-semibold mb-2">Kontakt</p>
           <p><a href="mailto:biuro@zaplon.org.pl" className="underline">biuro@zaplon.org.pl</a></p>
           <p>Baranówko 19B, 62-050 Mosina</p>
+          <PrivacyPolicyLink />
         </div>
         <div>
           <p className="font-semibold mb-2">Śledź nas</p>
-          <ul className="flex gap-4">
+          <ul className="flex gap-2 flex-col">
           {links?.facebook && (
             <li>
               <a
@@ -48,6 +50,19 @@ export default function Footer() {
                 className="hover:text-brand hover:underline text-lg transition-colors flex flex-nowrap items-center "
               >
                 <FaInstagram />&nbsp;Instagram
+              </a>
+            </li>
+          )}
+          {links?.linkedin && (
+            <li>
+              <a
+                href={links.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="hover:text-brand hover:underline text-lg transition-colors flex flex-nowrap items-center "
+              >
+                <FaLinkedin />&nbsp;LinkedIn
               </a>
             </li>
           )}

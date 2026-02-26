@@ -46,7 +46,10 @@ img[loading="lazy"] { filter: saturate(1.02); }
 /* Komponenty */
 .card {
   /* w light: solid z base-200; w dark: subtelne półprzezroczyste tło */
-  @apply bg-base-100 dark:bg-white/5 border border-white/20 rounded-2xl shadow-md shadow-text-black/30;
+  @apply bg-base-100 dark:bg-white/5 border border-white/20 rounded-2xl shadow-text-black/30;
+  /* box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px, rgba(0, 0, 0, 0.1) 0px 6px 6px; */
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px; 
 }
 .btn {
   @apply inline-flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition hover:opacity-90 focus:outline-none;
@@ -56,7 +59,7 @@ img[loading="lazy"] { filter: saturate(1.02); }
 .btn-ghost { @apply bg-transparent; }
 .badge { @apply inline-flex px-2 py-1 rounded-full text-sm border border-white/20; }
 .section-title { @apply text-text-black w-full text-center text-3xl md:text-4xl font-semibold tracking-tight font-["Signika"]; }
-
+.shadow-orange-sp { box-shadow: rgba(255, 169, 98, 0.75) 0px 5px 15px 0px;}
 /* Zmiana logo w trybie dark */
 /* html[data-theme="dark"] img.logo {
   content: url("/images/logo_dark.svg");

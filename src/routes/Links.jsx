@@ -47,7 +47,7 @@ export default function Links() {
     }] : []),
     {
       title: 'LinkedIn',
-      url: 'https://www.linkedin.com/company/fundacja-zap%C5%82on/',
+      url: socialLinks.linkedin,
       icon: <FaLinkedin className="text-2xl" />,
       description: 'Obserwuj nas'
     },

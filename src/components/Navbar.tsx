@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: '/o-nas', label: 'O\u00A0nas' },
   { to: '/zespol', label: 'Zespół' },
   { to: '/dokumenty', label: 'Dokumenty' },
+  { to: '/materialy', label: 'Materiały' },
   { to: '/kontakt', label: 'Kontakt' },
 ];
 
@@ -25,7 +26,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-brand border-b text-white shadow-md">
+    <header className="sticky top-0 z-50 bg-brand text-white shadow-md">
       <nav className="container-max flex items-center justify-between py-3 md:py-4">
         {/* Logo + Brand */}
         <Link to="/" className="flex items-center gap-3">
@@ -52,8 +53,8 @@ export default function Navbar() {
         </ul>
 
         {/* CTA + Theme (desktop) */}
-        <div className="hidden md:flex items-center gap-2 text-text-black">
-          <a className="btn btn-primary" href="/#donate">Wesprzyj</a>
+        <div className="hidden md:flex items-center gap-1 text-text-black">
+          <a className="btn btn-primary" href="/#donate">Wspieram</a>
           <ThemeSwitcher />
         </div>
 
@@ -117,7 +118,7 @@ export default function Navbar() {
                 className="btn btn-primary w-full mt-2"
                 href="/#donate"
               >
-                Wesprzyj
+                Wspieram
               </a>
             </li>
           </ul>

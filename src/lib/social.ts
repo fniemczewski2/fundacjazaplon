@@ -5,6 +5,7 @@ export type SocialLinks = {
   facebook: string | null;
   instagram: string | null;
   twitter: string | null;
+  linkedin: string | null;
 };
 
 export async function getSocialLinks(): Promise<SocialLinks | null> {

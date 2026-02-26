@@ -13,13 +13,13 @@ export default function Hero({ title, subtitle, cta }: { title: string; subtitle
       <img
         src="/images/main-logo.svg"
         alt="Działania organizacji"
-        className="hidden dark:hidden md:block rounded-2xl shadow-md shadow-accent-orange/70 px-10"
+        className="hidden dark:hidden md:block px-10"
         loading="lazy"
       />
       <img
         src="/images/main-logo-dark.svg"
         alt="Działania organizacji"
-        className="hidden md:dark:block rounded-2xl shadow-md shadow-accent-orange/70 px-10"
+        className="hidden md:dark:block px-10"
         loading="lazy"
       />
     </section>

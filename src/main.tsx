@@ -8,9 +8,13 @@ import './index.css';
 import Layout from './components/Layout';
 import { supabase } from './lib/supabase';
 import Links from './routes/Links';
+import Materials from './routes/Materials';
+import CookieConsent from './components/CookiesConsent';
+import PageTracker from './components/PageTracker'; // <-- DODANY IMPORT
 
 // --- Lazy loaded public routes ---
 const Home = React.lazy(() => import('./routes/Home'));
+// ... (tutaj reszta Twoich lazy importów pozostaje bez zmian)
 const Blog = React.lazy(() => import('./routes/Blog'));
 const Post = React.lazy(() => import('./routes/Post'));
 const About = React.lazy(() => import('./routes/About'));
@@ -32,6 +36,7 @@ const JoinUsEdit = React.lazy(() => import('./routes/admin/pages/JoinUsEdit'));
 const Media = React.lazy(() => import('./routes/admin/Media'));
 const AdminDocuments = React.lazy(() => import('./routes/admin/Documents'));
 const ResetPasswordPage = React.lazy(() => import('./routes/admin/Password'));
+const MaterialsAdmin = React.lazy(() => import('./routes/admin/pages/Materials'));
 
 // --- Auth guards ---
 const requireAuth = async () => {
@@ -49,44 +54,56 @@ const redirectIfAuthed = async () => {
 // --- Router ---
 const router = createBrowserRouter([
   {
-    element: <Layout />,
+    // Główny rodzic wszystkich ścieżek - śledzi nawigację
+    element: <PageTracker />,
     children: [
-      { path: '/', element: <Home /> },
-      { path: '/aktualnosci', element: <Blog /> },
-      { path: '/aktualnosci/:slug', element: <Post /> },
-      { path: '/o-nas', element: <About /> },
-      { path: '/zespol', element: <Team /> },
-      { path: '/dokumenty', element: <Documents /> },
-      { path: '/kontakt', element: <Contact /> },
-      { path: '/links', element: <Links /> },
-    ],
-  },
+      // 1. Ścieżki publiczne wewnątrz Layoutu (Nawigacja i Stopka)
+      {
+        element: <Layout />,
+        children: [
+          { path: '/', element: <Home /> },
+          { path: '/aktualnosci', element: <Blog /> },
+          { path: '/aktualnosci/:slug', element: <Post /> },
+          { path: '/o-nas', element: <About /> },
+          { path: '/zespol', element: <Team /> },
+          { path: '/dokumenty', element: <Documents /> },
+          { path: '/kontakt', element: <Contact /> },
+          { path: '/links', element: <Links /> },
+          { path: '/materialy', element: <Materials /> },
+        ],
+      },
 
-  { path: '/reset-password', element: <ResetPasswordPage /> },
-  { path: '/admin/login', element: <AdminLogin />, loader: redirectIfAuthed },
+      // 2. Ścieżki bez głównego Layoutu
+      { path: '/reset-password', element: <ResetPasswordPage /> },
+      { path: '/admin/login', element: <AdminLogin />, loader: redirectIfAuthed },
 
-  {
-    path: '/admin',
-    loader: requireAuth,
-    children: [
-      { index: true, element: <AdminDashboard /> },
-      { path: 'aktualnosci', element: <PostsList /> },
-      { path: 'aktualnosci/:id', element: <PostEdit /> },
-      { path: 'zespol', element: <TeamList /> },
-      { path: 'zespol/:id', element: <TeamEdit /> },
-      { path: 'strony/o-nas', element: <AboutEdit /> },
-      { path: 'strony/kontakt', element: <ContactEdit /> },
-      { path: 'strony/social', element: <SocialEdit /> },
-      { path: 'strony/join', element: <JoinUsEdit /> },
-      { path: 'media', element: <Media /> },
-      { path: 'dokumenty', element: <AdminDocuments /> },
-    ],
-  },
+      // 3. Ścieżki Panelu Admina
+      {
+        path: '/admin',
+        loader: requireAuth,
+        children: [
+          { index: true, element: <AdminDashboard /> },
+          { path: 'aktualnosci', element: <PostsList /> },
+          { path: 'aktualnosci/:id', element: <PostEdit /> },
+          { path: 'zespol', element: <TeamList /> },
+          { path: 'zespol/:id', element: <TeamEdit /> },
+          { path: 'strony/o-nas', element: <AboutEdit /> },
+          { path: 'strony/kontakt', element: <ContactEdit /> },
+          { path: 'strony/social', element: <SocialEdit /> },
+          { path: 'strony/join', element: <JoinUsEdit /> },
+          { path: 'strony/materials', element: <MaterialsAdmin />},
+          { path: 'media', element: <Media /> },
+          { path: 'dokumenty', element: <AdminDocuments /> },
+        ],
+      },
+    ]
+  }
 ]);
 
 // --- Render ---
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.Suspense fallback={<div className="p-6">Ładowanie…</div>}>
     <RouterProvider router={router} />
+    <CookieConsent />
   </React.Suspense>
 );
