@@ -5,6 +5,7 @@ import { getContact, type ContactInfo } from '../lib/contact';
 import Card from '../components/Card';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 import ContactForm from '../components/ContactForm';
+import Loader from '../components/Loader';
 
 export default function Contact() {
   const [data, setData] = useState<ContactInfo | null>(null);
@@ -47,7 +48,7 @@ export default function Contact() {
               Fundacja „Zapłon”
             </h2>
 
-            {!data && <p className="opacity-70">Wczytywanie danych…</p>}
+            {!data && <Loader />}
 
             {data && (
               <div className="space-y-4 w-full">

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listDocuments } from '../lib/documents';
 
-export default function PrivacyPolicyLink() {
+export default function PrivacyPolicyLink({ black }: { black?: boolean }) {
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -32,15 +32,15 @@ export default function PrivacyPolicyLink() {
   }
 
   return (
-    <p className='mt-2'>
+    <span className={black ? 'text-text-black hover:text-gray-700' : 'text-gray-300 hover:text-white'}>
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-sm text-gray-300 hover:text-white transition-colors underline decoration-transparent hover:decoration-white"
+      className="text-sm transition hover:underline"
     >
       Polityka prywatności
     </a>
-    </p>
+    </span>
   );
 }

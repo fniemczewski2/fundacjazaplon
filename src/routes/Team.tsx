@@ -2,6 +2,7 @@ import React from 'react';
 import Seo from '../components/Seo';
 import { listTeam, TeamMember } from '../lib/team';
 import { FaUser } from 'react-icons/fa6';
+import Loader from '../components/Loader';
 
 export default function Team() {
   const [team, setTeam] = React.useState<TeamMember[]>([]);
@@ -33,7 +34,7 @@ export default function Team() {
           Członkowie zespołu
         </h2>
 
-        {loading && <p className="opacity-70">Wczytywanie…</p>}
+        {loading && <Loader />}
 
         {!loading && team.length === 0 && (
           <p className="opacity-70">Brak danych o zespole.</p>

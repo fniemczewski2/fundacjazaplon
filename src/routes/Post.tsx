@@ -76,16 +76,16 @@ export default function Post() {
       />
 
       <article
-        className="container mx-auto mt-6 p-4 w-full max-w-[1200px]"
+        className="container mx-auto p-4 w-full max-w-[1200px]"
         aria-labelledby="post-title"
       >
-        <header className="mb-6">
+        <header className="mb-4">
           <h1 id="post-title" className="section-title">
             {title}
           </h1>
 
           {published_at && (
-            <p className="text-sm text-text-black/60 mt-1">
+            <p className="text-sm text-text-black/60 mt-2">
               Opublikowano: {new Date(published_at).toLocaleDateString('pl-PL')}
             </p>
           )}
@@ -107,10 +107,10 @@ export default function Post() {
         <footer className="mt-10">
           <Link
             to="/aktualnosci"
-            className="hover:underline flex items-center text-sm text-brand"
+            className="hover:underline dark:hover:decoration-accent-orange flex items-center text-sm text-brand"
           >
-            <FaArrowLeft />
-            <span className="ml-2">Wszystkie aktualności</span>
+            <FaArrowLeft className='fill-brand dark:fill-accent-orange'/>
+            <p className="ml-1 mt-0 text-brand dark:text-accent-orange w-fit">Wszystkie aktualności</p>
           </Link>
         </footer>
       </article>

@@ -14,7 +14,7 @@ export default function JoinUsCard() {
   return (
     <div className="mt-8 card p-8 text-center">
       <h2 className="section-title">Dołącz do nas</h2>
-      <p className="mt-5 mb-2">Chcesz działać razem z nami? Wypełnij krótką ankietę i zostań częścią zespołu!</p>
+      <p className="mt-5 mb-2">Chcesz działać z&nbsp;nami? Wypełnij krótką ankietę i&nbsp;zostań częścią zespołu!</p>
       <a
         href={url}
         target="_blank"

@@ -22,7 +22,7 @@ export default function Footer() {
           <p className="font-semibold mb-2">Kontakt</p>
           <p><a href="mailto:biuro@zaplon.org.pl" className="underline">biuro@zaplon.org.pl</a></p>
           <p>Baranówko 19B, 62-050 Mosina</p>
-          <PrivacyPolicyLink />
+          <p className='mt-2'><PrivacyPolicyLink /></p>
         </div>
         <div>
           <p className="font-semibold mb-2">Śledź nas</p>

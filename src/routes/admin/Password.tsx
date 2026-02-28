@@ -102,7 +102,7 @@ export default function ResetPasswordPage(): JSX.Element {
         <h1 className="text-2xl font-semibold">Reset hasła</h1>
 
         {message && <p className="text-sm text-gray-700" role="status">{message}</p>}
-        {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
+        {error && <p className="text-sm text-brand dark:text-accent-orange" role="alert">{error}</p>}
 
         <label className="block">
           <span className="sr-only">Nowe hasło</span>

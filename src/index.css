@@ -75,6 +75,14 @@ html, p, a, li, span, div, input, textarea, button {
   color: hsl(var(--black));
 }
 
+.input-text {
+  @apply w-full p-3 border rounded-full outline-none transition-shadow dark:bg-gray-700 dark:border-gray-600 dark:text-white
+}
+
+.input-textarea {
+  @apply w-full p-3 border rounded-xl outline-none transition-shadow dark:bg-gray-700 dark:border-gray-600 dark:text-white
+}
+
 nav *, footer *{
   color: hsl(var(--navbar))
 }

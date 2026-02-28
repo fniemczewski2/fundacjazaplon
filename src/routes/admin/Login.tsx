@@ -138,7 +138,7 @@ export default function AdminLogin(): JSX.Element {
             </label>
 
             {err && (
-              <p className="text-red-600 text-sm" role="alert" aria-live="assertive">
+              <p className="text-brand dark:text-accent-orange text-sm" role="alert" aria-live="assertive">
                 {err}
               </p>
             )}

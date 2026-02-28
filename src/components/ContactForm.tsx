@@ -1,6 +1,7 @@
 // src/components/ContactForm.tsx
 import { useEffect, useState } from "react";
 import Card from "./Card";
+import { FaPaperPlane } from "react-icons/fa6";
 
 export default function ContactForm() {
   const [sent, setSent] = useState(false);
@@ -33,11 +34,11 @@ export default function ContactForm() {
         />
         <input type="hidden" name="_subject" value="Nowa wiadomość z formularza kontaktowego" />
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-4">
           <label className="block">
             <span className="text-sm text-text-black/70">Imię i nazwisko</span>
             <input
-              className="border-none py-2 px-4 rounded-xl shadow-inner focus:outline-none w-full"
+              className="input-text"
               name="name"
               placeholder="Jan Kowalski"
               required
@@ -48,7 +49,7 @@ export default function ContactForm() {
             <span className="text-sm text-text-black/70">Email</span>
             <input
               type="email"
-              className="border-none py-2 px-4 rounded-xl shadow-inner focus:outline-none w-full"
+              className="input-text"
               name="email"
               placeholder="jan.kowalski@example.com"
               required
@@ -59,7 +60,7 @@ export default function ContactForm() {
         <label className="block">
           <span className="text-sm text-text-black/70">Wiadomość</span>
           <textarea
-            className="border-none py-2 px-4 rounded-xl shadow-inner w-full focus:outline-none "
+            className="input-textarea"
             rows={6}
             name="message"
             placeholder="W czym możemy pomóc?"
@@ -72,6 +73,7 @@ export default function ContactForm() {
           className="btn btn-primary"
         >
           Wyślij wiadomość
+          <FaPaperPlane className="ml-1" />
         </button>
       </form>
     </Card>

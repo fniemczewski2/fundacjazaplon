@@ -8,7 +8,7 @@ type Props = {
   title?: string;
 };
 
-export default function DonateCard({ donateUrl = '#', title = 'Wesprzyj nas' }: Props) {
+export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Props) {
   const [data, setData] = useState<ContactInfo | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -31,7 +31,8 @@ export default function DonateCard({ donateUrl = '#', title = 'Wesprzyj nas' }: 
 
   return (
     <section id="donate" className="mt-16 card p-8 text-center flex flex-col items-center">
-      <h2 className="section-title">{title}</h2>
+      <h2 className="section-title">{title}</h2>  
+      <p className="mt-5 mb-2">Podoba się Tobie to co robimy? Pomóż nam wspierać młode osoby w&nbsp;realizacji swoich projektów.</p>
 
       <p className="mt-5 mb-2">Przelew tradycyjny:</p>
 

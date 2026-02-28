@@ -46,17 +46,16 @@ export default function AdminDashboard() {
         <nav className="space-y-2">
           <SectionLabel>Treści</SectionLabel>
           <NavItem to="/admin/aktualnosci">Aktualności</NavItem>
-          <NavItem to="/admin/zespol">Zespół</NavItem>
-
-          <SectionLabel>Strony</SectionLabel>
           <NavItem to="/admin/strony/o-nas">O nas</NavItem>
+          <NavItem to="/admin/zespol">Zespół</NavItem>
           <NavItem to="/admin/strony/kontakt">Kontakt</NavItem>
-          <NavItem to="/admin/strony/social">Social Media</NavItem>
           <NavItem to="/admin/strony/join">Dołącz do nas</NavItem>
+          <NavItem to="/admin/strony/social">Social Media</NavItem>
 
           <SectionLabel>Pliki</SectionLabel>
           <NavItem to="/admin/media">Media</NavItem>
           <NavItem to="/admin/dokumenty">Dokumenty</NavItem>
+          <NavItem to="/admin/materialy">Materiały do pobrania</NavItem>
         </nav>
 
         <div className="pt-4">

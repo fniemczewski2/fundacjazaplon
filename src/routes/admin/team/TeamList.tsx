@@ -39,7 +39,7 @@ export default function TeamList() {
       {loading ? (
         <Loader />
       ) : err ? (
-        <div className="text-sm text-red-600">{err}</div>
+        <div className="text-sm text-brand dark:text-accent-orange">{err}</div>
       ) : (
         <ul className="space-y-2">
           {rows.map((m) => (

@@ -28,16 +28,16 @@ export default function Links() {
 
   const links = [
     {
-      title: 'Wpłać darowiznę',
+      title: 'Wpłacam darowiznę',
       url: '/#donate',
       icon: <FaHandHoldingHeart className="text-2xl" />,
-      description: 'Wesprzyj nasze działania'
+      description: 'Wspieram wasze działania'
     },
     ...(joinLink?.survey_url ? [{
-      title: 'Dołącz do wolontariatu',
+      title: 'Dołączam do wolontariatu',
       url: joinLink.survey_url,
       icon: <FaUserPlus className="text-2xl" />,
-      description: 'Zostań wolontariuszem'
+      description: 'Jestem częścią zmiany'
     }] : []),
     ...(socialLinks?.instagram ? [{
       title: 'Instagram',

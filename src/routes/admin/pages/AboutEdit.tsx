@@ -98,8 +98,8 @@ export default function AboutEdit() {
     <div className="p-6 space-y-6 max-w-5xl">
       <h1 className="text-2xl font-semibold">O nas</h1>
 
-      {err && <div className="text-sm text-red-600">{err}</div>}
-      {ok && <div className="text-sm text-green-600">{ok}</div>}
+      {err && <div className="text-sm text-brand dark:text-accent-orange">{err}</div>}
+      {ok && <div className="text-sm text-brand dark:text-accent-orange">{ok}</div>}
 
       <section className="grid gap-4 md:grid-cols-2">
         <div>

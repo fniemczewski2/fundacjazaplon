@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import Seo from '../components/Seo';
 import { getAbout, getPillars, type AboutInfo, type Pillar } from '../lib/about';
 import Card from '../components/Card';
+import Loader from '../components/Loader';
 
 export default function About() {
   const [about, setAbout] = useState<AboutInfo | null>(null);
@@ -37,7 +38,7 @@ export default function About() {
       <h1 className="section-title">O nas</h1>
 
       <div className="container mx-auto mt-6 p-4 space-y-10">
-        {loading && <p className="opacity-70">Wczytywanie…</p>}
+        {loading && <Loader />}
 
         {!loading && descriptionBlocks.length > 0 && (
           <section aria-labelledby="about-desc">

@@ -57,7 +57,7 @@ export default function Documents() {
           nonEmpty.map((g) => (
             <Card key={g.key}>
               <section aria-labelledby={`docs-${g.key}`}>
-                <h2 id={`docs-${g.key}`} className="text-xl font-semibold mb-3">
+                <h2 id={`docs-${g.key}`} className="text-xl text-center font-semibold mb-3">
                   {g.label}
                 </h2>
 

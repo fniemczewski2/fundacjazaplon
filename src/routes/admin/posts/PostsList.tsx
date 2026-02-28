@@ -41,7 +41,7 @@ export default function PostsList() {
       {loading ? (
         <Loader />
       ) : err ? (
-        <div className="text-sm text-red-600">{err}</div>
+        <div className="text-sm text-brand dark:text-accent-orange">{err}</div>
       ) : rows.length === 0 ? (
         <div className="text-sm text-text-black/70">Brak wpisów.</div>
       ) : (

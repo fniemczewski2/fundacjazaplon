@@ -38,7 +38,7 @@ export default function Blog() {
       {loading && <Loader />}
 
       {!loading && err && (
-        <p className="text-red-600 mt-6">{err}</p>
+        <p className="text-brand dark:text-accent-orange mt-6">{err}</p>
       )}
 
       {!loading && !err && (

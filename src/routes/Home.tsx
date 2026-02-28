@@ -3,6 +3,7 @@ import Hero from '../components/Hero';
 import Seo from '../components/Seo';
 import JoinUsCard from '../components/JoinUsCard';
 import DonateCard from '../components/DonateCard';
+import NewsletterCard from '../components/NewsletterCard';
 
 export default function Home() {
   return (
@@ -22,16 +23,23 @@ export default function Home() {
           <Hero
             title="Zapalamy aktywność"
             subtitle="Wspieramy osoby angażujące się społecznie i motywujemy do działania. Budujemy kapitał społeczny i zaufanie do organizacji pozarządowych. Dajemy narzędzia do zmiany."
-            cta={{ label: 'Wesprzyj nas', href: '#donate' }}
+            cta={{ label: 'Wspieram', href: '#donate' }}
           />
         </section>
 
         {/* DONATE */}
         <section id="donate" aria-labelledby="donate-title" className="mt-10">
           <h2 id="donate-title" className="sr-only">
-            Wesprzyj Fundację Zapłon
+            Wspieram Fundację Zapłon
           </h2>
           <DonateCard donateUrl="#" />
+        </section>
+
+        <section aria-labelledby="join-us-title" className="mt-10">
+          <h2 id="join-us-title" className="sr-only">
+            Dowiedz się więcej
+          </h2>
+          <NewsletterCard />
         </section>
 
         {/* JOIN US */}

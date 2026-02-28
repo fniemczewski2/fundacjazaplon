@@ -66,23 +66,23 @@ export default function Navbar() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label="Otwórz menu"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-xl hover:bg-base-100"
+            className="inline-flex items-center justify-center btn btn-ghost"
           >
             <span className="sr-only">Menu</span>
             <div className="relative w-5 h-5">
               <span
-                className={`absolute inset-x-0 top-1 h-0.5 bg-current transition ${
-                  open ? 'translate-y-1.5 rotate-45' : ''
+                className={`absolute inset-x-0 top-0 h-[3px] rounded-full bg-current transition ${
+                  open ? 'translate-y-2 rotate-45' : ''
                 }`}
               />
               <span
-                className={`absolute inset-x-0 top-2.5 h-0.5 bg-current transition ${
+                className={`absolute inset-x-0 top-2 h-[3px] rounded-full bg-current transition ${
                   open ? 'opacity-0' : ''
                 }`}
               />
               <span
-                className={`absolute inset-x-0 top-4 h-0.5 bg-current transition ${
-                  open ? '-translate-y-1.5 -rotate-45' : ''
+                className={`absolute inset-x-0 top-4 h-[3px] rounded-full bg-current transition ${
+                  open ? '-translate-y-2 -rotate-45' : ''
                 }`}
               />
             </div>

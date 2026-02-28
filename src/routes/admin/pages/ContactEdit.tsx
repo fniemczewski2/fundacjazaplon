@@ -88,8 +88,8 @@ export default function ContactEdit() {
     <div className="p-6 space-y-4 max-w-3xl">
       <h1 className="text-2xl font-semibold">Kontakt</h1>
 
-      {err && <div className="text-sm text-red-600">{err}</div>}
-      {ok && <div className="text-sm text-green-600">{ok}</div>}
+      {err && <div className="text-sm text-brand dark:text-accent-orange">{err}</div>}
+      {ok && <div className="text-sm text-brand dark:text-accent-orange">{ok}</div>}
 
       <div className="grid gap-4">
         <label className="block">

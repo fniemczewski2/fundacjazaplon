@@ -10,11 +10,11 @@ import { supabase } from './lib/supabase';
 import Links from './routes/Links';
 import Materials from './routes/Materials';
 import CookieConsent from './components/CookiesConsent';
-import PageTracker from './components/PageTracker'; // <-- DODANY IMPORT
+import PageTracker from './components/PageTracker'; 
+import Loader from './components/Loader';
 
 // --- Lazy loaded public routes ---
 const Home = React.lazy(() => import('./routes/Home'));
-// ... (tutaj reszta Twoich lazy importów pozostaje bez zmian)
 const Blog = React.lazy(() => import('./routes/Blog'));
 const Post = React.lazy(() => import('./routes/Post'));
 const About = React.lazy(() => import('./routes/About'));
@@ -102,7 +102,7 @@ const router = createBrowserRouter([
 
 // --- Render ---
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.Suspense fallback={<div className="p-6">Ładowanie…</div>}>
+  <React.Suspense fallback={<Loader />}>
     <RouterProvider router={router} />
     <CookieConsent />
   </React.Suspense>
