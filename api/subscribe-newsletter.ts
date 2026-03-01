@@ -27,7 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (file_url && MATERIALS_GROUP_ID) {
       groupsToJoin.push(MATERIALS_GROUP_ID);
     }
-    
+
     const fieldsPayload: any = {};
     if (name) fieldsPayload.name = name;
     if (file_url) fieldsPayload.ostatni_plik_url = file_url;

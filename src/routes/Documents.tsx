@@ -41,7 +41,7 @@ export default function Documents() {
     <>
       <Seo
         title="Dokumenty | Fundacja „Zapłon”"
-        description="Pobierz dokumenty Fundacji Zapłon: statuty, uchwały, sprawozdania finansowe i merytoryczne."
+        description="Pobierz dokumenty Fundacji „Zapłon”: statuty, uchwały, sprawozdania finansowe i merytoryczne."
       />
 
       <h1 className="section-title">Dokumenty</h1>

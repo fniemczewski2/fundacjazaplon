@@ -21,7 +21,7 @@ export default function Team() {
     <>
       <Seo
         title="Zespół | Fundacja „Zapłon”"
-        description="Poznaj zespół Fundacji Zapłon — osoby, które tworzą projekty społeczne, wspierają społeczność i budują kapitał społeczny."
+        description="Poznaj zespół Fundacji „Zapłon” — osoby, które tworzą projekty społeczne, wspierają społeczność i budują kapitał społeczny."
       />
 
       <h1 className="section-title">Zespół fundacji</h1>

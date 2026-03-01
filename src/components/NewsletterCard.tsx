@@ -42,7 +42,7 @@ export default function NewsletterCard() {
   };
 
   return (
-    <div className="mt-8 card p-8 text-center">
+    <div className="card p-8 text-center">
       <h2 className="section-title">Newsletter</h2>
       <p className="mt-5 mb-6 text-text-black/80">
         Chcesz być na&nbsp;bieżąco z&nbsp;naszymi działaniami? Zapisz&nbsp;się, aby otrzymywać informacje o&nbsp;realizowanych przez nas projektach.

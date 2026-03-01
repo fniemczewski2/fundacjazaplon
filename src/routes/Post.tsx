@@ -64,7 +64,7 @@ export default function Post() {
     <>
       <Seo
         title={`${title} | Fundacja „Zapłon”`}
-        description={excerpt ?? 'Aktualność Fundacji Zapłon.'}
+        description={excerpt ?? 'Aktualność Fundacji „Zapłon”.'}
       />
 
       <ArticleSchema

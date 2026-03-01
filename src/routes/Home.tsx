@@ -10,14 +10,14 @@ export default function Home() {
     <>
       <Seo
         title="Fundacja „Zapłon” – wspieramy aktywność społeczną"
-        description="Fundacja Zapłon wspiera osoby angażujące się społecznie, buduje kapitał społeczny i wzmacnia organizacje pozarządowe. Dołącz do naszych działań i pomóż nam zapalać aktywność."
+        description="Fundacja „Zapłon” wspiera osoby angażujące się społecznie, buduje kapitał społeczny i wzmacnia organizacje pozarządowe. Dołącz do naszych działań i pomóż nam zapalać aktywność."
       />
 
       <main>
         {/* HERO */}
         <section aria-labelledby="hero-title">
           <h1 id="hero-title" className="sr-only">
-            Fundacja Zapłon – zapalamy aktywność społeczną
+            Fundacja „Zapłon” – zapalamy aktywność społeczną
           </h1>
 
           <Hero
@@ -30,7 +30,7 @@ export default function Home() {
         {/* DONATE */}
         <section id="donate" aria-labelledby="donate-title" className="mt-10">
           <h2 id="donate-title" className="sr-only">
-            Wspieram Fundację Zapłon
+            Wspieram Fundację „Zapłon” 
           </h2>
           <DonateCard donateUrl="#" />
         </section>
@@ -45,7 +45,7 @@ export default function Home() {
         {/* JOIN US */}
         <section aria-labelledby="join-us-title" className="mt-10">
           <h2 id="join-us-title" className="sr-only">
-            Dołącz do Fundacji Zapłon
+            Dołącz do Fundacji „Zapłon” 
           </h2>
           <JoinUsCard />
         </section>

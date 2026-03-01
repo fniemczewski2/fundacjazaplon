@@ -32,7 +32,7 @@ export default function About() {
     <>
       <Seo
         title="O nas | Fundacja „Zapłon”"
-        description="Poznaj misję, wartości i działania Fundacji Zapłon. Wspieramy aktywność społeczną, budujemy kapitał społeczny i wzmacniamy organizacje pozarządowe."
+        description="Poznaj misję, wartości i działania Fundacji „Zapłon”. Wspieramy aktywność społeczną, budujemy kapitał społeczny i wzmacniamy organizacje pozarządowe."
       />
 
       <h1 className="section-title">O nas</h1>

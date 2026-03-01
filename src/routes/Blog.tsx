@@ -30,7 +30,7 @@ export default function Blog() {
     <>
       <Seo
         title="Aktualności | Fundacja „Zapłon”"
-        description="Najnowsze aktualności, wydarzenia i projekty Fundacji Zapłon. Bądź na bieżąco z naszymi działaniami społecznymi."
+        description="Najnowsze aktualności, wydarzenia i projekty Fundacji „Zapłon”. Bądź na bieżąco z naszymi działaniami społecznymi."
       />
 
       <h1 className="section-title">Aktualności</h1>

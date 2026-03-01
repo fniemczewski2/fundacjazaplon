@@ -42,8 +42,8 @@ export default function Materials() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
+            name: name,
             email: email, 
-            // Przekazujemy tytuł i bezpośredni link do pliku!
             file_url: selectedMaterial.file_url,
             file_title: selectedMaterial.title
           }),
@@ -120,8 +120,19 @@ export default function Materials() {
             <h2 className="text-2xl font-bold mb-4 pr-6">Pobierz: {selectedMaterial.title}</h2>
             
             {status === 'success' ? (
-              <div className="text-brand dark:text-accent-orange font-medium py-4 rounded-lg text-left">
-                Dziękujemy! Plik został wysłany na Twój adres e&#x2011;mail. Sprawdź swoją skrzynkę (również SPAM).
+              <div className="text-brand dark:text-accent-orange font-medium py-4 rounded-lg flex flex-col items-center text-center">
+                <p className="mb-6 text-lg">Dziękujemy! Twój materiał jest gotowy.</p>
+                <a 
+                  href={selectedMaterial.file_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-primary inline-flex items-center gap-2 mb-2"
+                >
+                  Pobierz plik teraz <FaDownload />
+                </a>
+                <p className="text-xs mt-6 opacity-80 font-normal text-text-black dark:text-gray-300">
+                  Zapisaliśmy Cię również do newslettera. Jeśli to Twoje pierwsze pobranie dzisiaj, kopię linku znajdziesz w swojej skrzynce e&#x2011;mail.
+                </p>
               </div>
             ) : (
               <form onSubmit={handleDownload} className="space-y-5">

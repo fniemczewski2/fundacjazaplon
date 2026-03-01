@@ -39,7 +39,6 @@ const [isVisible, setIsVisible] = useState(false);
   const handleReject = () => {
     localStorage.setItem('cookieConsent', 'rejected');
     setIsVisible(false);
-    // Nie musimy wysyłać 'denied', bo ustawiliśmy to jako domyślne w index.html
   };
 
   if (!isVisible) return null;

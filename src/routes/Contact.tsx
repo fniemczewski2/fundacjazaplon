@@ -29,7 +29,7 @@ export default function Contact() {
     <>
       <Seo
         title="Kontakt | Fundacja „Zapłon”"
-        description="Skontaktuj się z Fundacją Zapłon. Dane adresowe, telefon, email, numer konta oraz formularz kontaktowy."
+        description="Skontaktuj się z Fundacją „Zapłon”. Dane adresowe, telefon, email, numer konta oraz formularz kontaktowy."
       />
 
       <h1 className="section-title">Kontakt</h1>

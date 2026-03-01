@@ -12,7 +12,7 @@ export default function JoinUsCard() {
   if (!url) return null; 
 
   return (
-    <div className="mt-8 card p-8 text-center">
+    <div className="card p-8 text-center">
       <h2 className="section-title">Dołącz do nas</h2>
       <p className="mt-5 mb-2">Chcesz działać z&nbsp;nami? Wypełnij krótką ankietę i&nbsp;zostań częścią zespołu!</p>
       <a
