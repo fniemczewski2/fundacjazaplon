@@ -67,3 +67,4 @@ tsconfig.tsbuildinfo
 # Optional: ignore uploaded media locally
 public/uploads/
 .vercel
+vercel.json

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getContact, type ContactInfo } from '../lib/contact';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 import { FaArrowRight, FaCreditCard, FaArrowLeft, FaHeart } from 'react-icons/fa6';
+import PrivacyPolicyLink from './PrivacyPolicyLink';
 
 type Props = {
   donateUrl?: string; 
@@ -196,6 +197,11 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
             >
               {isStripeLoading ? 'Przekierowywanie...' : <>Przekaż {amount} zł {isRecurring ? 'miesięcznie' : ''} <FaCreditCard /></>}
             </button>
+            <div className="text-xs text-text-black/80 mt-6 text-center max-w-lg mx-auto leading-relaxed">
+                Dokonując wpłaty się wyrażam zgodę na przetwarzanie moich danych w&nbsp;celu obsługi darowizny i&nbsp;do&nbsp; celów marketingowych.
+                <br/>
+                Szczegóły: <PrivacyPolicyLink black />
+            </div>
             
             {stripeError && <p className="text-red-500 text-sm mt-3 text-center">{stripeError}</p>}
           </form>
@@ -211,7 +217,7 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
             <div className="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
           </div>
 
-          <div className="inline-flex items-center gap-4 text-lg bg-gray-100 dark:bg-gray-700 px-6 py-3 rounded-xl border border-gray-200 dark:border-gray-600">
+          <div className="inline-flex items-center gap-4 text-lg bg-gray-200 dark:bg-gray-700 px-6 py-2 rounded-full border border-gray-200 dark:border-gray-600">
             <span className="font-mono tracking-wider dark:text-white">{acct}</span>
             <button
               onClick={copy}
