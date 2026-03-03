@@ -97,7 +97,7 @@ export default function NewsletterCard() {
       <div className="text-xs text-text-black/80 mt-6 max-w-lg mx-auto leading-relaxed">
         Zapisując się wyrażam zgodę na przetwarzanie danych w&nbsp;celach marketingowych. 
         Szczegóły: <PrivacyPolicyLink black />
-        </div>
+      </div>
     </div>
   );
 }

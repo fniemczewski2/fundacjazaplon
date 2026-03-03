@@ -1,4 +1,3 @@
-// src/lib/about.ts
 import { supabase } from './supabase';
 
 export type AboutInfo = {
@@ -12,6 +11,7 @@ export type Pillar = {
   order_index: number;
   title: string | null;
   body_md: string | null;
+  image_url: string | null; // Mamy to w typie zwracanym
   updated_at: string;
 };
 
@@ -35,7 +35,6 @@ export async function getPillars(): Promise<Pillar[]> {
   return (data as Pillar[]) ?? [];
 }
 
-/** Upsert opisu; zwraca rekord z id */
 export async function upsertAbout(description_md: string, id?: string) {
   const row = { id, description_md: description_md ?? null };
   const { data, error } = await supabase
@@ -47,13 +46,13 @@ export async function upsertAbout(description_md: string, id?: string) {
   return data as AboutInfo;
 }
 
-/** Zapis pojedynczego filaru */
-export async function savePillar(p: { id?: string; order_index: number; title: string | null; body_md: string | null }) {
+export async function savePillar(p: { id?: string; order_index: number; title: string | null; body_md: string | null; image_url: string | null }) {
   const row = {
     id: p.id ?? undefined,
     order_index: p.order_index,
     title: p.title ?? null,
     body_md: p.body_md ?? null,
+    image_url: p.image_url ?? null, 
   };
   const { data, error } = await supabase
     .from('about_pillars')
@@ -65,13 +64,16 @@ export async function savePillar(p: { id?: string; order_index: number; title: s
 }
 
 /** Batch save – wygodne dla formularza 5 filarów */
-export async function savePillarsBatch(pillars: Array<{ id?: string; order_index: number; title: string | null; body_md: string | null }>) {
+// DODANO image_url do argumentów tablicy
+export async function savePillarsBatch(pillars: Array<{ id?: string; order_index: number; title: string | null; body_md: string | null; image_url: string | null }>) {
   const rows = pillars.map(p => ({
     id: p.id ?? undefined,
     order_index: p.order_index,
     title: p.title ?? null,
     body_md: p.body_md ?? null,
+    image_url: p.image_url ?? null, // DODANO przypisanie do wierszy
   }));
+  
   const { error } = await supabase
     .from('about_pillars')
     .upsert(rows, { onConflict: 'order_index' });

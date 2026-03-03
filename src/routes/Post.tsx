@@ -83,14 +83,22 @@ export default function Post() {
           <h1 id="post-title" className="section-title">
             {title}
           </h1>
+        </header>
+        <div className='flex justify-between items-center mb-4'>
 
+          <Link
+            to="/aktualnosci"
+            className="hover:underline dark:hover:decoration-accent-orange flex items-center text-sm text-brand"
+          >
+            <FaArrowLeft className='fill-brand dark:fill-accent-orange'/>
+            <p className="ml-1 mt-0 text-brand dark:text-accent-orange w-fit">Wszystkie aktualności</p>
+          </Link>
           {published_at && (
             <p className="text-sm text-text-black/60 mt-2">
               Opublikowano: {new Date(published_at).toLocaleDateString('pl-PL')}
             </p>
           )}
-        </header>
-
+        </div>
         {cover_url && (
           <img
             src={cover_url}
@@ -101,18 +109,38 @@ export default function Post() {
         )}
 
         <div className="prose max-w-none">
-          <ReactMarkdown>{body_md}</ReactMarkdown>
-        </div>
-
-        <footer className="mt-10">
-          <Link
-            to="/aktualnosci"
-            className="hover:underline dark:hover:decoration-accent-orange flex items-center text-sm text-brand"
+          <ReactMarkdown
+          components={{
+              // Duże nagłówki z wyraźnymi marginesami
+              h2: ({ node, ...props }) => (
+                <h2 className="text-3xl md:text-4xl font-bold mt-10 mb-5 text-text-black dark:text-white" {...props} />
+              ),
+              h3: ({ node, ...props }) => (
+                <h3 className="text-2xl md:text-3xl font-semibold mt-8 mb-4 text-text-black dark:text-white" {...props} />
+              ),
+              h4: ({ node, ...props }) => (
+                <h4 className="text-xl md:text-2xl font-medium mt-6 mb-3 text-text-black dark:text-white" {...props} />
+              ),
+              // Zwykły tekst (zwiększona czytelność, linia i dolny margines)
+              p: ({ node, ...props }) => (
+                <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6" {...props} />
+              ),
+              // Listy punktowane i numerowane
+              ul: ({ node, ...props }) => (
+                <ul className="list-disc list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props} />
+              ),
+              ol: ({ node, ...props }) => (
+                <ol className="list-decimal list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props} />
+              ),
+              // Linki (wyróżnienie kolorem marki)
+              a: ({ node, ...props }) => (
+                <a className="text-brand dark:text-accent-orange hover:underline font-medium" {...props} />
+              ),
+            }}
           >
-            <FaArrowLeft className='fill-brand dark:fill-accent-orange'/>
-            <p className="ml-1 mt-0 text-brand dark:text-accent-orange w-fit">Wszystkie aktualności</p>
-          </Link>
-        </footer>
+          
+          {body_md}</ReactMarkdown>
+        </div>
       </article>
     </>
   );

@@ -35,9 +35,9 @@ export default function About() {
         description="Poznaj misję, wartości i działania Fundacji „Zapłon”. Wspieramy aktywność społeczną, budujemy kapitał społeczny i wzmacniamy organizacje pozarządowe."
       />
 
-      <h1 className="section-title">O nas</h1>
+      <h1 className="section-title mt-8">O nas</h1>
 
-      <div className="container mx-auto mt-6 p-4 space-y-10">
+      <div className="container mx-auto mt-6 p-4 space-y-12">
         {loading && <Loader />}
 
         {!loading && descriptionBlocks.length > 0 && (
@@ -55,19 +55,36 @@ export default function About() {
 
         {!loading && pillars.length > 0 && (
           <section aria-labelledby="pillars-title">
-            <h2 id="pillars-title" className="text-2xl font-semibold mb-4">
+            <h2 id="pillars-title" className="text-3xl font-bold mb-8 text-center text-text-black dark:text-white font-['Signika']">
               Filary naszej działalności
             </h2>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
               {pillars.map((p) => (
                 <Card key={p.id || `pillar-${p.order_index}`}>
-                  <h3 className="text-xl font-medium text-center">{p.title}</h3>
-                  {p.body_md && (
-                    <div className="prose max-w-none text-sm mt-2">
-                      <ReactMarkdown>{p.body_md}</ReactMarkdown>
-                    </div>
-                  )}
+                  <div className="flex flex-col items-center h-full">
+                    {/* Wyświetlanie obrazka */}
+                    {p.image_url && (
+                      <div className="w-20 h-20 mb-5 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-full p-4 shadow-inner">
+                        <img 
+                          src={p.image_url} 
+                          alt={`Ikona filaru: ${p.title}`} 
+                          className="w-full h-full object-contain"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+                    
+                    <h3 className="text-xl font-bold text-center mb-3 text-text-black dark:text-white">
+                      {p.title}
+                    </h3>
+                    
+                    {p.body_md && (
+                      <div className="prose max-w-none text-sm text-center text-gray-600 dark:text-gray-300 mt-auto">
+                        <ReactMarkdown>{p.body_md}</ReactMarkdown>
+                      </div>
+                    )}
+                  </div>
                 </Card>
               ))}
             </div>
