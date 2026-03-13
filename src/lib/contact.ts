@@ -10,6 +10,7 @@ export type ContactInfo = {
   phone: string | null;
   email: string | null;
   account_number: string | null;
+  online_address: string | null,
   updated_at: string;
 };
 
@@ -39,6 +40,7 @@ export async function saveContact(payload: Partial<ContactInfo> & {
   phone?: string | null;
   email?: string | null;
   account_number?: string | null;
+  online_address?: string | null,
 }) {
   if (payload.id) {
     const { error } = await supabase
@@ -51,6 +53,7 @@ export async function saveContact(payload: Partial<ContactInfo> & {
         phone: payload.phone ?? null,
         email: payload.email ?? null,
         account_number: payload.account_number ?? null,
+        online_address: payload.online_address ?? null,
       })
       .eq('id', payload.id);
     if (error) throw error;
@@ -65,6 +68,7 @@ export async function saveContact(payload: Partial<ContactInfo> & {
         phone: payload.phone ?? null,
         email: payload.email ?? null,
         account_number: payload.account_number ?? null,
+        online_address: payload.online_address ?? null,
       }]);
     if (error) throw error;
   }

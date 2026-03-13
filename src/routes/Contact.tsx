@@ -59,12 +59,13 @@ export default function Contact() {
                   </div>
                 )}
 
-                {['krs', 'nip', 'regon', 'account_number'].map((key) => {
+                {['krs', 'nip', 'regon', 'account_number', 'online_address'].map((key) => {
                   const labelMap: Record<string, string> = {
                     krs: 'KRS',
                     nip: 'NIP',
                     regon: 'REGON',
                     account_number: 'Numer konta',
+                    online_address: 'E-doręczenia',
                   };
 
                   const value = (data as any)[key];

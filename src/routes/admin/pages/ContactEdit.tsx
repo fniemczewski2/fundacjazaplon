@@ -11,6 +11,7 @@ type Model = {
   phone: string;
   email: string;
   account_number: string;
+  online_address: string;
 };
 
 const empty: Model = {
@@ -21,6 +22,7 @@ const empty: Model = {
   phone: '',
   email: '',
   account_number: '',
+  online_address: '',
 };
 
 export default function ContactEdit() {
@@ -48,6 +50,7 @@ export default function ContactEdit() {
           phone: data.phone ?? '',
           email: data.email ?? '',
           account_number: data.account_number ?? '',
+          online_address: data.online_address ??  '',
         });
       } else {
         setM(empty);
@@ -109,6 +112,7 @@ export default function ContactEdit() {
         <Input label="Telefon" value={m.phone} onChange={(v) => setM(s => ({ ...s, phone: v }))} />
         <Input label="Email" value={m.email} onChange={(v) => setM(s => ({ ...s, email: v }))} type="email" />
         <Input label="Numer konta" value={m.account_number} onChange={(v) => setM(s => ({ ...s, account_number: v }))} />
+        <Input label="E-doręczenia" value={m.online_address} onChange={(v) => setM(s => ({ ...s, online_address: v }))} />
       </div>
 
       <button
