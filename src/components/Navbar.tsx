@@ -1,5 +1,7 @@
+// src/components/Navbar.tsx
 import React from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { getJoinLink } from '../lib/join';
 import ThemeSwitcher from './ThemeSwitcher';
 
 const NAV_ITEMS = [
@@ -15,6 +17,13 @@ export default function Navbar() {
   const [open, setOpen] = React.useState(false);
   const location = useLocation();
 
+  // POPRAWKA #9: pobieramy URL ankiety wolontariatu, by pokazać przycisk "Dołącz"
+  const [joinUrl, setJoinUrl] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    getJoinLink().then((data) => setJoinUrl(data?.survey_url ?? null));
+  }, []);
+
   React.useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
@@ -28,13 +37,14 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-brand text-white shadow-md">
       <nav className="container-max flex items-center justify-between py-3 md:py-4">
-        {/* Logo + Brand */}
-        <Link to="/" className="flex items-center gap-3">
-          
-          <img src="/images/logo.svg" alt="Logo" className="h-16 w-26 md:h-14 md:w-26 logo" />
-        </Link>
 
-        {/* Desktop nav */}
+        <Link to="/" className="flex items-center gap-3">
+          <img
+            src="/images/logo.svg"
+            alt="Logo Fundacji Zapłon"
+            className="h-16 w-auto md:h-14 logo"
+          />
+        </Link>
         <ul className="hidden md:flex text-sm lg:text-base lg:gap-6 gap-4 items-center text-white">
           {NAV_ITEMS.map((item) => (
             <li key={item.to}>
@@ -53,12 +63,22 @@ export default function Navbar() {
         </ul>
 
         {/* CTA + Theme (desktop) */}
-        <div className="hidden md:flex items-center gap-1 text-text-black">
+        <div className="hidden md:flex items-center gap-2 text-text-black">
+
+          {joinUrl && (
+            <a
+              href={joinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+            >
+              Dołączam
+            </a>
+          )}
           <a className="btn btn-primary" href="/#donate">Wspieram</a>
           <ThemeSwitcher />
         </div>
 
-        {/* Mobile: hamburger */}
         <div className="md:hidden flex items-center text-text-black gap-2">
           <ThemeSwitcher />
           <button
@@ -90,11 +110,10 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile panel */}
       <div
         id="mobile-menu"
         className={`md:hidden overflow-hidden transition-[max-height] duration-300 z-30 text-text-black ${
-          open ? 'max-h-96' : 'max-h-0'
+          open ? 'max-h-[32rem]' : 'max-h-0'
         }`}
       >
         <div className="container-max pb-3">
@@ -113,11 +132,20 @@ export default function Navbar() {
                 </NavLink>
               </li>
             ))}
-            <li className="px-1">
-              <a
-                className="btn btn-primary w-full mt-2"
-                href="/#donate"
-              >
+
+            {/* CTA buttons w mobile */}
+            <li className="px-1 flex flex-col gap-2 mt-2">
+              {joinUrl && (
+                <a
+                  href={joinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary w-full"
+                >
+                  Dołącz do wolontariatu
+                </a>
+              )}
+              <a className="btn btn-secondary w-full" href="/#donate" onClick={() => setOpen(false)}>
                 Wspieram
               </a>
             </li>

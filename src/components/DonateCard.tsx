@@ -80,7 +80,7 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
   };
 
   return (
-    <section id="donate" className="card p-8 text-center flex flex-col items-center bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+    <section className="card p-8 text-center flex flex-col items-center bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
       <h2 className="section-title mb-4">{title}</h2>  
       <p className="mb-8 text-gray-600 dark:text-gray-300">
         Podoba Ci się to, co robimy? Pomóż nam wspierać młode osoby w realizacji swoich projektów.
@@ -118,7 +118,6 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
                 Jednorazowo
               </button>
 
-              {/* Przycisk: Co miesiąc */}
               <button
                 type="button"
                 onClick={() => setIsRecurring(true)}
@@ -145,7 +144,7 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
                       : 'btn-secondary '
                   }`}
                 >
-                  {val} zł
+                  {val}&nbsp;zł
                 </button>
               ))}
             </div>
@@ -217,16 +216,18 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
             <div className="h-px bg-gray-200 dark:bg-gray-700 flex-1"></div>
           </div>
 
-          <div className="inline-flex items-center gap-4 text-lg bg-gray-200 dark:bg-gray-700 px-6 py-2 rounded-full border border-gray-200 dark:border-gray-600">
-            <span className="font-mono tracking-wider dark:text-white">{acct}</span>
+          <div className="flex flex-col items-center text-lg bg-gray-200 dark:bg-gray-700 px-4 md:px-6 py-2 rounded-full border border-gray-200 dark:border-gray-600">
+            <p className="md:tracking-wider text-[12px] md:text-base leading-tight dark:text-white">Tytuł: Darowizna na cele statutowe</p>
+            <p className="font-mono md:tracking-wider flex items-center mt-2 text-[12px] md:text-base leading-tight dark:text-white">{acct}
             <button
               onClick={copy}
-              className="text-gray-500 hover:text-brand-primary transition-colors p-2"
+              className="text-gray-500 hover:text-brand-primary transition-colors pl-2"
               aria-label="Skopiuj numer konta"
               title={copied ? 'Skopiowano!' : 'Skopiuj'}
             >
-              {copied ? <FiCheck className="text-emerald-500" /> : <FiCopy />}
+              {copied ? <FiCheck className="text-emerald-500 h-4 w-4 md:h-5 md:w-5" /> : <FiCopy className='h-4 w-4 md:h-5 md:w-5' />}
             </button>
+            </p>
           </div>
         </>
       )}
