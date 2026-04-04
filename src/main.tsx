@@ -66,6 +66,8 @@ const router = createBrowserRouter([
           { path: '/kontakt',       element: <Contact /> },
           { path: '/links',         element: <Links /> },
           { path: '/materialy',     element: <Materials /> },
+          { path: '/wplacam',       element: <Links /> },     
+          { path: '/newsletter',    element: <Links /> },
           { path: '*',              element: <NotFound /> },
         ],
       },

@@ -6,7 +6,6 @@ import { getSocialLinks } from '../lib/social';
 import { getJoinLink } from '../lib/join';
 import Seo from '../components/Seo';
 import Loader from '../components/Loader';
-// Zaimportuj swoje komponenty - upewnij się, że ścieżki są poprawne!
 import NewsletterCard from '../components/NewsletterCard'; 
 import DonateCard from '../components/DonateCard'; 
 
@@ -15,8 +14,13 @@ export default function Links() {
   const [joinLink, setJoinLink] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Stany dla modali
-  const [activeModal, setActiveModal] = useState(null); // 'donate', 'newsletter' lub null
+  const [activeModal, setActiveModal] = useState(null); 
+
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/wplacam') setActiveModal('donate');
+    else if (path === '/newsletter') setActiveModal('newsletter');
+  }, [location.pathname]);
 
   useEffect(() => {
     (async () => {
@@ -42,6 +46,13 @@ export default function Links() {
   }, [activeModal]);
 
   if (loading) return <Loader />;
+
+  const closeModal = () => {
+    setActiveModal(null);
+    if (['/wplacam', '/newsletter', '/dolacz'].includes(location.pathname)) {
+      navigate('/links', { replace: true });
+    }
+  };
 
   const links = [
     {
@@ -133,7 +144,6 @@ export default function Links() {
                 );
               }
 
-              // Renderowanie jako link (dla zewnętrznych URL)
               return (
                 <a
                   key={index}
@@ -164,11 +174,11 @@ export default function Links() {
       {activeModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
           {/* Tło klikalne do zamykania */}
-          <div className="absolute inset-0" onClick={() => setActiveModal(null)}></div>
+          <div className="absolute inset-0" onClick={closeModal}></div>
           
           <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-4xl relative shadow-2xl overflow-y-auto max-h-[90vh]">
             <button 
-              onClick={() => setActiveModal(null)}
+              onClick={closeModal}
               className="absolute top-4 right-4 z-10 p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors"
             >
               <FaXmark className="w-5 h-5"/>
