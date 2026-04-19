@@ -56,8 +56,13 @@ export default function Links() {
 
   const links = [
     {
+      title: 'Bezpłatne materiały',
+      url: '/materialy',
+      icon: <FaDownload className="text-2xl" />,
+      description: 'Pobierz nasze poradniki'
+    },
+    {
       title: 'Wpłacam darowiznę',
-      // Zamiast url, używamy akcji onClick
       onClick: () => setActiveModal('donate'),
       icon: <FaHandHoldingHeart className="text-2xl" />,
       description: 'Wspieram wasze działania'
@@ -111,10 +116,8 @@ export default function Links() {
             </p>
           </div>
 
-          {/* Links */}
           <div className="space-y-4">
             {links.map((link, index) => {
-              // Wspólne klasy dla przycisku i linku
               const itemClasses = "block w-full text-left bg-base-200 hover:bg-brand hover:text-white border border-white/20 rounded-2xl p-6 transition-all duration-200 hover:scale-105 hover:shadow-lg group cursor-pointer";
               
               const content = (
@@ -134,8 +137,6 @@ export default function Links() {
                   </div>
                 </div>
               );
-
-              // Renderowanie jako przycisk (dla modali)
               if (link.onClick) {
                 return (
                   <button key={index} onClick={link.onClick} className={itemClasses}>
@@ -170,10 +171,8 @@ export default function Links() {
         </div>
       </div>
 
-      {/* MODALE */}
       {activeModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-          {/* Tło klikalne do zamykania */}
           <div className="absolute inset-0" onClick={closeModal}></div>
           
           <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-4xl relative shadow-2xl overflow-y-auto max-h-[90vh]">
