@@ -1,7 +1,7 @@
 // src/routes/Links.jsx
 import { useEffect, useState } from 'react';
-import { FaInstagram, FaLinkedin, FaGlobe, FaHandHoldingHeart, FaUserPlus, FaEnvelope } from 'react-icons/fa6';
-import { FaXmark } from 'react-icons/fa6'; // Do zamykania modala
+import { FaInstagram, FaLinkedin, FaGlobe, FaHandHoldingHeart, FaUserPlus, FaEnvelope, FaDownload } from 'react-icons/fa6';
+import { FaXmark } from 'react-icons/fa6'; 
 import { getSocialLinks } from '../lib/social';
 import { getJoinLink } from '../lib/join';
 import Seo from '../components/Seo';
