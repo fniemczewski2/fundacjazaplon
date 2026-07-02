@@ -11,13 +11,27 @@ import {
 } from '../../../lib/team';
 import { uploadToMedia } from '../../../lib/media';
 
-const empty: TeamMemberCreate = {
+const generateSlug = (text: string): string => {
+  return text
+    .toLowerCase()
+    .replace(/ą/g, 'a').replace(/ć/g, 'c').replace(/ę/g, 'e')
+    .replace(/ł/g, 'l').replace(/ń/g, 'n').replace(/ó/g, 'o')
+    .replace(/ś/g, 's').replace(/ź/g, 'z').replace(/ż/g, 'z')
+    .replace(/[^a-z0-9 -]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+};
+
+const empty: TeamMemberCreate & { phone?: string | null; email?: string | null; slug?: string } = {
   name: '',
   role: null,
   order_index: 0,
   photo_url: null,
   bio_md: null,
   active: true,
+  phone: null,
+  email: null,
+  slug: '',
 };
 
 export default function TeamEdit() {
@@ -25,7 +39,7 @@ export default function TeamEdit() {
   const nav = useNavigate();
   const isNew = id === 'new';
 
-  const [m, setM] = useState<TeamMember | TeamMemberCreate>(empty);
+  const [m, setM] = useState<any>(empty);
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -43,7 +57,6 @@ export default function TeamEdit() {
   }, [file, m.photo_url]);
 
   useEffect(() => {
-
     return () => {
       if (previewUrl && file) URL.revokeObjectURL(previewUrl);
     };
@@ -74,6 +87,7 @@ export default function TeamEdit() {
         nextPhoto = await uploadToMedia(`team/${id}`, file);
       }
 
+      // Dodane nowe pola do aktualizacji
       await updateTeamMember((m as TeamMember).id ?? id!, {
         name: m.name,
         role: m.role ?? null,
@@ -81,7 +95,10 @@ export default function TeamEdit() {
         bio_md: m.bio_md ?? null,
         active: !!m.active,
         photo_url: nextPhoto,
-      });
+        phone: m.phone || null,
+        email: m.email || null,
+        slug: m.slug || '',
+      } as TeamMember); 
 
       nav('/admin/zespol');
     } catch (e: any) {
@@ -108,56 +125,90 @@ export default function TeamEdit() {
 
       <div className="grid md:grid-cols-3 gap-4 items-start">
         <div className="md:col-span-2 space-y-3">
+          
           <input
             className="border p-2 rounded w-full"
             placeholder="Imię i nazwisko"
-            value={m.name}
-            onChange={(e) => setM((s) => ({ ...s, name: e.target.value } as any))}
+            value={m.name || ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              setM((s: any) => ({
+                ...s,
+                name: val,
+                slug: isNew ? generateSlug(val) : s.slug,
+              }));
+            }}
           />
+          
           <input
             className="border p-2 rounded w-full"
             placeholder="Rola"
-            value={m.role ?? ''}
-            onChange={(e) => setM((s) => ({ ...s, role: e.target.value } as any))}
+            value={m.role || ''}
+            onChange={(e) => setM((s: any) => ({ ...s, role: e.target.value }))}
           />
+          
           <input
             type="number"
             className="border p-2 rounded w-full"
             placeholder="Kolejność (0..n)"
-            value={m.order_index}
-            onChange={(e) =>
-              setM((s) => ({ ...s, order_index: Number(e.target.value) } as any))
-            }
+            value={m.order_index ?? 0}
+            onChange={(e) => setM((s: any) => ({ ...s, order_index: Number(e.target.value) }))}
           />
+          
+          <input
+            type="tel"
+            value={m.phone || ''}
+            onChange={(e) => setM((s: any) => ({ ...s, phone: e.target.value }))}
+            className="w-full p-2 border rounded focus:ring focus:ring-blue-200"
+            placeholder="Nr telefonu: +48 123 456 789"
+          />
+
+          <input
+            type="email"
+            value={m.email || ''}
+            onChange={(e) => setM((s: any) => ({ ...s, email: e.target.value }))}
+            className="w-full p-2 border rounded focus:ring focus:ring-blue-200"
+            placeholder="Adres e-mail: jan.kowalski@zaplon.org.pl"
+          />
+
+          <input
+            type="text"
+            value={m.slug || ''}
+            onChange={(e) => setM((s: any) => ({ ...s, slug: generateSlug(e.target.value) }))}
+            className="w-full p-2 border rounded focus:ring focus:ring-blue-200"
+            placeholder="slug (np. jan-kowalski)"
+            required
+          />
+
           <textarea
             className="border p-2 rounded w-full font-mono"
             rows={12}
             placeholder="Bio (Markdown)"
             value={m.bio_md ?? ''}
-            onChange={(e) => setM((s) => ({ ...s, bio_md: e.target.value } as any))}
+            onChange={(e) => setM((s: any) => ({ ...s, bio_md: e.target.value }))}
           />
+          
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={!!m.active}
-              onChange={(e) => setM((s) => ({ ...s, active: e.target.checked } as any))}
+              onChange={(e) => setM((s: any) => ({ ...s, active: e.target.checked }))}
             />
             Aktywny
           </label>
         </div>
 
-        {/* podgląd + upload */}
         <div className="space-y-2">
           <div className="aspect-square rounded-xl border bg-gray-50 overflow-hidden flex items-center justify-center">
             {previewUrl ? (
               <img src={previewUrl} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="text-sm text-text-black/70 p-4 text-center">Brak zdjęcia</div>
+              <div className="text-sm text-gray-500 p-4 text-center">Brak zdjęcia</div>
             )}
           </div>
 
           <label className="block">
-            <span className="text-sm text-text-black/70">Zdjęcie (JPG/PNG)</span>
+            <span className="text-sm text-gray-500">Zdjęcie (JPG/PNG)</span>
             <input
               type="file"
               accept="image/*"
@@ -177,7 +228,7 @@ export default function TeamEdit() {
           {saving ? 'Zapisywanie…' : 'Zapisz'}
         </button>
         {!isNew && (
-          <button onClick={handleDelete} className="px-3 py-2 rounded-xl border">
+          <button onClick={handleDelete} className="px-3 py-2 rounded-xl border hover:bg-red-50 hover:text-red-600 transition-colors">
             Usuń
           </button>
         )}

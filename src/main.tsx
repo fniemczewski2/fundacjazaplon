@@ -7,7 +7,6 @@ import './index.css';
 
 import Layout from './components/Layout';
 import { supabase } from './lib/supabase';
-import Links from './routes/Links';
 import CookieConsent from './components/CookiesConsent';
 import PageTracker from './components/PageTracker';
 import Loader from './components/Loader';
@@ -21,6 +20,8 @@ const Contact   = React.lazy(() => import('./routes/Contact'));
 const Documents = React.lazy(() => import('./routes/Documents'));
 const Materials = React.lazy(() => import('./routes/Materials'));
 const NotFound  = React.lazy(() => import('./routes/NotFound'));
+const Links     = React.lazy(() => import('./routes/Links'));
+const TeamMemberCard = React.lazy(() => import('./routes/TeamMemberCard'));
 
 const AdminLogin      = React.lazy(() => import('./routes/admin/Login'));
 const AdminDashboard  = React.lazy(() => import('./routes/admin/Dashboard'));
@@ -57,18 +58,20 @@ const router = createBrowserRouter([
       {
         element: <Layout />,
         children: [
-          { path: '/',              element: <Home /> },
-          { path: '/aktualnosci',   element: <Blog /> },
+          { path: '/',                  element: <Home /> },
+          { path: '/aktualnosci',       element: <Blog /> },
           { path: '/aktualnosci/:slug', element: <Post /> },
-          { path: '/o-nas',         element: <About /> },
-          { path: '/zespol',        element: <Team /> },
-          { path: '/dokumenty',     element: <Documents /> },
-          { path: '/kontakt',       element: <Contact /> },
-          { path: '/links',         element: <Links /> },
-          { path: '/materialy',     element: <Materials /> },
-          { path: '/wplacam',       element: <Links /> },     
-          { path: '/newsletter',    element: <Links /> },
-          { path: '*',              element: <NotFound /> },
+          { path: '/o-nas',             element: <About /> },
+          { path: '/zespol',            element: <Team /> },
+          { path: '/dokumenty',         element: <Documents /> },
+          { path: '/kontakt',           element: <Contact /> },
+          { path: '/linki',             element: <Links /> },
+          { path: '/links',             element: <Links /> },
+          { path: '/materialy',         element: <Materials /> },
+          { path: '/wplacam',           element: <Links /> },     
+          { path: '/newsletter',        element: <Links /> },
+          { path: "/w/:slug",           element: <TeamMemberCard /> },
+          { path: '*',                  element: <NotFound /> },
         ],
       },
 

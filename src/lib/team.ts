@@ -9,6 +9,9 @@ export interface TeamMember {
   bio_md: string | null;
   order_index: number;
   active: boolean;
+  slug: string | null;
+  phone: string | null;
+  email: string | null;
 }
 
 export type TeamMemberCreate = Omit<TeamMember, 'id'> & {
