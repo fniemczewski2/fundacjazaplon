@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
 import PrivacyPolicyLink from './PrivacyPolicyLink';
+import { getErrorMessage } from '../lib/utils/errors';
 
 export default function NewsletterCard() {
   const [name, setName] = useState('');
@@ -35,9 +36,9 @@ export default function NewsletterCard() {
       setStatus('success');
       setName(''); // NAPRAWA: Czyszczenie pola imię po sukcesie
       setEmail('');
-    } catch (error: any) {
+    } catch (error) {
       setStatus('error');
-      setErrorMessage(error.message);
+      setErrorMessage(getErrorMessage(error));
     }
   };
 

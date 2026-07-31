@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
-import { listPosts, type Post } from '../lib/post';
+import { listPublishedPosts, type Post } from '../lib/post';
+import { getErrorMessage } from '../lib/utils/errors';
 import Loader from '../components/Loader';
 
 export default function Blog() {
@@ -15,11 +16,9 @@ export default function Blog() {
       try {
         setLoading(true);
         setErr(null);
-        const all = await listPosts();
-        const published = all.filter((p) => p.published_at);
-        setPosts(published);
-      } catch (e: any) {
-        setErr(e?.message ?? 'Błąd wczytywania wpisów.');
+        setPosts(await listPublishedPosts());
+      } catch (e) {
+        setErr(getErrorMessage(e, 'Błąd wczytywania wpisów.'));
       } finally {
         setLoading(false);
       }
@@ -64,7 +63,7 @@ export default function Blog() {
                   <Link to={`/aktualnosci/${p.slug}`}>
                     {p.cover_url ? (
                       <img
-                        src={p.cover_url}
+                        src={`${p.cover_url}?width=480&height=270&resize=cover&quality=75`}
                         alt={p.title || 'Okładka wpisu'}
                         className="w-full h-48 object-cover aspect-video"
                         loading="lazy"

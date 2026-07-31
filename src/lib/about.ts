@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { getLatestSingleton } from './singleton';
 
 export type AboutInfo = {
   id: string;
@@ -16,14 +17,7 @@ export type Pillar = {
 };
 
 export async function getAbout(): Promise<AboutInfo | null> {
-  const { data, error } = await supabase
-    .from('about_info')
-    .select('*')
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) { console.warn('[getAbout] error:', error); return null; }
-  return (data as AboutInfo) ?? null;
+  return getLatestSingleton<AboutInfo>('about_info');
 }
 
 export async function getPillars(): Promise<Pillar[]> {

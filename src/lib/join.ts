@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { getLatestSingleton } from './singleton';
 
 export type JoinUs = {
   id: string;
@@ -6,22 +7,10 @@ export type JoinUs = {
 };
 
 export async function getJoinLink(): Promise<JoinUs | null> {
-  const { data, error } = await supabase
-    .from('join_us')
-    .select('*')
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) {
-    console.warn('[getJoinLink] error:', error);
-    return null;
-  }
-  return data as JoinUs | null;
+  return getLatestSingleton<JoinUs>('join_us');
 }
 
-export async function upsertJoinLink(payload: Partial<JoinUs>) {
-  const { error } = await supabase
-    .from('join_us')
-    .upsert(payload, { onConflict: 'id' });
+export async function upsertJoinLink(payload: Partial<JoinUs>): Promise<void> {
+  const { error } = await supabase.from('join_us').upsert(payload, { onConflict: 'id' });
   if (error) throw error;
 }

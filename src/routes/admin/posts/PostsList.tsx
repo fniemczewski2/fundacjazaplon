@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { listPosts, type Post } from '../../../lib/post';
+import { getErrorMessage } from '../../../lib/utils/errors';
 import Loader from '../../../components/Loader';
 
 export default function PostsList() {
@@ -15,8 +16,8 @@ export default function PostsList() {
       setErr(null);
       const data = await listPosts();
       setRows(data);
-    } catch (e: any) {
-      setErr(e?.message ?? 'Błąd pobierania danych.');
+    } catch (e) {
+      setErr(getErrorMessage(e, 'Błąd pobierania danych.'));
     } finally {
       setLoading(false);
     }
@@ -47,7 +48,16 @@ export default function PostsList() {
       ) : (
         <ul className="space-y-2">
           {rows.map((r) => {
-            const isPublished = !!r.published_at;
+            const now = Date.now();
+            const publishedAt = r.published_at ? new Date(r.published_at).getTime() : null;
+            const status: 'draft' | 'scheduled' | 'published' =
+              publishedAt === null ? 'draft' : publishedAt > now ? 'scheduled' : 'published';
+            const statusLabel = { draft: 'szkic', scheduled: 'zaplanowany', published: 'opublikowany' }[status];
+            const statusClass = {
+              draft: 'bg-base-100 text-text-black/70',
+              scheduled: 'bg-amber-100 text-amber-700',
+              published: 'bg-green-100 text-green-600',
+            }[status];
             const updated = r.updated_at ? new Date(r.updated_at).toLocaleString() : '';
             return (
               <li key={r.id} className="p-3 border rounded-xl flex items-center justify-between">
@@ -55,10 +65,8 @@ export default function PostsList() {
                   <div className="font-medium truncate">{r.title}</div>
                   <div className="text-sm text-text-black/70 truncate">
                     <span className={`inline-flex items-center gap-2`}>
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${
-                        isPublished ? 'bg-green-100 text-green-600' : 'bg-base-100 text-text-black/70'
-                      }`}>
-                        {isPublished ? 'opublikowany' : 'szkic'}
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${statusClass}`}>
+                        {statusLabel}
                       </span>
                       <span className="text-text-black/70">•</span>
                       <span>/aktualnosci/{r.slug}</span>
@@ -73,7 +81,7 @@ export default function PostsList() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  {isPublished && (
+                  {status === 'published' && (
                     <a
                       href={`/aktualnosci/${r.slug}`}
                       target="_blank"

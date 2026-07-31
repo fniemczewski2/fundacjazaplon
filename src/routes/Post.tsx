@@ -4,8 +4,50 @@ import ReactMarkdown from 'react-markdown';
 import Seo from '../components/Seo';
 import ArticleSchema from '../components/ArticleSchema';
 import { getPostBySlug, type Post } from '../lib/post';
+import { getErrorMessage } from '../lib/utils/errors';
 import { FaArrowLeft } from 'react-icons/fa6';
 import Loader from '../components/Loader';
+
+// Wyniesione poza komponent — to samo mapowanie nie musi być tworzone na nowo
+// przy każdym renderze (ReactMarkdown dostawałoby "nowy" obiekt `components`
+// za każdym razem, mimo że jest on zawsze identyczny).
+const markdownComponents = {
+  h2: ({ node: _node, children, ...props }: JSX.IntrinsicElements['h2'] & { node?: unknown }) => (
+    <h2 className="text-3xl md:text-4xl font-bold mt-10 mb-5 text-text-black dark:text-white" {...props}>
+      {children}
+    </h2>
+  ),
+  h3: ({ node: _node, children, ...props }: JSX.IntrinsicElements['h3'] & { node?: unknown }) => (
+    <h3 className="text-2xl md:text-3xl font-semibold mt-8 mb-4 text-text-black dark:text-white" {...props}>
+      {children}
+    </h3>
+  ),
+  h4: ({ node: _node, children, ...props }: JSX.IntrinsicElements['h4'] & { node?: unknown }) => (
+    <h4 className="text-xl md:text-2xl font-medium mt-6 mb-3 text-text-black dark:text-white" {...props}>
+      {children}
+    </h4>
+  ),
+  p: ({ node: _node, children, ...props }: JSX.IntrinsicElements['p'] & { node?: unknown }) => (
+    <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6" {...props}>
+      {children}
+    </p>
+  ),
+  ul: ({ node: _node, children, ...props }: JSX.IntrinsicElements['ul'] & { node?: unknown }) => (
+    <ul className="list-disc list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props}>
+      {children}
+    </ul>
+  ),
+  ol: ({ node: _node, children, ...props }: JSX.IntrinsicElements['ol'] & { node?: unknown }) => (
+    <ol className="list-decimal list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props}>
+      {children}
+    </ol>
+  ),
+  a: ({ node: _node, children, ...props }: JSX.IntrinsicElements['a'] & { node?: unknown }) => (
+    <a className="text-brand dark:text-accent-orange hover:underline font-medium" {...props}>
+      {children}
+    </a>
+  ),
+};
 
 export default function Post() {
   const { slug } = useParams<{ slug: string }>();
@@ -30,9 +72,9 @@ export default function Post() {
         } else {
           setPost(data);
         }
-      } catch (e: any) {
+      } catch (e) {
         if (!alive) return;
-        setErr(e?.message ?? 'Błąd wczytywania wpisu.');
+        setErr(getErrorMessage(e, 'Błąd wczytywania wpisu.'));
       } finally {
         if (alive) setLoading(false);
       }
@@ -101,7 +143,7 @@ export default function Post() {
         </div>
         {cover_url && (
           <img
-            src={cover_url}
+            src={`${cover_url}?width=1200&quality=80`}
             alt={`Okładka wpisu: ${title}`}
             className="w-full rounded-xl mb-6 object-contain aspect-video max-h-[400px]"
             loading="lazy"
@@ -109,37 +151,7 @@ export default function Post() {
         )}
 
         <div className="prose max-w-none">
-          <ReactMarkdown
-          components={{
-              // Duże nagłówki z wyraźnymi marginesami
-              h2: ({ node, ...props }) => (
-                <h2 className="text-3xl md:text-4xl font-bold mt-10 mb-5 text-text-black dark:text-white" {...props} />
-              ),
-              h3: ({ node, ...props }) => (
-                <h3 className="text-2xl md:text-3xl font-semibold mt-8 mb-4 text-text-black dark:text-white" {...props} />
-              ),
-              h4: ({ node, ...props }) => (
-                <h4 className="text-xl md:text-2xl font-medium mt-6 mb-3 text-text-black dark:text-white" {...props} />
-              ),
-              // Zwykły tekst (zwiększona czytelność, linia i dolny margines)
-              p: ({ node, ...props }) => (
-                <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6" {...props} />
-              ),
-              // Listy punktowane i numerowane
-              ul: ({ node, ...props }) => (
-                <ul className="list-disc list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props} />
-              ),
-              ol: ({ node, ...props }) => (
-                <ol className="list-decimal list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props} />
-              ),
-              // Linki (wyróżnienie kolorem marki)
-              a: ({ node, ...props }) => (
-                <a className="text-brand dark:text-accent-orange hover:underline font-medium" {...props} />
-              ),
-            }}
-          >
-          
-          {body_md}</ReactMarkdown>
+          <ReactMarkdown components={markdownComponents}>{body_md}</ReactMarkdown>
         </div>
       </article>
     </>

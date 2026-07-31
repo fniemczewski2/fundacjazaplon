@@ -28,12 +28,6 @@ export default function AdminDashboard() {
     })();
   }, []);
 
-  const NiceDate = ({ iso }: { iso: string | null }) => {
-    if (!iso) return <span className="text-text-black/70">brak danych</span>;
-    const d = new Date(iso);
-    return <span>{d.toLocaleString()}</span>;
-  };
-
   return (
     <div className="min-h-[calc(100vh-4rem)] grid md:grid-cols-[260px,1fr]">
       {/* Sidebar */}
@@ -113,6 +107,11 @@ export default function AdminDashboard() {
 }
 
 /* --- Helper UI components --- */
+function NiceDate({ iso }: { iso: string | null }) {
+  if (!iso) return <span className="text-text-black/70">brak danych</span>;
+  return <span>{new Date(iso).toLocaleString()}</span>;
+}
+
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return <div className="text-xs uppercase tracking-wide text-text-black/70">{children}</div>;
 }

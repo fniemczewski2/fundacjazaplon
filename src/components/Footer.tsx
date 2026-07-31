@@ -1,15 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { getSocialLinks, SocialLinks } from '../lib/social';
+import { useSocialLinks } from '../hooks/useAppData';
 import { FaInstagram, FaFacebook, FaXTwitter, FaLinkedin } from "react-icons/fa6";
 import PrivacyPolicyLink from './PrivacyPolicyLink';
 
 export default function Footer() {
-
-  const [links, setLinks] = useState<SocialLinks | null>(null);
-
-  useEffect(() => {
-    getSocialLinks().then(setLinks);
-  }, []);
+  const { data: links } = useSocialLinks();
 
   return (
     <footer className="bg-brand border-t border-white/10">

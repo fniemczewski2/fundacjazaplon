@@ -1,4 +1,3 @@
-import React from 'react'
 
 export default function Hero({ title, subtitle, cta }: { title: string; subtitle?: string; cta?: { label: string; href: string } }) {
   return (

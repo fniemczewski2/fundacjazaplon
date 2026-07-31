@@ -1,43 +1,45 @@
 // src/components/CookiesConsent.tsx
-import React, { useState, useEffect } from 'react';
-import ReactGA from 'react-ga4';
-
+import { useState, useEffect } from 'react';
 import PrivacyPolicyLink from './PrivacyPolicyLink';
 
-const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
+type ConsentValue = 'accepted' | 'rejected';
+
+function updateAnalyticsConsent(granted: boolean) {
+  if (typeof window.gtag === 'function') {
+    window.gtag('consent', 'update', {
+      analytics_storage: granted ? 'granted' : 'denied',
+    });
+  }
+}
 
 const CookieConsent = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookieConsent');
+    const consent = localStorage.getItem('cookieConsent') as ConsentValue | null;
     if (!consent) {
       setIsVisible(true);
-    } else if (consent === 'accepted') {
-      grantConsent();
+    } else {
+      // Niezależnie od wcześniejszego wyboru, odtwarzamy go po każdym wejściu —
+      // domyślny stan z index.html to zawsze "denied", więc bez tego kroku
+      // wcześniej zaakceptowana zgoda "gubiłaby się" przy każdym odświeżeniu.
+      updateAnalyticsConsent(consent === 'accepted');
     }
   }, []);
 
-  const grantConsent = () => {
-    if (typeof window.gtag === 'function') {
-      window.gtag('consent', 'update', {
-        analytics_storage: 'granted',
-        ad_storage: 'granted',
-        ad_user_data: 'granted',
-        ad_personalization: 'granted',
-      });
-    }
-  };
-
   const handleAccept = () => {
-    localStorage.setItem('cookieConsent', 'accepted');
+    localStorage.setItem('cookieConsent', 'accepted' satisfies ConsentValue);
     setIsVisible(false);
-    grantConsent();
+    updateAnalyticsConsent(true);
   };
 
   const handleReject = () => {
-    localStorage.setItem('cookieConsent', 'rejected');
+    localStorage.setItem('cookieConsent', 'rejected' satisfies ConsentValue);
     setIsVisible(false);
+    // Wcześniej odrzucenie zgody tylko chowało baner, nic nie cofając — GA
+    // i tak już zaczynał śledzić dzięki bezwarunkowemu gtag.js. Teraz jawnie
+    // potwierdzamy odmowę w Consent Mode (choć domyślny stan i tak jest "denied").
+    updateAnalyticsConsent(false);
   };
 
   if (!isVisible) return null;

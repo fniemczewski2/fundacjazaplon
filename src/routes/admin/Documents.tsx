@@ -1,6 +1,15 @@
 // src/routes/admin/Documents.tsx
 import { useEffect, useState } from 'react';
-import { ALL_CATEGORIES, type DocCategory, listDocuments, uploadDocument, deleteDocument } from '../../lib/documents';
+import {
+  ALL_CATEGORIES,
+  type DocCategory,
+  listDocuments,
+  uploadDocument,
+  deleteDocument,
+  DocumentValidationError,
+} from '../../lib/documents';
+import { getErrorMessage } from '../../lib/utils/errors';
+import { useConfirm } from '../../components/ui/Feedback';
 import { FiTrash2, FiUpload } from 'react-icons/fi';
 import Loader from '../../components/Loader';
 
@@ -10,6 +19,7 @@ export default function AdminDocuments() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const confirm = useConfirm();
 
   const refresh = async (cat: DocCategory) => {
     setLoading(true);
@@ -27,8 +37,10 @@ export default function AdminDocuments() {
       await uploadDocument(category, file);
       await refresh(category);
       setMsg('Plik przesłany.');
-    } catch (e: any) {
-      setMsg(e.message ?? 'Błąd przesyłania.');
+    } catch (err) {
+      const message =
+        err instanceof DocumentValidationError ? err.message : getErrorMessage(err, 'Błąd przesyłania.');
+      setMsg(message);
     } finally {
       setBusy(false);
       e.target.value = '';
@@ -36,14 +48,19 @@ export default function AdminDocuments() {
   };
 
   const onDelete = async (path: string) => {
-    if (!confirm('Na pewno usunąć plik?')) return;
+    const confirmed = await confirm('Na pewno usunąć plik? Tej operacji nie można cofnąć.', {
+      title: 'Usuń plik',
+      confirmLabel: 'Usuń',
+    });
+    if (!confirmed) return;
+
     setBusy(true); setMsg(null);
     try {
       await deleteDocument(path);
       await refresh(category);
       setMsg('Plik usunięty.');
-    } catch (e: any) {
-      setMsg(e.message ?? 'Błąd usuwania.');
+    } catch (err) {
+      setMsg(getErrorMessage(err, 'Błąd usuwania.'));
     } finally {
       setBusy(false);
     }

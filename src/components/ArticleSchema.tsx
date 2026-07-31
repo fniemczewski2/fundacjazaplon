@@ -1,5 +1,4 @@
 // src/components/ArticleSchema.tsx
-import React from 'react';
 
 type Props = {
   title: string;

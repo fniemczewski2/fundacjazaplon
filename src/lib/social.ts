@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { getLatestSingleton } from './singleton';
 
 export type SocialLinks = {
   id: string;
@@ -9,22 +10,10 @@ export type SocialLinks = {
 };
 
 export async function getSocialLinks(): Promise<SocialLinks | null> {
-  const { data, error } = await supabase
-    .from('social_links')
-    .select('*')
-    .order('updated_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) {
-    console.warn('[getSocialLinks] error:', error);
-    return null;
-  }
-  return data as SocialLinks | null;
+  return getLatestSingleton<SocialLinks>('social_links');
 }
 
-export async function upsertSocialLinks(payload: Partial<SocialLinks>) {
-  const { error } = await supabase
-    .from('social_links')
-    .upsert(payload, { onConflict: 'id' });
+export async function upsertSocialLinks(payload: Partial<SocialLinks>): Promise<void> {
+  const { error } = await supabase.from('social_links').upsert(payload, { onConflict: 'id' });
   if (error) throw error;
 }

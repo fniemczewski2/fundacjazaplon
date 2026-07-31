@@ -1,7 +1,7 @@
 // src/components/Navbar.tsx
 import React from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { getJoinLink } from '../lib/join';
+import { useJoinLink } from '../hooks/useAppData';
 import ThemeSwitcher from './ThemeSwitcher';
 
 const NAV_ITEMS = [
@@ -17,22 +17,21 @@ export default function Navbar() {
   const [open, setOpen] = React.useState(false);
   const location = useLocation();
 
-  // POPRAWKA #9: pobieramy URL ankiety wolontariatu, by pokazać przycisk "Dołącz"
-  const [joinUrl, setJoinUrl] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    getJoinLink().then((data) => setJoinUrl(data?.survey_url ?? null));
-  }, []);
+  // React Query deduplikuje to zapytanie z tym samym w JoinUsCard — jeśli obie
+  // strony są zamontowane naraz, wykona się tylko jedno realne zapytanie sieciowe.
+  const { data: joinLink } = useJoinLink();
+  const joinUrl = joinLink?.survey_url ?? null;
 
   React.useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
 
   React.useEffect(() => {
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-50 bg-brand text-white shadow-md">
@@ -75,7 +74,7 @@ export default function Navbar() {
               Dołączam
             </a>
           )}
-          <a className="btn btn-primary" href="/#donate">Wspieram</a>
+          <Link className="btn btn-primary" to="/#donate">Wspieram</Link>
           <ThemeSwitcher />
         </div>
 
@@ -112,6 +111,7 @@ export default function Navbar() {
 
       <div
         id="mobile-menu"
+        aria-hidden={!open}
         className={`md:hidden overflow-hidden transition-[max-height] duration-300 z-30 text-text-black ${
           open ? 'max-h-[32rem]' : 'max-h-0'
         }`}
@@ -122,6 +122,7 @@ export default function Navbar() {
               <li key={item.to}>
                 <NavLink
                   to={item.to}
+                  tabIndex={open ? 0 : -1}
                   className={({ isActive }) =>
                     `block rounded-xl px-4 py-3 transition text-white ${
                       isActive ? 'underline underline-offset-8 decoration-brand' : ''
@@ -140,14 +141,20 @@ export default function Navbar() {
                   href={joinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  tabIndex={open ? 0 : -1}
                   className="btn btn-secondary w-full"
                 >
                   Dołącz do wolontariatu
                 </a>
               )}
-              <a className="btn btn-secondary w-full" href="/#donate" onClick={() => setOpen(false)}>
+              <Link
+                to="/#donate"
+                tabIndex={open ? 0 : -1}
+                className="btn btn-secondary w-full"
+                onClick={() => setOpen(false)}
+              >
                 Wspieram
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

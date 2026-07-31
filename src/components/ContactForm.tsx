@@ -26,7 +26,7 @@ export default function ContactForm() {
         method="POST"
         className="space-y-4"
       >
-        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_captcha" value="true" />
         <input
           type="hidden"
           name="_next"

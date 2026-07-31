@@ -6,23 +6,16 @@ import {
   createTeamMember,
   updateTeamMember,
   deleteTeamMember,
-  type TeamMember,
   type TeamMemberCreate,
 } from '../../../lib/team';
 import { uploadToMedia } from '../../../lib/media';
+import { toSafeSlug } from '../../../lib/utils/text';
+import { getErrorMessage } from '../../../lib/utils/errors';
+import { useToast, useConfirm } from '../../../components/ui/Feedback';
 
-const generateSlug = (text: string): string => {
-  return text
-    .toLowerCase()
-    .replace(/ą/g, 'a').replace(/ć/g, 'c').replace(/ę/g, 'e')
-    .replace(/ł/g, 'l').replace(/ń/g, 'n').replace(/ó/g, 'o')
-    .replace(/ś/g, 's').replace(/ź/g, 'z').replace(/ż/g, 'z')
-    .replace(/[^a-z0-9 -]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
-};
+type Model = Omit<TeamMemberCreate, 'photo_url'> & { id?: string; photo_url: string | null };
 
-const empty: TeamMemberCreate & { phone?: string | null; email?: string | null; slug?: string } = {
+const EMPTY_MEMBER: Model = {
   name: '',
   role: null,
   order_index: 0,
@@ -39,14 +32,16 @@ export default function TeamEdit() {
   const nav = useNavigate();
   const isNew = id === 'new';
 
-  const [m, setM] = useState<any>(empty);
+  const [m, setM] = useState<Model>(EMPTY_MEMBER);
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const showToast = useToast();
+  const confirm = useConfirm();
 
   useEffect(() => {
-    if (isNew) return;
+    if (isNew || !id) return;
     (async () => {
-      const data = await getTeamMember(id!);
+      const data = await getTeamMember(id);
       if (data) setM(data);
     })();
   }, [id, isNew]);
@@ -63,15 +58,26 @@ export default function TeamEdit() {
   }, [previewUrl, file]);
 
   const handleSave = async () => {
-    if (!m.name?.trim()) {
-      alert('Podaj imię i nazwisko.');
+    if (!m.name.trim()) {
+      showToast('Podaj imię i nazwisko.', 'error');
       return;
     }
+
     try {
       setSaving(true);
 
       if (isNew) {
-        const created = await createTeamMember({ ...(m as TeamMemberCreate), photo_url: null });
+        const created = await createTeamMember({
+          name: m.name,
+          role: m.role || null,
+          order_index: Number(m.order_index) || 0,
+          bio_md: m.bio_md || null,
+          active: !!m.active,
+          phone: m.phone || null,
+          email: m.email || null,
+          slug: m.slug || '',
+          photo_url: null,
+        });
 
         if (file) {
           const url = await uploadToMedia(`team/${created.id}`, file);
@@ -82,40 +88,46 @@ export default function TeamEdit() {
         return;
       }
 
+      if (!id) return;
+
       let nextPhoto = m.photo_url ?? null;
-      if (file && id) {
+      if (file) {
         nextPhoto = await uploadToMedia(`team/${id}`, file);
       }
 
-      // Dodane nowe pola do aktualizacji
-      await updateTeamMember((m as TeamMember).id ?? id!, {
+      await updateTeamMember(id, {
         name: m.name,
-        role: m.role ?? null,
+        role: m.role || null,
         order_index: Number(m.order_index) || 0,
-        bio_md: m.bio_md ?? null,
+        bio_md: m.bio_md || null,
         active: !!m.active,
         photo_url: nextPhoto,
         phone: m.phone || null,
         email: m.email || null,
         slug: m.slug || '',
-      } as TeamMember); 
+      });
 
       nav('/admin/zespol');
-    } catch (e: any) {
-      alert(e?.message ?? 'Błąd zapisu.');
+    } catch (e) {
+      showToast(getErrorMessage(e, 'Błąd zapisu.'), 'error');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    if (isNew) return;
-    if (!confirm('Na pewno usunąć tę osobę?')) return;
+    if (isNew || !id) return;
+    const confirmed = await confirm('Na pewno usunąć tę osobę? Tej operacji nie można cofnąć.', {
+      title: 'Usuń członka zespołu',
+      confirmLabel: 'Usuń',
+    });
+    if (!confirmed) return;
+
     try {
-      await deleteTeamMember(id!);
+      await deleteTeamMember(id);
       nav('/admin/zespol', { replace: true });
-    } catch (e: any) {
-      alert(e?.message ?? 'Błąd usuwania.');
+    } catch (e) {
+      showToast(getErrorMessage(e, 'Błąd usuwania.'), 'error');
     }
   };
 
@@ -125,56 +137,56 @@ export default function TeamEdit() {
 
       <div className="grid md:grid-cols-3 gap-4 items-start">
         <div className="md:col-span-2 space-y-3">
-          
+
           <input
             className="border p-2 rounded w-full"
             placeholder="Imię i nazwisko"
-            value={m.name || ''}
+            value={m.name}
             onChange={(e) => {
               const val = e.target.value;
-              setM((s: any) => ({
+              setM((s) => ({
                 ...s,
                 name: val,
-                slug: isNew ? generateSlug(val) : s.slug,
+                slug: isNew ? toSafeSlug(val) : s.slug,
               }));
             }}
           />
-          
+
           <input
             className="border p-2 rounded w-full"
             placeholder="Rola"
-            value={m.role || ''}
-            onChange={(e) => setM((s: any) => ({ ...s, role: e.target.value }))}
+            value={m.role ?? ''}
+            onChange={(e) => setM((s) => ({ ...s, role: e.target.value }))}
           />
-          
+
           <input
             type="number"
             className="border p-2 rounded w-full"
             placeholder="Kolejność (0..n)"
-            value={m.order_index ?? 0}
-            onChange={(e) => setM((s: any) => ({ ...s, order_index: Number(e.target.value) }))}
+            value={m.order_index}
+            onChange={(e) => setM((s) => ({ ...s, order_index: Number(e.target.value) }))}
           />
-          
+
           <input
             type="tel"
-            value={m.phone || ''}
-            onChange={(e) => setM((s: any) => ({ ...s, phone: e.target.value }))}
+            value={m.phone ?? ''}
+            onChange={(e) => setM((s) => ({ ...s, phone: e.target.value }))}
             className="w-full p-2 border rounded focus:ring focus:ring-blue-200"
             placeholder="Nr telefonu: +48 123 456 789"
           />
 
           <input
             type="email"
-            value={m.email || ''}
-            onChange={(e) => setM((s: any) => ({ ...s, email: e.target.value }))}
+            value={m.email ?? ''}
+            onChange={(e) => setM((s) => ({ ...s, email: e.target.value }))}
             className="w-full p-2 border rounded focus:ring focus:ring-blue-200"
             placeholder="Adres e-mail: jan.kowalski@zaplon.org.pl"
           />
 
           <input
             type="text"
-            value={m.slug || ''}
-            onChange={(e) => setM((s: any) => ({ ...s, slug: generateSlug(e.target.value) }))}
+            value={m.slug ?? ''}
+            onChange={(e) => setM((s) => ({ ...s, slug: toSafeSlug(e.target.value) }))}
             className="w-full p-2 border rounded focus:ring focus:ring-blue-200"
             placeholder="slug (np. jan-kowalski)"
             required
@@ -185,14 +197,14 @@ export default function TeamEdit() {
             rows={12}
             placeholder="Bio (Markdown)"
             value={m.bio_md ?? ''}
-            onChange={(e) => setM((s: any) => ({ ...s, bio_md: e.target.value }))}
+            onChange={(e) => setM((s) => ({ ...s, bio_md: e.target.value }))}
           />
-          
+
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
-              checked={!!m.active}
-              onChange={(e) => setM((s: any) => ({ ...s, active: e.target.checked }))}
+              checked={m.active}
+              onChange={(e) => setM((s) => ({ ...s, active: e.target.checked }))}
             />
             Aktywny
           </label>
@@ -211,7 +223,7 @@ export default function TeamEdit() {
             <span className="text-sm text-gray-500">Zdjęcie (JPG/PNG)</span>
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp,image/gif"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
               className="mt-1 block w-full"
             />

@@ -1,7 +1,7 @@
 // src/components/RecentPosts.tsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { listPosts, type Post } from '../lib/post';
+import { listPublishedPosts, type Post } from '../lib/post';
 import { FaArrowRight } from 'react-icons/fa6';
 import Loader from './Loader';
 
@@ -14,11 +14,8 @@ export default function RecentPosts() {
   useEffect(() => {
     (async () => {
       try {
-        const all = await listPosts();
-        const published = all
-          .filter((p) => p.published_at)
-          .slice(0, MAX_POSTS);
-        setPosts(published);
+        const published = await listPublishedPosts();
+        setPosts(published.slice(0, MAX_POSTS));
       } catch {
         // Sekcja jest opcjonalna — przy błędzie po prostu nic nie renderuj
       } finally {
@@ -56,7 +53,7 @@ export default function RecentPosts() {
                 <Link to={`/aktualnosci/${post.slug}`} tabIndex={-1} aria-hidden="true">
                   {post.cover_url ? (
                     <img
-                      src={post.cover_url}
+                      src={`${post.cover_url}?width=400&height=176&resize=cover&quality=75`}
                       alt=""
                       className="w-full h-44 object-cover"
                       loading="lazy"

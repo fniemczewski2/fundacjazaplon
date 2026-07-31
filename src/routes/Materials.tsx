@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { getErrorMessage } from '../lib/utils/errors';
 import Seo from '../components/Seo';
 import Loader from '../components/Loader';
 import { FaDownload, FaXmark } from 'react-icons/fa6';
@@ -49,22 +50,22 @@ export default function Materials() {
           }),
         });
 
-        const contentType = response.headers.get("content-type");
-        let data = null;
-        if (contentType && contentType.indexOf("application/json") !== -1) {
+        const contentType = response.headers.get('content-type');
+        let data: { error?: string } | null = null;
+        if (contentType && contentType.indexOf('application/json') !== -1) {
           data = await response.json();
         }
 
         if (!response.ok) {
           throw new Error(data?.error || 'Wystąpił błąd. Spróbuj ponownie.');
         }
-        
+
         setStatus('success');
         setEmail('');
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
         setStatus('error');
-        setErrorMessage(err.message);
+        setErrorMessage(getErrorMessage(err));
       }
     };
  

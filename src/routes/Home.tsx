@@ -1,11 +1,17 @@
-import React from 'react';
 import Hero from '../components/Hero';
 import Seo from '../components/Seo';
 import JoinUsCard from '../components/JoinUsCard';
 import DonateCard from '../components/DonateCard';
 import NewsletterCard from '../components/NewsletterCard';
+import RecentPosts from '../components/RecentPosts';
+import { useScrollToHash } from '../hooks/useScrollToHash';
 
 export default function Home() {
+  // Sekcja #donate jest zawsze obecna od razu po zamontowaniu Home, więc "ready"
+  // może być stałym `true` — w przeciwieństwie do np. Team.tsx, gdzie trzeba
+  // czekać na wczytanie danych z sieci przed przewinięciem.
+  useScrollToHash(true);
+
   return (
     <>
       <Seo
@@ -17,7 +23,7 @@ export default function Home() {
 
         <section aria-labelledby="hero-title">
           <h1 id="hero-title" className="sr-only">
-            Fundacja „Zapłon" – zapalamy aktywność społeczną
+            Fundacja „Zapłon” – zapalamy aktywność społeczną
           </h1>
           <Hero
             title="Zapalamy aktywność"
@@ -40,23 +46,25 @@ export default function Home() {
           </p>
         </section>
 
+        <RecentPosts />
+
         <section id="donate" aria-labelledby="donate-title" className="mt-10">
           <h2 id="donate-title" className="sr-only">
-            Wspieram Fundację „Zapłon"
+            Wspieram Fundację „Zapłon”
           </h2>
           <DonateCard />
         </section>
 
         <section aria-labelledby="newsletter-title" className="mt-10">
           <h2 id="newsletter-title" className="sr-only">
-            Newsletter Fundacji „Zapłon"
+            Newsletter Fundacji „Zapłon”
           </h2>
           <NewsletterCard />
         </section>
 
         <section aria-labelledby="volunteer-title" className="mt-10">
           <h2 id="volunteer-title" className="sr-only">
-            Dołącz do Fundacji „Zapłon"
+            Dołącz do Fundacji „Zapłon”
           </h2>
           <JoinUsCard />
         </section>

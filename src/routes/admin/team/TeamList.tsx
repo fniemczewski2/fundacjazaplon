@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { listTeam, type TeamMember } from '../../../lib/team';
+import { getErrorMessage } from '../../../lib/utils/errors';
 import Loader from '../../../components/Loader';
 
 export default function TeamList() {
@@ -15,8 +16,8 @@ export default function TeamList() {
       setErr(null);
       const data = await listTeam(); 
       setRows(data);
-    } catch (e: any) {
-      setErr(e?.message ?? 'Błąd pobierania danych.');
+    } catch (e) {
+      setErr(getErrorMessage(e, 'Błąd pobierania danych.'));
     } finally {
       setLoading(false);
     }

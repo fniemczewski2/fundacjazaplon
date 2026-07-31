@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getContact, saveContact, type ContactInfo } from '../../../lib/contact';
+import { getContact, saveContact } from '../../../lib/contact';
+import { getErrorMessage } from '../../../lib/utils/errors';
 import Loader from '../../../components/Loader';
 
 type Model = {
@@ -24,6 +25,22 @@ const empty: Model = {
   account_number: '',
   online_address: '',
 };
+
+type InputFieldProps = { label: string; value: string; onChange: (v: string) => void; type?: string };
+
+function InputField({ label, value, onChange, type = 'text' }: InputFieldProps) {
+  return (
+    <label className="block">
+      <div className="text-sm text-text-black/70 mb-1">{label}</div>
+      <input
+        type={type}
+        className="border p-2 rounded w-full"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </label>
+  );
+}
 
 export default function ContactEdit() {
   const [m, setM] = useState<Model>(empty);
@@ -66,26 +83,14 @@ export default function ContactEdit() {
     try {
       await saveContact(m);
       setOk('Zapisano.');
-    } catch (e: any) {
-      setErr(e?.message ?? 'Błąd zapisu.');
+    } catch (e) {
+      setErr(getErrorMessage(e, 'Błąd zapisu.'));
     } finally {
       setSaving(false);
     }
   };
 
   if (loading) return <Loader/>;
-
-  const Input = (props: { label: string; value: string; onChange: (v: string) => void; type?: string }) => (
-    <label className="block">
-      <div className="text-sm text-text-black/70 mb-1">{props.label}</div>
-      <input
-        type={props.type ?? 'text'}
-        className="border p-2 rounded w-full"
-        value={props.value}
-        onChange={(e) => props.onChange(e.target.value)}
-      />
-    </label>
-  );
 
   return (
     <div className="p-6 space-y-4 max-w-3xl">
@@ -106,13 +111,13 @@ export default function ContactEdit() {
           />
         </label>
 
-        <Input label="KRS" value={m.krs} onChange={(v) => setM(s => ({ ...s, krs: v }))} />
-        <Input label="NIP" value={m.nip} onChange={(v) => setM(s => ({ ...s, nip: v }))} />
-        <Input label="REGON" value={m.regon} onChange={(v) => setM(s => ({ ...s, regon: v }))} />
-        <Input label="Telefon" value={m.phone} onChange={(v) => setM(s => ({ ...s, phone: v }))} />
-        <Input label="Email" value={m.email} onChange={(v) => setM(s => ({ ...s, email: v }))} type="email" />
-        <Input label="Numer konta" value={m.account_number} onChange={(v) => setM(s => ({ ...s, account_number: v }))} />
-        <Input label="E-doręczenia" value={m.online_address} onChange={(v) => setM(s => ({ ...s, online_address: v }))} />
+        <InputField label="KRS" value={m.krs} onChange={(v) => setM(s => ({ ...s, krs: v }))} />
+        <InputField label="NIP" value={m.nip} onChange={(v) => setM(s => ({ ...s, nip: v }))} />
+        <InputField label="REGON" value={m.regon} onChange={(v) => setM(s => ({ ...s, regon: v }))} />
+        <InputField label="Telefon" value={m.phone} onChange={(v) => setM(s => ({ ...s, phone: v }))} />
+        <InputField label="Email" value={m.email} onChange={(v) => setM(s => ({ ...s, email: v }))} type="email" />
+        <InputField label="Numer konta" value={m.account_number} onChange={(v) => setM(s => ({ ...s, account_number: v }))} />
+        <InputField label="E-doręczenia" value={m.online_address} onChange={(v) => setM(s => ({ ...s, online_address: v }))} />
       </div>
 
       <button

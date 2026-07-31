@@ -67,7 +67,7 @@ export default function Documents() {
 
                     if (g.key === 'sprawozdania') {
                       const match = i.name.match(/\b(20\d{2})\b/);
-                      yearLabel = match ? match[1] : 'n/d';
+                      yearLabel = match?.[1] ?? 'n/d';
                     }
 
                     return (

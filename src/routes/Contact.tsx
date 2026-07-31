@@ -1,19 +1,15 @@
 // src/routes/Contact.tsx
-import { useEffect, useState } from 'react';
 import Seo from '../components/Seo';
-import { getContact, type ContactInfo } from '../lib/contact';
+import { useContactInfo } from '../hooks/useAppData';
 import Card from '../components/Card';
+import { useState } from 'react';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 import ContactForm from '../components/ContactForm';
 import Loader from '../components/Loader';
 
 export default function Contact() {
-  const [data, setData] = useState<ContactInfo | null>(null);
+  const { data, isLoading } = useContactInfo();
   const [copied, setCopied] = useState<string | null>(null);
-
-  useEffect(() => {
-    getContact().then(setData);
-  }, []);
 
   const copyToClipboard = async (label: string, value: string) => {
     try {
@@ -48,7 +44,7 @@ export default function Contact() {
               Fundacja „Zapłon”
             </h2>
 
-            {!data && <Loader />}
+            {isLoading && <Loader />}
 
             {data && (
               <div className="space-y-4 w-full">
@@ -59,8 +55,8 @@ export default function Contact() {
                   </div>
                 )}
 
-                {['krs', 'nip', 'regon', 'account_number', 'online_address'].map((key) => {
-                  const labelMap: Record<string, string> = {
+                {(['krs', 'nip', 'regon', 'account_number', 'online_address'] as const).map((key) => {
+                  const labelMap: Record<(typeof key), string> = {
                     krs: 'KRS',
                     nip: 'NIP',
                     regon: 'REGON',
@@ -68,7 +64,7 @@ export default function Contact() {
                     online_address: 'E-doręczenia',
                   };
 
-                  const value = (data as any)[key];
+                  const value = data?.[key];
                   if (!value) return null;
 
                   return (

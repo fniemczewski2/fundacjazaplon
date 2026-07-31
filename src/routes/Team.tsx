@@ -1,36 +1,29 @@
-import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import Seo from '../components/Seo';
-import { listTeam, TeamMember } from '../lib/team';
+import { listTeamPublic, type TeamMember } from '../lib/team';
 import { FaPhone, FaUser, FaEnvelope } from 'react-icons/fa6';
 import Loader from '../components/Loader';
+import { useScrollToHash } from '../hooks/useScrollToHash';
 
 export default function Team() {
-  const [team, setTeam] = React.useState<TeamMember[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const location = useLocation(); // Hook do odczytania #hash z adresu URL
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       setLoading(true);
-      const data = await listTeam();
+      // UWAGA: to musi być listTeamPublic (filtruje active=true), nie listTeam() —
+      // ta druga jest przeznaczona dla panelu admina i pokazywałaby też osoby
+      // dawno nieaktywne, razem z ich telefonem i e-mailem.
+      const data = await listTeamPublic();
       setTeam(data);
       setLoading(false);
     })();
   }, []);
 
-  // Efekt odpowiedzialny za płynne przewinięcie do wizytówki po wejściu z /wizytowka/[slug]
-  useEffect(() => {
-    if (!loading && location.hash) {
-      const id = location.hash.replace('#', '');
-      const element = document.getElementById(id);
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }
-    }
-  }, [loading, location]);
+  // Płynne przewinięcie do wizytówki po wejściu z /w/[slug] — wspólny hook,
+  // używany też np. na stronie głównej dla kotwicy #donate.
+  useScrollToHash(!loading);
 
   return (
     <>
@@ -65,7 +58,7 @@ export default function Team() {
             >
               {member.photo_url ? (
                 <img
-                  src={member.photo_url}
+                  src={`${member.photo_url}?width=160&height=160&resize=cover&quality=75`}
                   alt={`Zdjęcie: ${member.name}`}
                   className="h-20 w-20 rounded-full object-cover"
                   loading="lazy"

@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
-import { getContact, type ContactInfo } from '../lib/contact';
+import { useState } from 'react';
+import { useContactInfo } from '../hooks/useAppData';
+import { getErrorMessage } from '../lib/utils/errors';
 import { FiCopy, FiCheck } from 'react-icons/fi';
-import { FaArrowRight, FaCreditCard, FaArrowLeft, FaHeart } from 'react-icons/fa6';
+import { FaArrowRight, FaCreditCard, FaArrowLeft } from 'react-icons/fa6';
 import PrivacyPolicyLink from './PrivacyPolicyLink';
 
 type Props = {
-  donateUrl?: string; 
   title?: string;
 };
 
-export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Props) {
-  const [data, setData] = useState<ContactInfo | null>(null);
+export default function DonateCard({ title = 'Wspieram' }: Props) {
+  const { data } = useContactInfo();
   const [copied, setCopied] = useState(false);
   
   // --- Stany dla formularza darowizny ---
@@ -20,15 +20,12 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [marketingConsent, setMarketingConsent] = useState(false);
   
   const [isStripeLoading, setIsStripeLoading] = useState(false);
   const [stripeError, setStripeError] = useState('');
 
   const predefinedAmounts = [20, 50, 100];
-
-  useEffect(() => {
-    getContact().then(setData);
-  }, []);
 
   const acct = data?.account_number?.trim();
 
@@ -59,7 +56,7 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
       const response = await fetch('/api/create-stripe-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, isRecurring, name, email }),
+        body: JSON.stringify({ amount, isRecurring, name, email, marketingConsent }),
       });
 
       const result = await response.json();
@@ -72,9 +69,9 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
       if (result.url) {
         window.location.href = result.url;
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setStripeError(err.message);
+      setStripeError(getErrorMessage(err, 'Wystąpił błąd podczas łączenia z operatorem płatności.'));
       setIsStripeLoading(false);
     }
   };
@@ -196,8 +193,21 @@ export default function DonateCard({ donateUrl = '#', title = 'Wspieram' }: Prop
             >
               {isStripeLoading ? 'Przekierowywanie...' : <>Przekaż {amount} zł {isRecurring ? 'miesięcznie' : ''} <FaCreditCard /></>}
             </button>
-            <div className="text-xs text-text-black/80 mt-6 text-center max-w-lg mx-auto leading-relaxed">
-                Dokonując wpłaty się wyrażam zgodę na przetwarzanie moich danych w&nbsp;celu obsługi darowizny i&nbsp;do&nbsp; celów marketingowych.
+
+            <label className="flex items-start gap-2 text-xs text-text-black/80 mt-6 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={marketingConsent}
+                onChange={(e) => setMarketingConsent(e.target.checked)}
+                className="mt-0.5"
+              />
+              <span>
+                Chcę otrzymywać od Fundacji „Zapłon” informacje o jej działaniach (cele marketingowe).
+                Ta zgoda jest dobrowolna i niezależna od dokonania wpłaty — możesz ją w każdej chwili wycofać.
+              </span>
+            </label>
+            <div className="text-xs text-text-black/80 mt-3 text-center max-w-lg mx-auto leading-relaxed">
+                Dokonując wpłaty, wyrażasz zgodę na przetwarzanie Twoich danych w&nbsp;celu obsługi darowizny.
                 <br/>
                 Szczegóły: <PrivacyPolicyLink black />
             </div>

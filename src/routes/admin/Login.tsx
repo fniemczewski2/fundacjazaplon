@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { getErrorMessage } from '../../lib/utils/errors';
 
 export default function AdminLogin(): JSX.Element {
   const navigate = useNavigate();
@@ -20,14 +21,14 @@ export default function AdminLogin(): JSX.Element {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setErr(error.message);
         return;
       }
       navigate('/admin', { replace: true });
     } catch (error) {
-      setErr((error as Error)?.message ?? 'An unexpected error occurred');
+      setErr(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -47,7 +48,7 @@ export default function AdminLogin(): JSX.Element {
 
       const redirectTo = `${window.location.origin}/reset-password`;
 
-      const { data, error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
         redirectTo,
       });
 
@@ -58,7 +59,7 @@ export default function AdminLogin(): JSX.Element {
 
       setForgotMsg('Jeżeli konto istnieje, email został wysłany.');
     } catch (error) {
-      setForgotMsg((error as Error)?.message ?? 'Wystąpił błąd.');
+      setForgotMsg(getErrorMessage(error, 'Wystąpił błąd.'));
     } finally {
       setForgotLoading(false);
     }
@@ -160,7 +161,7 @@ export default function AdminLogin(): JSX.Element {
                   setForgotEmail(email || '');
                 }}
               >
-                Zapomniał_ś hasła?
+                Nie pamiętasz hasła?
               </button>
             </div>
           </>

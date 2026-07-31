@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { getErrorMessage } from '../../lib/utils/errors';
 
 export default function ResetPasswordPage(): JSX.Element {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function ResetPasswordPage(): JSX.Element {
 
         if (code) {
           // Exchange the code for a session (PKCE flow)
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) {
             console.warn('exchangeCodeForSession error', error);
             // don't return here — we still try to listen for onAuthStateChange below
@@ -51,7 +52,7 @@ export default function ResetPasswordPage(): JSX.Element {
     handlePossibleCode();
 
     // Listen for PASSWORD_RECOVERY event (emitted when the user clicks the reset link)
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setReadyToUpdate(true);
         setMessage('Wprowadź nowe hasło');
@@ -73,14 +74,14 @@ export default function ResetPasswordPage(): JSX.Element {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError('Hasło powinno mieć min. 6 znaków.');
+    if (newPassword.length < 10) {
+      setError('Hasło powinno mieć min. 10 znaków.');
       return;
     }
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) {
         setError(error.message);
         return;
@@ -90,7 +91,7 @@ export default function ResetPasswordPage(): JSX.Element {
       // Optional: wait a bit so the user sees the message
       setTimeout(() => navigate('/admin/login'), 1200);
     } catch (err) {
-      setError((err as Error)?.message ?? 'Unexpected error');
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

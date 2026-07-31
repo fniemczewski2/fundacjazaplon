@@ -8,9 +8,10 @@ import {
   deletePost as removePost,
   uploadPostCover,
   slugify,
-  type Post,
   type PostCreate,
 } from '../../../lib/post';
+import { getErrorMessage } from '../../../lib/utils/errors';
+import { useToast, useConfirm } from '../../../components/ui/Feedback';
 
 type Model = {
   title: string;
@@ -38,11 +39,13 @@ export default function PostEdit() {
   const [m, setM] = useState<Model>(empty);
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const showToast = useToast();
+  const confirm = useConfirm();
 
   useEffect(() => {
-    if (isNew) return;
+    if (isNew || !id) return;
     (async () => {
-      const data = await getPostById(id!);
+      const data = await getPostById(id);
       if (data) {
         setM({
           title: data.title,
@@ -76,11 +79,11 @@ export default function PostEdit() {
 
   const save = async (publish = false) => {
     if (!m.title.trim()) {
-      alert('Podaj tytuł.');
+      showToast('Podaj tytuł.', 'error');
       return;
     }
     if (!m.slug.trim()) {
-      alert('Podaj slug.');
+      showToast('Podaj slug.', 'error');
       return;
     }
 
@@ -101,29 +104,35 @@ export default function PostEdit() {
 
         return nav(`/admin/aktualnosci/${created.id}`, { replace: true });
       } else {
-        await updatePost(id!, payload);
+        if (!id) return;
+
+        await updatePost(id, payload);
 
         if (file) {
-          await uploadPostCover(id!, file);
+          await uploadPostCover(id, file);
         }
 
         return nav('/admin/aktualnosci');
       }
-    } catch (e: any) {
-      alert(e?.message ?? 'Błąd zapisu.');
+    } catch (e) {
+      showToast(getErrorMessage(e, 'Błąd zapisu.'), 'error');
     } finally {
       setSaving(false);
     }
   };
 
   const remove = async () => {
-    if (isNew) return;
-    if (!confirm('Na pewno usunąć wpis?')) return;
+    if (isNew || !id) return;
+    const confirmed = await confirm('Na pewno usunąć wpis? Tej operacji nie można cofnąć.', {
+      title: 'Usuń wpis',
+      confirmLabel: 'Usuń',
+    });
+    if (!confirmed) return;
     try {
-      await removePost(id!);
+      await removePost(id);
       nav('/admin/aktualnosci', { replace: true });
-    } catch (e: any) {
-      alert(e?.message ?? 'Błąd usuwania.');
+    } catch (e) {
+      showToast(getErrorMessage(e, 'Błąd usuwania.'), 'error');
     }
   };
 

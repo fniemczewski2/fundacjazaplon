@@ -1,13 +1,31 @@
 <!doctype html>
 <html lang="pl" data-theme="light">
   <head>
-    <!-- Google tag (gtag.js) -->
+    <!-- Motyw ustawiany PRZED pierwszym malowaniem strony, żeby uniknąć błysku złego motywu (FOUC) -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+        } catch (e) { /* np. localStorage zablokowane — zostajemy przy domyślnym jasnym motywie */ }
+      })();
+    </script>
+
+    <!-- Google tag (gtag.js) — Consent Mode v2: domyślnie WSZYSTKO odmówione, dopóki
+         użytkownik nie zaakceptuje w bannerze (src/components/CookiesConsent.tsx) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-R3X89NGC74"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+      });
       gtag('js', new Date());
-
       gtag('config', 'G-R3X89NGC74');
     </script>
 
@@ -60,16 +78,10 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
-    <!-- Fonty -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Signika:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="preload" href="/assets/index.css" as="style">
-    <link rel="stylesheet" href="/assets/index.css">
-
+    <!-- Fonty: Signika i Work Sans są self-hostowane przez @font-face w src/index.css
+         (public/fonts/*.woff2) — nie ładujemy ich dodatkowo z Google Fonts (to był zbędny,
+         blokujący render, podwójny request i niepotrzebne przekazywanie IP użytkownika do
+         Google). Sam stylesheet aplikacji Vite wstrzykuje automatycznie przy buildzie. -->
   </head>
 
   <body class="bg-base-100 text-text-color">

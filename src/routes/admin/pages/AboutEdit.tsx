@@ -2,8 +2,10 @@
 import { useEffect, useState, memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { getAbout, getPillars, upsertAbout, savePillarsBatch } from '../../../lib/about';
+import { uploadToMedia, MediaValidationError } from '../../../lib/media';
+import { getErrorMessage } from '../../../lib/utils/errors';
+import { useToast } from '../../../components/ui/Feedback';
 import Loader from '../../../components/Loader';
-import { supabase } from '../../../lib/supabase'; // <-- WAŻNE: Dodany import Supabase
 
 // Zaktualizowany model o pole image_url
 type PillarModel = { id?: string; order_index: number; title: string; body_md: string; image_url: string };
@@ -18,26 +20,27 @@ const PillarEditor = memo(function PillarEditor({
   onChange: (p: PillarModel) => void;
 }) {
   const [uploading, setUploading] = useState(false);
+  const showToast = useToast();
+  const imageInputId = `pillar-image-${m.order_index}`;
+  const titleInputId = `pillar-title-${m.order_index}`;
+  const bodyInputId = `pillar-body-${m.order_index}`;
 
-  // Funkcja wgrywająca obrazek do Supabase Storage
+  // Wgrywanie obrazka przez uploadToMedia — ta sama, jedna funkcja co reszta
+  // aplikacji, więc walidacja typu/rozmiaru pliku i sanityzacja nazwy działają
+  // tu automatycznie (wcześniej ten formularz miał własną, osobną, niewalidującą
+  // kopię logiki uploadu — dokładnie ten sam problem co w panelu Media).
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `pillars/${fileName}`;
-
-      // Zmień 'media' na nazwę Twojego bucketa, jeśli jest inna (np. 'images')
-      const { error: uploadError } = await supabase.storage.from('media').upload(filePath, file);
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage.from('media').getPublicUrl(filePath);
-      onChange({ ...m, image_url: data.publicUrl });
-    } catch (err: any) {
-      alert(`Błąd wgrywania: ${err.message}`);
+      const url = await uploadToMedia('pillars', file);
+      onChange({ ...m, image_url: url });
+    } catch (err) {
+      const message =
+        err instanceof MediaValidationError ? err.message : getErrorMessage(err, 'Błąd wgrywania pliku.');
+      showToast(message, 'error');
     } finally {
       setUploading(false);
     }
@@ -49,9 +52,12 @@ const PillarEditor = memo(function PillarEditor({
       
       {/* Sekcja Obrazka */}
       <div className="mb-4">
-        <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Obrazek / Ikona</label>
+        <label htmlFor={imageInputId} className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
+          Obrazek / Ikona
+        </label>
         <div className="flex gap-2 items-center">
           <input
+            id={imageInputId}
             type="text"
             className="border p-2 rounded flex-1 text-sm dark:bg-gray-700 dark:border-gray-600"
             placeholder="URL obrazka..."
@@ -60,7 +66,13 @@ const PillarEditor = memo(function PillarEditor({
           />
           <label className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded cursor-pointer text-sm transition-colors">
             {uploading ? 'Wgrywam...' : 'Wgraj'}
-            <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} disabled={uploading} />
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={handleFileUpload}
+              disabled={uploading}
+            />
           </label>
         </div>
         {m.image_url && (
@@ -68,13 +80,17 @@ const PillarEditor = memo(function PillarEditor({
         )}
       </div>
 
+      <label htmlFor={titleInputId} className="sr-only">Tytuł filaru {m.order_index}</label>
       <input
+        id={titleInputId}
         className="border p-2 rounded w-full mb-3 dark:bg-gray-700 dark:border-gray-600"
         placeholder={`Tytuł filaru ${m.order_index}`}
         value={m.title}
         onChange={(e) => onChange({ ...m, title: e.target.value })}
       />
+      <label htmlFor={bodyInputId} className="sr-only">Opis filaru {m.order_index} (Markdown)</label>
       <textarea
+        id={bodyInputId}
         className="border p-2 rounded w-full font-mono text-sm dark:bg-gray-700 dark:border-gray-600"
         rows={5}
         placeholder="Opis (Markdown)"
@@ -135,8 +151,8 @@ export default function AboutEdit() {
       await savePillarsBatch(pillars);
       setOk('Zapisano pomyślnie!');
       setTimeout(() => setOk(null), 3000);
-    } catch (e: any) {
-      setErr(e?.message ?? 'Błąd zapisu.');
+    } catch (e) {
+      setErr(getErrorMessage(e, 'Błąd zapisu.'));
     } finally {
       setSaving(false);
     }
@@ -162,16 +178,21 @@ export default function AboutEdit() {
 
       <section className="grid gap-6 md:grid-cols-2">
         <div className="flex flex-col">
-          <label className="text-sm font-semibold mb-2">Główny opis (Markdown)</label>
+          <label htmlFor="about-description" className="text-sm font-semibold mb-2">Główny opis (Markdown)</label>
           <textarea
+            id="about-description"
             className="border p-4 rounded-xl w-full font-mono flex-1 min-h-[300px] dark:bg-gray-800 dark:border-gray-700"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
         <div className="flex flex-col">
-          <label className="text-sm font-semibold mb-2">Podgląd na żywo</label>
-          <div className="prose max-w-none border rounded-xl p-6 flex-1 bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-auto max-h-[500px]">
+          <span id="about-preview-label" className="text-sm font-semibold mb-2">Podgląd na żywo</span>
+          <div
+            role="region"
+            aria-labelledby="about-preview-label"
+            className="prose max-w-none border rounded-xl p-6 flex-1 bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-auto max-h-[500px]"
+          >
             <ReactMarkdown>{description || '_Brak treści_'}</ReactMarkdown>
           </div>
         </div>

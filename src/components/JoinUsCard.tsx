@@ -1,15 +1,23 @@
-import { useEffect, useState } from 'react';
-import { getJoinLink } from '../lib/join';
+import { useJoinLink } from '../hooks/useAppData';
 import { FaArrowRight } from 'react-icons/fa6';
 
 export default function JoinUsCard() {
-  const [url, setUrl] = useState<string | null>(null);
+  const { data, isLoading } = useJoinLink();
+  const url = data?.survey_url ?? null;
 
-  useEffect(() => {
-    getJoinLink().then(data => setUrl(data?.survey_url ?? null));
-  }, []);
+  // Rozróżniamy jawnie "jeszcze ładuję" od "naprawdę nie ma ankiety" — wcześniej
+  // oba stany wyglądały identycznie (komponent po prostu nic nie renderował),
+  // co powodowało niewielki, ale zauważalny "skok" layoutu po wczytaniu danych.
+  if (isLoading) {
+    return (
+      <div className="card p-8 text-center animate-pulse">
+        <div className="h-7 w-40 bg-gray-200 dark:bg-gray-700 rounded mx-auto mb-4" />
+        <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded mx-auto" />
+      </div>
+    );
+  }
 
-  if (!url) return null; 
+  if (!url) return null;
 
   return (
     <div className="card p-8 text-center">
@@ -24,6 +32,5 @@ export default function JoinUsCard() {
         Wypełnij ankietę <FaArrowRight />
       </a>
     </div>
-
   );
 }

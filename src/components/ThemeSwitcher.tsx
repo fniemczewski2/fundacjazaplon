@@ -1,10 +1,17 @@
 import React from 'react';
 import { FaMoon, FaSun } from 'react-icons/fa6';
 
+function getInitialTheme(): 'light' | 'dark' {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light' || saved === 'dark') return saved;
+  // Ten sam fallback co blokujący skrypt anty-FOUC w index.html — dla nowych
+  // odwiedzających bez zapisanej preferencji szanujemy ustawienia systemowe
+  // zamiast zawsze zakładać jasny motyw.
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
 export default function ThemeSwitcher() {
-  const [theme, setTheme] = React.useState<'light' | 'dark'>(
-    () => (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
-  );
+  const [theme, setTheme] = React.useState<'light' | 'dark'>(getInitialTheme);
 
   React.useEffect(() => {
     const root = document.documentElement;

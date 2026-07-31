@@ -1,6 +1,7 @@
 // src/lib/post.ts
 import { supabase } from './supabase';
 import { uploadToMedia } from './media';
+import { toSafeSlug } from './utils/text';
 
 export interface Post {
   id: string;
@@ -17,6 +18,9 @@ export interface Post {
 export type PostCreate = Omit<Post, 'id' | 'created_at' | 'updated_at'>;
 export type PostUpdate = Partial<Omit<Post, 'id' | 'created_at' | 'updated_at'>>;
 
+const NOT_FOUND_CODE = 'PGRST116';
+
+/** Wszystkie wpisy (w tym szkice) — do użytku wyłącznie w panelu admina. */
 export async function listPosts(): Promise<Post[]> {
   const { data, error } = await supabase
     .from('posts')
@@ -26,9 +30,25 @@ export async function listPosts(): Promise<Post[]> {
   return (data as Post[]) ?? [];
 }
 
+/**
+ * Tylko realnie opublikowane wpisy (`published_at` w przeszłości) — do użytku
+ * na stronach publicznych. W przeciwieństwie do samego filtrowania "czy pole
+ * jest niepuste", to poprawnie ukrywa też wpisy zaplanowane na przyszłość.
+ */
+export async function listPublishedPosts(): Promise<Post[]> {
+  const nowIso = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .lte('published_at', nowIso)
+    .order('published_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data as Post[]) ?? [];
+}
+
 export async function getPostById(id: string): Promise<Post | null> {
   const { data, error } = await supabase.from('posts').select('*').eq('id', id).single();
-  if (error && error.code === 'PGRST116') return null;
+  if (error && error.code === NOT_FOUND_CODE) return null;
   if (error) throw new Error(error.message);
   return (data as Post) ?? null;
 }
@@ -50,15 +70,17 @@ export async function deletePost(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+/** Pojedynczy wpis po slugu, tylko jeśli już realnie opublikowany (patrz `listPublishedPosts`). */
 export async function getPostBySlug(slug: string): Promise<Post | null> {
+  const nowIso = new Date().toISOString();
   const { data, error } = await supabase
     .from('posts')
     .select('*')
     .eq('slug', slug)
-    .not('published_at', 'is', null)
+    .lte('published_at', nowIso)
     .single();
-  // @ts-ignore
-  if (error && error.code === 'PGRST116') return null;
+
+  if (error && error.code === NOT_FOUND_CODE) return null;
   if (error) throw new Error(error.message);
   return data as Post;
 }
@@ -71,12 +93,5 @@ export async function uploadPostCover(postId: string, file: File): Promise<strin
 }
 
 export function slugify(input: string): string {
-  return input
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim()
-    .replace(/[’'"]/g, '')
-    .replace(/[–—]/g, '-')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  return toSafeSlug(input);
 }
