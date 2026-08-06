@@ -1,20 +1,18 @@
 import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useLocation } from 'wouter';
 import Loader from '../components/Loader';
 
 export default function WizytowkaRedirect() {
-  const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
+  const { slug } = useParams<{ slug?: string }>();
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     if (slug) {
-      navigate(`/zespol#${slug}`, { replace: true });
+      setLocation(`/zespol#${slug}`);
     } else {
-      navigate('/zespol', { replace: true });
+      setLocation('/zespol');
     }
-  }, [slug, navigate]);
+  }, [slug, setLocation]);
 
-  return (
-    <Loader />
-  );
+  return <Loader />;
 }

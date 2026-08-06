@@ -1,12 +1,3 @@
-/**
- * Normalizuje dowolny tekst do bezpiecznej postaci ASCII: usuwa polskie/obce
- * znaki diakrytyczne, cudzysłowy i myślniki typograficzne, zamienia spacje na
- * "-" i pozostawia tylko znaki [a-z0-9-] (opcjonalnie też "." i "_" — przydatne
- * dla nazw plików, gdzie chcemy zachować rozszerzenie).
- *
- * Wcześniej ta sama logika była zduplikowana niemal 1:1 w `lib/documents.ts`,
- * `lib/media.ts` (jako `sanitizeFileName`) i `lib/post.ts` (jako `slugify`).
- */
 export function toSafeSlug(input: string, opts: { keepDots?: boolean } = {}): string {
   const base = input
     .normalize('NFD')

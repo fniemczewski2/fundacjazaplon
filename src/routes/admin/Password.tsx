@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { getErrorMessage } from '../../lib/utils/errors';
 
-export default function ResetPasswordPage(): JSX.Element {
-  const navigate = useNavigate();
+export default function ResetPasswordPage() {
+  const [, setLocation] = useLocation();
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -14,9 +14,6 @@ export default function ResetPasswordPage(): JSX.Element {
   useEffect(() => {
     setMessage(null);
     setError(null);
-
-    // 1) Try to exchange a PKCE code (if present) -> session
-    // 2) Otherwise rely on onAuthStateChange to emit PASSWORD_RECOVERY
 
     async function handlePossibleCode() {
       try {
@@ -87,9 +84,8 @@ export default function ResetPasswordPage(): JSX.Element {
         return;
       }
 
-      setMessage('Password updated successfully. Redirecting to login...');
-      // Optional: wait a bit so the user sees the message
-      setTimeout(() => navigate('/admin/login'), 1200);
+      setMessage('Hasło zostało zaktualizowane. Przekierowanie do logowania...');
+      setTimeout(() => setLocation('/admin/login'), 1200);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

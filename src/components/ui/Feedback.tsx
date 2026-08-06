@@ -1,12 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-/**
- * Zastępuje natywne `window.alert()` / `window.confirm()` (patrz audyt, pkt 7.2):
- * te blokują wątek JS, nie dają się stylować i nie mają żadnej kontroli nad
- * fokusem/ARIA. `<FeedbackProvider>` owija aplikację raz (w main.tsx) i wystawia
- * dwa hooki: `useToast()` do komunikatów oraz `useConfirm()` do potwierdzeń.
- */
-
 type ToastType = 'success' | 'error' | 'info';
 type ToastItem = { id: number; type: ToastType; text: string };
 
@@ -56,7 +49,6 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
     <FeedbackContext.Provider value={{ showToast, confirm }}>
       {children}
 
-      {/* Kontener toastów */}
       <div
         className="fixed bottom-4 right-4 z-[200] flex flex-col gap-2 max-w-sm w-[calc(100%-2rem)]"
         role="region"
@@ -75,7 +67,6 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
         ))}
       </div>
 
-      {/* Modal potwierdzenia (zastępuje window.confirm) */}
       {confirmState && (
         <div className="fixed inset-0 z-[300] bg-black/50 flex items-center justify-center p-4">
           <div

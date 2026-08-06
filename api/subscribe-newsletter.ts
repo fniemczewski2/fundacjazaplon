@@ -1,4 +1,8 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { IncomingMessage, ServerResponse } from 'http';
+
+interface ApiRequest extends IncomingMessage {
+  body?: any;
+}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -8,15 +12,19 @@ type MailerLiteFields = {
   ostatni_plik_tytul?: string;
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: ApiRequest, res: ServerResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Metoda niedozwolona' });
+    res.statusCode = 405;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ error: 'Metoda niedozwolona' }));
   }
 
   const { name, email, file_url, file_title } = req.body ?? {};
 
   if (typeof email !== 'string' || !EMAIL_RE.test(email)) {
-    return res.status(400).json({ error: 'Podaj prawidłowy adres e-mail.' });
+    res.statusCode = 400;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ error: 'Podaj prawidłowy adres e-mail.' }));
   }
 
   try {
@@ -49,15 +57,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     if (!response.ok) {
-      // Nie przekazujemy surowej odpowiedzi MailerLite dalej do klienta —
-      // mogłaby zawierać wewnętrzne szczegóły API dostawcy.
       console.error('MailerLite error:', response.status, await response.text());
-      return res.status(502).json({ error: 'Wystąpił błąd po stronie serwera.' });
+      res.statusCode = 502;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({ error: 'Wystąpił błąd po stronie serwera.' }));
     }
 
-    return res.status(200).json({ success: true });
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ success: true }));
   } catch (error) {
     console.error('subscribe-newsletter error:', error);
-    return res.status(500).json({ error: 'Wewnętrzny błąd serwera.' });
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ error: 'Wewnętrzny błąd serwera.' }));
   }
 }

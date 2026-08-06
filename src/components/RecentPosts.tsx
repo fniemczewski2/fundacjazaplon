@@ -1,6 +1,6 @@
 // src/components/RecentPosts.tsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { listPublishedPosts, type Post } from '../lib/post';
 import { FaArrowRight } from 'react-icons/fa6';
 import Loader from './Loader';

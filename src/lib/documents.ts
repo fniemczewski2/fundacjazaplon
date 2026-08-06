@@ -20,9 +20,8 @@ export type DocumentFile = {
   name: string;
   path: string;
   url: string;
-  created_at: string;
-  updated_at: string;
-  /** Rozmiar w bajtach — Supabase zwraca go zagnieżdżony w `metadata`, nie jako pole top-level. */
+  created_at: string | null;
+  updated_at: string | null;
   size: number | undefined;
   metadata: FileObject['metadata'];
 };

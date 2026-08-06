@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { getErrorMessage } from '../../lib/utils/errors';
 
-export default function AdminLogin(): JSX.Element {
-  const navigate = useNavigate();
+export default function AdminLogin() {
+  const [, setLocation] = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function AdminLogin(): JSX.Element {
         setErr(error.message);
         return;
       }
-      navigate('/admin', { replace: true });
+      setLocation('/admin');
     } catch (error) {
       setErr(getErrorMessage(error));
     } finally {

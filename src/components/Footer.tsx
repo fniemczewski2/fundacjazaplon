@@ -28,7 +28,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="hover:text-brand hover:underline text-lg transition-colors flex flex-nowrap items-center "
+                className="hover:underline text-lg transition-colors flex flex-nowrap items-center "
               >
                 <FaFacebook />&nbsp;Facebook
               </a>
@@ -41,7 +41,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="hover:text-brand hover:underline text-lg transition-colors flex flex-nowrap items-center "
+                className="hover:underline text-lg transition-colors flex flex-nowrap items-center "
               >
                 <FaInstagram />&nbsp;Instagram
               </a>
@@ -54,7 +54,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="hover:text-brand hover:underline text-lg transition-colors flex flex-nowrap items-center "
+                className="hover:underline text-lg transition-colors flex flex-nowrap items-center "
               >
                 <FaLinkedin />&nbsp;LinkedIn
               </a>
@@ -67,7 +67,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X / Twitter"
-                className="hover:text-brand hover:underline text-lg transition-colors flex flex-nowrap items-center "
+                className="hover:underline text-lg transition-colors flex flex-nowrap items-center "
               >
                 <FaXTwitter />&nbsp;X
               </a>

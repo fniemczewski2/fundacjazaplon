@@ -1,6 +1,5 @@
-// src/routes/admin/team/TeamEdit.tsx
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'wouter';
 import {
   getTeamMember,
   createTeamMember,
@@ -29,7 +28,7 @@ const EMPTY_MEMBER: Model = {
 
 export default function TeamEdit() {
   const { id } = useParams();
-  const nav = useNavigate();
+  const [, setLocation] = useLocation();
   const isNew = id === 'new';
 
   const [m, setM] = useState<Model>(EMPTY_MEMBER);
@@ -84,7 +83,7 @@ export default function TeamEdit() {
           await updateTeamMember(created.id, { photo_url: url });
         }
 
-        nav(`/admin/zespol/${created.id}`, { replace: true });
+        setLocation(`/admin/zespol/${created.id}`);
         return;
       }
 
@@ -107,7 +106,7 @@ export default function TeamEdit() {
         slug: m.slug || '',
       });
 
-      nav('/admin/zespol');
+      setLocation('/admin/zespol');
     } catch (e) {
       showToast(getErrorMessage(e, 'Błąd zapisu.'), 'error');
     } finally {
@@ -125,7 +124,7 @@ export default function TeamEdit() {
 
     try {
       await deleteTeamMember(id);
-      nav('/admin/zespol', { replace: true });
+      setLocation('/admin/zespol');
     } catch (e) {
       showToast(getErrorMessage(e, 'Błąd usuwania.'), 'error');
     }

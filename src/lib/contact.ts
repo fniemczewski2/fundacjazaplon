@@ -17,12 +17,10 @@ export type ContactInfo = {
 
 export type ContactInfoInput = Partial<Omit<ContactInfo, 'id' | 'updated_at'>> & { id?: string };
 
-/** Pobiera najnowszy rekord kontaktu (albo `null`, jeśli brak). */
 export async function getContact(): Promise<ContactInfo | null> {
   return getLatestSingleton<ContactInfo>('contact_info');
 }
 
-/** Zapis — jeśli podano `id`, robi UPDATE; w przeciwnym razie INSERT nowego rekordu. */
 export async function saveContact(payload: ContactInfoInput): Promise<void> {
   const row = {
     address: payload.address ?? null,

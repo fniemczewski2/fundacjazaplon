@@ -1,6 +1,6 @@
 // src/routes/admin/posts/PostsList.tsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { listPosts, type Post } from '../../../lib/post';
 import { getErrorMessage } from '../../../lib/utils/errors';
 import Loader from '../../../components/Loader';

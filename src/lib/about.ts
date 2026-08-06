@@ -12,7 +12,7 @@ export type Pillar = {
   order_index: number;
   title: string | null;
   body_md: string | null;
-  image_url: string | null; // Mamy to w typie zwracanym
+  image_url: string | null; 
   updated_at: string;
 };
 
@@ -57,15 +57,13 @@ export async function savePillar(p: { id?: string; order_index: number; title: s
   return data as Pillar;
 }
 
-/** Batch save – wygodne dla formularza 5 filarów */
-// DODANO image_url do argumentów tablicy
 export async function savePillarsBatch(pillars: Array<{ id?: string; order_index: number; title: string | null; body_md: string | null; image_url: string | null }>) {
   const rows = pillars.map(p => ({
     id: p.id ?? undefined,
     order_index: p.order_index,
     title: p.title ?? null,
     body_md: p.body_md ?? null,
-    image_url: p.image_url ?? null, // DODANO przypisanie do wierszy
+    image_url: p.image_url ?? null, 
   }));
   
   const { error } = await supabase

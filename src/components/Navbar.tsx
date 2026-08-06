@@ -1,6 +1,5 @@
-// src/components/Navbar.tsx
 import React from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'wouter';
 import { useJoinLink } from '../hooks/useAppData';
 import ThemeSwitcher from './ThemeSwitcher';
 
@@ -15,16 +14,14 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const [open, setOpen] = React.useState(false);
-  const location = useLocation();
+  const [location] = useLocation();
 
-  // React Query deduplikuje to zapytanie z tym samym w JoinUsCard — jeśli obie
-  // strony są zamontowane naraz, wykona się tylko jedno realne zapytanie sieciowe.
   const { data: joinLink } = useJoinLink();
   const joinUrl = joinLink?.survey_url ?? null;
 
   React.useEffect(() => {
     setOpen(false);
-  }, [location.pathname]);
+  }, [location]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -37,33 +34,35 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-brand text-white shadow-md">
       <nav className="container-max flex items-center justify-between py-3 md:py-4">
 
-        <Link to="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <img
             src="/images/logo.svg"
             alt="Logo Fundacji Zapłon"
             className="h-16 w-auto md:h-14 logo"
           />
         </Link>
+
+        {/* Menu Desktop */}
         <ul className="hidden md:flex text-sm lg:text-base lg:gap-6 gap-4 items-center text-white">
-          {NAV_ITEMS.map((item) => (
-            <li key={item.to}>
-              <NavLink
-                to={item.to}
-                className={({ isActive }) =>
-                  `hover:opacity-80 transition ${
+          {NAV_ITEMS.map((item) => {
+            const isActive = location === item.to;
+            return (
+              <li key={item.to}>
+                <Link
+                  href={item.to}
+                  className={`hover:opacity-80 transition ${
                     isActive ? 'underline underline-offset-8 decoration-brand' : ''
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
-            </li>
-          ))}
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         {/* CTA + Theme (desktop) */}
         <div className="hidden md:flex items-center gap-2 text-text-black">
-
           {joinUrl && (
             <a
               href={joinUrl}
@@ -74,10 +73,13 @@ export default function Navbar() {
               Dołączam
             </a>
           )}
-          <Link className="btn btn-primary" to="/#donate">Wspieram</Link>
+          <Link href="/#donate" className="btn btn-primary">
+            Wspieram
+          </Link>
           <ThemeSwitcher />
         </div>
 
+        {/* Przycisk mobile */}
         <div className="md:hidden flex items-center text-text-black gap-2">
           <ThemeSwitcher />
           <button
@@ -109,6 +111,7 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Menu Mobile */}
       <div
         id="mobile-menu"
         aria-hidden={!open}
@@ -118,23 +121,23 @@ export default function Navbar() {
       >
         <div className="container-max pb-3">
           <ul className="flex flex-col gap-1">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  tabIndex={open ? 0 : -1}
-                  className={({ isActive }) =>
-                    `block rounded-xl px-4 py-3 transition text-white ${
+            {NAV_ITEMS.map((item) => {
+              const isActive = location === item.to;
+              return (
+                <li key={item.to}>
+                  <Link
+                    href={item.to}
+                    tabIndex={open ? 0 : -1}
+                    className={`block rounded-xl px-4 py-3 transition text-white ${
                       isActive ? 'underline underline-offset-8 decoration-brand' : ''
-                    }`
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
 
-            {/* CTA buttons w mobile */}
             <li className="px-1 flex flex-col gap-2 mt-2">
               {joinUrl && (
                 <a
@@ -148,7 +151,7 @@ export default function Navbar() {
                 </a>
               )}
               <Link
-                to="/#donate"
+                href="/#donate"
                 tabIndex={open ? 0 : -1}
                 className="btn btn-secondary w-full"
                 onClick={() => setOpen(false)}

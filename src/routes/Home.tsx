@@ -7,9 +7,6 @@ import RecentPosts from '../components/RecentPosts';
 import { useScrollToHash } from '../hooks/useScrollToHash';
 
 export default function Home() {
-  // Sekcja #donate jest zawsze obecna od razu po zamontowaniu Home, więc "ready"
-  // może być stałym `true` — w przeciwieństwie do np. Team.tsx, gdzie trzeba
-  // czekać na wczytanie danych z sieci przed przewinięciem.
   useScrollToHash(true);
 
   return (

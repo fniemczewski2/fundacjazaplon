@@ -1,7 +1,6 @@
-// src/main.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider, redirect } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import './index.css';
@@ -42,12 +41,6 @@ const AdminDocuments  = React.lazy(() => import('./routes/admin/Documents'));
 const ResetPasswordPage = React.lazy(() => import('./routes/admin/Password'));
 const MaterialsAdmin  = React.lazy(() => import('./routes/admin/pages/Materials'));
 
-// Śledzenie stron realizuje wyłącznie gtag.js skonfigurowany w index.html
-// (z poprawnym Google Consent Mode v2) + PageTracker.tsx na zmiany trasy SPA.
-// Wcześniej istniała RÓWNOLEGLE druga, niezależna integracja przez `react-ga4`,
-// która nigdy nie była poprawnie zainicjalizowana (martwy kod) — usunięta,
-// żeby nie utrzymywać dwóch niespójnych ścieżek analitycznych naraz.
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -57,70 +50,91 @@ const queryClient = new QueryClient({
   },
 });
 
-const requireAuth = async () => {
-  const { data } = await supabase.auth.getSession();
-  const session = data?.session ?? null;
-  return session ? null : redirect('/admin/login');
-};
+function ProtectedAdminRoute({ component: Component }: { component: React.ComponentType }) {
+  const [authed, setAuthed] = React.useState<boolean | null>(null);
 
-const redirectIfAuthed = async () => {
-  const { data } = await supabase.auth.getSession();
-  const session = data?.session ?? null;
-  return session ? redirect('/admin') : null;
-};
+  React.useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setAuthed(!!data?.session);
+    });
+  }, []);
 
-const router = createBrowserRouter([
-  {
-    element: <PageTracker />,
-    children: [
+  if (authed === null) return <Loader />;
+  if (!authed) return <Redirect to="/admin/login" />;
+  return <Component />;
+}
 
-      {
-        element: <Layout />,
-        children: [
-          { path: '/',                  element: <Home /> },
-          { path: '/aktualnosci',       element: <Blog /> },
-          { path: '/aktualnosci/:slug', element: <Post /> },
-          { path: '/o-nas',             element: <About /> },
-          { path: '/zespol',            element: <Team /> },
-          { path: '/dokumenty',         element: <Documents /> },
-          { path: '/kontakt',           element: <Contact /> },
-          { path: '/linki',             element: <Links /> },
-          { path: '/links',             element: <Links /> },
-          { path: '/materialy',         element: <Materials /> },
-          { path: '/wplacam',           element: <Links /> },
-          { path: '/newsletter',        element: <Links /> },
-          // Brakująca wcześniej trasa: success_url z api/create-stripe-session.ts
-          // wskazywał tu, a bez tego wpisu darczyńca po udanej płatności lądował na 404.
-          { path: '/dziekujemy',        element: <ThankYou /> },
-          { path: "/w/:slug",           element: <TeamMemberCard /> },
-          { path: '*',                  element: <NotFound /> },
-        ],
-      },
+export default function AppRoutes() {
+  return (
+    <PageTracker>
+      <Switch>
+        {/* === Trasy bez głównego Layoutu (Panel Admina & Login) === */}
+        <Route path="/reset-password" component={ResetPasswordPage} />
+        <Route path="/admin/login" component={AdminLogin} />
 
-      { path: '/reset-password', element: <ResetPasswordPage /> },
-      { path: '/admin/login', element: <AdminLogin />, loader: redirectIfAuthed },
+        <Route path="/admin">
+          <ProtectedAdminRoute component={AdminDashboard} />
+        </Route>
+        <Route path="/admin/aktualnosci">
+          <ProtectedAdminRoute component={PostsList} />
+        </Route>
+        <Route path="/admin/aktualnosci/:id">
+          <ProtectedAdminRoute component={PostEdit} />
+        </Route>
+        <Route path="/admin/zespol">
+          <ProtectedAdminRoute component={TeamList} />
+        </Route>
+        <Route path="/admin/zespol/:id">
+          <ProtectedAdminRoute component={TeamEdit} />
+        </Route>
+        <Route path="/admin/strony/o-nas">
+          <ProtectedAdminRoute component={AboutEdit} />
+        </Route>
+        <Route path="/admin/strony/kontakt">
+          <ProtectedAdminRoute component={ContactEdit} />
+        </Route>
+        <Route path="/admin/strony/social">
+          <ProtectedAdminRoute component={SocialEdit} />
+        </Route>
+        <Route path="/admin/strony/join">
+          <ProtectedAdminRoute component={JoinUsEdit} />
+        </Route>
+        <Route path="/admin/strony/materials">
+          <ProtectedAdminRoute component={MaterialsAdmin} />
+        </Route>
+        <Route path="/admin/media">
+          <ProtectedAdminRoute component={Media} />
+        </Route>
+        <Route path="/admin/dokumenty">
+          <ProtectedAdminRoute component={AdminDocuments} />
+        </Route>
 
-      {
-        path: '/admin',
-        loader: requireAuth,
-        children: [
-          { index: true,                    element: <AdminDashboard /> },
-          { path: 'aktualnosci',            element: <PostsList /> },
-          { path: 'aktualnosci/:id',        element: <PostEdit /> },
-          { path: 'zespol',                 element: <TeamList /> },
-          { path: 'zespol/:id',             element: <TeamEdit /> },
-          { path: 'strony/o-nas',           element: <AboutEdit /> },
-          { path: 'strony/kontakt',         element: <ContactEdit /> },
-          { path: 'strony/social',          element: <SocialEdit /> },
-          { path: 'strony/join',            element: <JoinUsEdit /> },
-          { path: 'strony/materials',       element: <MaterialsAdmin /> },
-          { path: 'media',                  element: <Media /> },
-          { path: 'dokumenty',              element: <AdminDocuments /> },
-        ],
-      },
-    ],
-  },
-]);
+        {/* === Publiczne trasy produkcyjne otoczone Layoutem === */}
+        <Route>
+          <Layout>
+            <Switch>
+              <Route path="/" component={Home} />
+              <Route path="/aktualnosci" component={Blog} />
+              <Route path="/aktualnosci/:slug" component={Post} />
+              <Route path="/o-nas" component={About} />
+              <Route path="/zespol" component={Team} />
+              <Route path="/dokumenty" component={Documents} />
+              <Route path="/kontakt" component={Contact} />
+              <Route path="/linki" component={Links} />
+              <Route path="/links" component={Links} />
+              <Route path="/materialy" component={Materials} />
+              <Route path="/wplacam" component={Links} />
+              <Route path="/newsletter" component={Links} />
+              <Route path="/dziekujemy" component={ThankYou} />
+              <Route path="/w/:slug" component={TeamMemberCard} />
+              <Route component={NotFound} />
+            </Switch>
+          </Layout>
+        </Route>
+      </Switch>
+    </PageTracker>
+  );
+}
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -133,7 +147,7 @@ ReactDOM.createRoot(rootElement).render(
       <QueryClientProvider client={queryClient}>
         <FeedbackProvider>
           <React.Suspense fallback={<Loader />}>
-            <RouterProvider router={router} />
+            <AppRoutes />
             <CookieConsent />
           </React.Suspense>
         </FeedbackProvider>

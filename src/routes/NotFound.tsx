@@ -1,13 +1,7 @@
 // src/routes/NotFound.tsx
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import Seo from '../components/Seo';
 
-/**
- * PRZED: ten plik był dosłowną kopią `src/components/RecentPosts.tsx` (nawet
- * komentarz na górze pliku wskazywał na "RecentPosts.tsx") — trasa kataloguj
- * `*` w main.tsx renderowała więc siatkę ostatnich aktualności zamiast
- * komunikatu 404 na KAŻDYM nieistniejącym adresie URL w całej witrynie.
- */
 export default function NotFound() {
   return (
     <>

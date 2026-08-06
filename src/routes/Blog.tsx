@@ -1,6 +1,6 @@
 // src/routes/Blog.tsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import Seo from '../components/Seo';
 import { listPublishedPosts, type Post } from '../lib/post';
 import { getErrorMessage } from '../lib/utils/errors';

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'wouter';
 import ReactMarkdown from 'react-markdown';
 import Seo from '../components/Seo';
 import ArticleSchema from '../components/ArticleSchema';
@@ -8,41 +8,38 @@ import { getErrorMessage } from '../lib/utils/errors';
 import { FaArrowLeft } from 'react-icons/fa6';
 import Loader from '../components/Loader';
 
-// Wyniesione poza komponent — to samo mapowanie nie musi być tworzone na nowo
-// przy każdym renderze (ReactMarkdown dostawałoby "nowy" obiekt `components`
-// za każdym razem, mimo że jest on zawsze identyczny).
 const markdownComponents = {
-  h2: ({ node: _node, children, ...props }: JSX.IntrinsicElements['h2'] & { node?: unknown }) => (
+  h2: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'h2'> & { node?: unknown }) => (
     <h2 className="text-3xl md:text-4xl font-bold mt-10 mb-5 text-text-black dark:text-white" {...props}>
       {children}
     </h2>
   ),
-  h3: ({ node: _node, children, ...props }: JSX.IntrinsicElements['h3'] & { node?: unknown }) => (
+  h3: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'h3'> & { node?: unknown }) => (
     <h3 className="text-2xl md:text-3xl font-semibold mt-8 mb-4 text-text-black dark:text-white" {...props}>
       {children}
     </h3>
   ),
-  h4: ({ node: _node, children, ...props }: JSX.IntrinsicElements['h4'] & { node?: unknown }) => (
+  h4: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'h4'> & { node?: unknown }) => (
     <h4 className="text-xl md:text-2xl font-medium mt-6 mb-3 text-text-black dark:text-white" {...props}>
       {children}
     </h4>
   ),
-  p: ({ node: _node, children, ...props }: JSX.IntrinsicElements['p'] & { node?: unknown }) => (
+  p: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'p'> & { node?: unknown }) => (
     <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6" {...props}>
       {children}
     </p>
   ),
-  ul: ({ node: _node, children, ...props }: JSX.IntrinsicElements['ul'] & { node?: unknown }) => (
+  ul: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'ul'> & { node?: unknown }) => (
     <ul className="list-disc list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props}>
       {children}
     </ul>
   ),
-  ol: ({ node: _node, children, ...props }: JSX.IntrinsicElements['ol'] & { node?: unknown }) => (
+  ol: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'ol'> & { node?: unknown }) => (
     <ol className="list-decimal list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props}>
       {children}
     </ol>
   ),
-  a: ({ node: _node, children, ...props }: JSX.IntrinsicElements['a'] & { node?: unknown }) => (
+  a: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'a'> & { node?: unknown }) => (
     <a className="text-brand dark:text-accent-orange hover:underline font-medium" {...props}>
       {children}
     </a>

@@ -1,6 +1,5 @@
-// src/routes/Links.tsx
 import { useEffect, useState, type ReactNode } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import {
   FaInstagram,
   FaLinkedin,
@@ -31,8 +30,7 @@ type LinkItem = {
 const DEEP_LINK_PATHS = ['/wplacam', '/newsletter', '/dolacz'];
 
 export default function Links() {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [pathname, setLocation] = useLocation();
 
   const [socialLinks, setSocialLinks] = useState<SocialLinks | null>(null);
   const [joinLink, setJoinLink] = useState<JoinUs | null>(null);
@@ -40,9 +38,9 @@ export default function Links() {
   const [activeModal, setActiveModal] = useState<ModalKind>(null);
 
   useEffect(() => {
-    if (location.pathname === '/wplacam') setActiveModal('donate');
-    else if (location.pathname === '/newsletter') setActiveModal('newsletter');
-  }, [location.pathname]);
+    if (pathname === '/wplacam') setActiveModal('donate');
+    else if (pathname === '/newsletter') setActiveModal('newsletter');
+  }, [pathname]);
 
   useEffect(() => {
     (async () => {
@@ -66,8 +64,8 @@ export default function Links() {
 
   const closeModal = () => {
     setActiveModal(null);
-    if (DEEP_LINK_PATHS.includes(location.pathname)) {
-      navigate('/links', { replace: true });
+    if (DEEP_LINK_PATHS.includes(pathname)) {
+      setLocation('/links');
     }
   };
 
@@ -110,10 +108,6 @@ export default function Links() {
           },
         ]
       : []),
-    // PRZED: `url: socialLinks.linkedin` bez optional chaining i bez warunku —
-    // gdy socialLinks było `null` (pusta tabela / błąd sieci), cała strona się
-    // wywalała (TypeError: Cannot read properties of null). Naprawione analogicznie
-    // do Instagrama: pole pojawia się na liście tylko, gdy realnie ma wartość.
     ...(socialLinks?.linkedin
       ? [
           {

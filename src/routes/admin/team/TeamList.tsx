@@ -1,6 +1,6 @@
 // src/routes/admin/team/TeamList.tsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { listTeam, type TeamMember } from '../../../lib/team';
 import { getErrorMessage } from '../../../lib/utils/errors';
 import Loader from '../../../components/Loader';

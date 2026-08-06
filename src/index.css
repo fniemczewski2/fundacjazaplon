@@ -39,6 +39,18 @@ html[data-theme="dark"]:root {
   --accent-orange: 28 92% 62%;
 }
 
+html {
+  overscroll-behavior-y: none;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0;
+  width: 100%;
+}
+
 /* Użyteczne utilsy projektu */
 img[loading="lazy"] { filter: saturate(1.02); }
 .container-max { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
@@ -60,10 +72,10 @@ img[loading="lazy"] { filter: saturate(1.02); }
 .badge { @apply inline-flex px-2 py-1 rounded-full text-sm border border-white/20; }
 .section-title { @apply text-text-black w-full text-center text-3xl md:text-4xl font-semibold tracking-tight font-["Signika"]; }
 .shadow-orange-sp { box-shadow: rgba(255, 169, 98, 0.75) 0px 5px 15px 0px;}
-/* Zmiana logo w trybie dark */
-/* html[data-theme="dark"] img.logo {
+/* 
+html[data-theme="dark"] img.logo {
   content: url("/images/logo_dark.svg");
-} */
+}  */
 
 h1, h2, h3, h4, h5, h6 {
   font-family: "Signika", sans-serif;

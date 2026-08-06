@@ -1,12 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { FaHeart } from 'react-icons/fa6';
 import Seo from '../components/Seo';
 
-/**
- * Docelowa strona `success_url` z `api/create-stripe-session.ts`. Wcześniej ta
- * trasa nie istniała w ogóle — darczyńca po realnie udanej płatności trafiał
- * na stronę 404 zamiast na potwierdzenie.
- */
 export default function ThankYou() {
   return (
     <>

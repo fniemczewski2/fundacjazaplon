@@ -1,6 +1,6 @@
 // src/routes/admin/Dashboard.tsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { getAdminCounts, getCurrentUserEmail, signOutAdmin, type AdminCounts } from '../../lib/admin';
 import Loader from '../../components/Loader';
 

@@ -1,6 +1,5 @@
-// src/routes/admin/posts/PostEdit.tsx
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'wouter';
 import {
   getPostById,
   createPost,
@@ -33,7 +32,7 @@ const empty: Model = {
 
 export default function PostEdit() {
   const { id } = useParams();
-  const nav = useNavigate();
+  const [, setLocation] = useLocation();
   const isNew = id === 'new';
 
   const [m, setM] = useState<Model>(empty);
@@ -102,7 +101,8 @@ export default function PostEdit() {
           await uploadPostCover(created.id, file);
         }
 
-        return nav(`/admin/aktualnosci/${created.id}`, { replace: true });
+        setLocation(`/admin/aktualnosci/${created.id}`);
+        return;
       } else {
         if (!id) return;
 
@@ -112,7 +112,8 @@ export default function PostEdit() {
           await uploadPostCover(id, file);
         }
 
-        return nav('/admin/aktualnosci');
+        setLocation('/admin/aktualnosci');
+        return;
       }
     } catch (e) {
       showToast(getErrorMessage(e, 'Błąd zapisu.'), 'error');
@@ -130,7 +131,7 @@ export default function PostEdit() {
     if (!confirmed) return;
     try {
       await removePost(id);
-      nav('/admin/aktualnosci', { replace: true });
+      setLocation('/admin/aktualnosci');
     } catch (e) {
       showToast(getErrorMessage(e, 'Błąd usuwania.'), 'error');
     }
@@ -170,7 +171,6 @@ export default function PostEdit() {
         onChange={(e) => setM((s) => ({ ...s, body_md: e.target.value }))}
       />
 
-      {/* Okładka: podgląd + input file + ręczne URL (opcjonalnie zostaje) */}
       <div className="grid md:grid-cols-3 gap-4 items-start">
         <div className="space-y-2">
           <div className="text-sm text-text-black/70">Okładka</div>
@@ -194,7 +194,6 @@ export default function PostEdit() {
             />
           </label>
 
-          {/* Opcjonalnie zostawiamy też ręczne URL — jakbyś chciał podać link zewnętrzny */}
           <input
             className="border p-2 rounded w-full"
             placeholder="lub podaj URL okładki"
