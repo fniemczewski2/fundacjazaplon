@@ -1,112 +1,149 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-  /* Kolory marki i akcentów */
-  --brand: 208 63% 27%;        /* #194770 – główny kolor marki (zostawiam Twoje HSL) */
-  --button: 208 63% 27%;  
+@custom-variant dark (&:where(.dark, .dark *, [data-theme='dark'], [data-theme='dark'] *));
 
-  /* Tła */
-  --base-100: 30 30% 98%;      /* #FAF6F3 – tło strony (niebieski był tu pomyłką) */
-  --base-200: 208 69% 80%;    /* #FFEEB5 – delikatne tło kart/sekcji */
+@theme {
+  --color-brand: hsl(208 63% 27%);
+  --color-button: hsl(208 63% 27%);
 
-  /* Tekst */
-  --black: 0 0% 21%;        /* #363636 – główny kolor tekstu */
-  --white: 0 0% 100%;       /* biały tekst na brand */
-  --navbar: 0 0% 100%;       /* biały tekst w navbarze */
+  --color-base-100: hsl(30 30% 98%);
+  --color-base-200: hsl(208 69% 80%);
+  --color-base-300: hsl(208 40% 88%);
 
-  /* Akcenty */
-  --accent-orange: 28 100% 69%;/* #FFA962 – CTA/przyciski akcentowe */
+  --color-text-black: hsl(0 0% 21%);
+  --color-text-white: hsl(0 0% 100%);
+  --color-text-navbar: hsl(0 0% 100%);
+
+  --color-accent-orange: hsl(24 95% 38%);
+  --color-danger: hsl(0 72% 42%);
+  --color-success: hsl(152 69% 27%);
+
+  --font-sans: 'Work Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Signika', ui-sans-serif, system-ui, sans-serif;
+
+  --radius-2xl: 1.25rem;
+
+  --animate-fade-in: fade-in 200ms ease-out both;
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 }
 
-/* Tryb ciemny – kontrast i jaśniejszy brand */
-html[data-theme="dark"]:root {
-  /* Brand */
-  --brand: 208 63% 27%; 
-  --button: 0% 0% 100%;
+html[data-theme='dark'],
+html.dark {
+  --color-brand: hsl(208 63% 27%);
+  --color-button: hsl(0 0% 100%);
 
-  /* Tła */
-  --base-100: 210 28% 11%;
-  --base-200: 210 22% 16%;
-  --base-300: 210 18% 24%;
+  --color-base-100: hsl(210 28% 11%);
+  --color-base-200: hsl(210 22% 16%);
+  --color-base-300: hsl(210 18% 24%);
 
-  /* Tekst */
-  --black: 0 0% 100%;   /* główny tekst teraz biały */
-  --white: 0 0% 14%;    /* jeśli potrzebujesz ciemnego tekstu na jasnych elementach */
-  --navbar: 0 0% 100%; /* biały tekst w navbarze */
-  /* Akcent */
-  --accent-orange: 28 92% 62%;
-}
+  --color-text-black: hsl(0 0% 100%);
+  --color-text-white: hsl(0 0% 14%);
+  --color-text-navbar: hsl(0 0% 100%);
 
-html {
-  overscroll-behavior-y: none;
-  scroll-behavior: smooth;
-}
-
-body {
-  overflow-y: auto;
-  overflow-x: hidden;
-  margin: 0;
-  width: 100%;
-}
-
-/* Użyteczne utilsy projektu */
-img[loading="lazy"] { filter: saturate(1.02); }
-.container-max { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
-
-/* Komponenty */
-.card {
-  /* w light: solid z base-200; w dark: subtelne półprzezroczyste tło */
-  @apply bg-base-100 dark:bg-white/5 border border-white/20 rounded-2xl shadow-text-black/30;
-  /* box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px, rgba(0, 0, 0, 0.1) 0px 6px 6px; */
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px; 
-}
-.btn {
-  @apply inline-flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition hover:opacity-90 focus:outline-none;
-}
-.btn-primary { @apply bg-brand text-white; }
-.btn-secondary { @apply border-button border-solid border-2 text-button hover:bg-button hover:border-white hover:text-white transition; }
-.btn-ghost { @apply bg-transparent; }
-.badge { @apply inline-flex px-2 py-1 rounded-full text-sm border border-white/20; }
-.section-title { @apply text-text-black w-full text-center text-3xl md:text-4xl font-semibold tracking-tight font-["Signika"]; }
-.shadow-orange-sp { box-shadow: rgba(255, 169, 98, 0.75) 0px 5px 15px 0px;}
-/* 
-html[data-theme="dark"] img.logo {
-  content: url("/images/logo_dark.svg");
-}  */
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: "Signika", sans-serif;
-  color: hsl(var(--black));
-}
-
-html, p, a, li, span, div, input, textarea, button {
-  font-family: "Work Sans", sans-serif;
-  color: hsl(var(--black));
-}
-
-.input-text {
-  @apply w-full p-3 border rounded-full outline-none transition-shadow dark:bg-gray-700 dark:border-gray-600 dark:text-white
-}
-
-.input-textarea {
-  @apply w-full p-3 border rounded-xl outline-none transition-shadow dark:bg-gray-700 dark:border-gray-600 dark:text-white
-}
-
-nav *, footer *{
-  color: hsl(var(--navbar))
+  --color-accent-orange: hsl(28 92% 62%);
+  --color-danger: hsl(0 84% 71%);
+  --color-success: hsl(152 60% 60%);
 }
 
 @font-face {
   font-family: 'Signika';
   src: url('/fonts/Signika.woff2') format('woff2');
+  font-weight: 300 700;
+  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Work Sans';
   src: url('/fonts/WorkSans.woff2') format('woff2');
+  font-weight: 300 700;
+  font-style: normal;
   font-display: swap;
 }
+
+@layer base {
+  html {
+    overscroll-behavior-y: none;
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    color: var(--color-text-black);
+  }
+
+  body {
+    margin: 0;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--color-text-black);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-orange);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+}
+
+@layer components {
+  .container-max {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .card {
+    @apply rounded-2xl border border-black/10 bg-base-100 dark:border-white/20 dark:bg-white/5;
+    box-shadow: rgb(0 0 0 / 0.15) 0 5px 15px 0;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 font-semibold transition
+      hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-orange;
+  }
+
+  .btn-primary { @apply bg-brand text-white; }
+
+  .btn-secondary {
+    @apply border-2 border-solid border-button text-button hover:border-button hover:bg-button hover:text-base-100;
+  }
+
+  .btn-ghost { @apply bg-transparent; }
+
+  .btn-danger { @apply bg-danger text-white; }
+
+  .badge {
+    @apply inline-flex rounded-full border border-black/10 px-2 py-1 text-sm dark:border-white/20;
+  }
+
+  .section-title {
+    @apply w-full text-center font-heading text-3xl font-semibold tracking-tight text-text-black md:text-4xl;
+  }
+
+  .input-text {
+    @apply w-full rounded-full border border-black/20 bg-transparent p-3 transition-shadow outline-hidden
+      focus-visible:ring-2 focus-visible:ring-accent-orange
+      dark:border-white/20 dark:bg-white/5 dark:text-white;
+  }
+
+  .input-textarea {
+    @apply w-full rounded-xl border border-black/20 bg-transparent p-3 transition-shadow outline-hidden
+      focus-visible:ring-2 focus-visible:ring-accent-orange
+      dark:border-white/20 dark:bg-white/5 dark:text-white;
+  }
+
+  .shadow-orange-sp {
+    box-shadow: rgb(255 169 98 / 0.75) 0 5px 15px 0;
+  }
+}
+
+img[loading='lazy'] { filter: saturate(1.02); }
