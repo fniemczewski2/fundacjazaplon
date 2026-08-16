@@ -89,7 +89,7 @@ export default function Materials() {
             <div className="p-6 flex flex-col flex-grow">
               <div className="flex justify-between items-start mb-3 gap-2">
                 <h3 className="text-xl font-bold text-text-black">{mat.title}</h3>
-                <span className="text-xs font-semibold bg-brand-primary/20 text-brand-primary px-2 py-1 rounded whitespace-nowrap">
+                <span className="text-xs font-semibold bg-brand/20 text-brand dark:text-accent-orange px-2 py-1 rounded whitespace-nowrap">
                   {mat.format}
                 </span>
               </div>
@@ -110,7 +110,7 @@ export default function Materials() {
 
       {/* Modal Pobierania */}
       {selectedMaterial && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-gray-800 p-8 rounded-xl max-w-md w-full relative shadow-2xl">
             <button 
               onClick={() => setSelectedMaterial(null)}

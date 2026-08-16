@@ -135,7 +135,7 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
                   key={val}
                   type="button"
                   onClick={() => setAmount(val)}
-                  className={`btn justify-center py-2 rounded-lg font-medium transition-colors border ${
+                  className={`btn justify-center py-2 rounded-full font-medium transition-colors border ${
                     amount === val 
                       ? 'bg-brand text-white border-brand shadow-md' 
                       : 'btn-secondary '
@@ -157,7 +157,7 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
             <button 
               type="button" 
               onClick={() => setStep(1)}
-              className="text-sm text-gray-500 hover:text-brand-primary flex items-center gap-1 mb-4 transition-colors"
+              className="text-sm text-gray-500 hover:text-brand flex items-center gap-1 mb-4 transition-colors"
             >
               <FaArrowLeft /> Wróć do wyboru kwoty
             </button>
@@ -217,7 +217,6 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
         )}
       </div>
 
-      {/* --- SEKCJA PRZELEWU TRADYCYJNEGO --- */}
       {acct && (
         <>
           <div className="w-full flex items-center gap-4 my-6">
@@ -231,7 +230,7 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
             <p className="font-mono md:tracking-wider flex items-center mt-2 text-[12px] md:text-base leading-tight dark:text-white">{acct}
             <button
               onClick={copy}
-              className="text-gray-500 hover:text-brand-primary transition-colors pl-2"
+              className="text-gray-500 hover:text-brand transition-colors pl-2"
               aria-label="Skopiuj numer konta"
               title={copied ? 'Skopiowano!' : 'Skopiuj'}
             >

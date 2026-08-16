@@ -170,7 +170,7 @@ export default function TeamEdit() {
             type="tel"
             value={m.phone ?? ''}
             onChange={(e) => setM((s) => ({ ...s, phone: e.target.value }))}
-            className="w-full p-2 border rounded focus:ring focus:ring-blue-200"
+            className="w-full p-2 border border-gray-200 dark:border-gray-600 rounded focus:ring-3 focus:ring-blue-200"
             placeholder="Nr telefonu: +48 123 456 789"
           />
 
@@ -178,7 +178,7 @@ export default function TeamEdit() {
             type="email"
             value={m.email ?? ''}
             onChange={(e) => setM((s) => ({ ...s, email: e.target.value }))}
-            className="w-full p-2 border rounded focus:ring focus:ring-blue-200"
+            className="w-full p-2 border border-gray-200 dark:border-gray-600 rounded focus:ring-3 focus:ring-blue-200"
             placeholder="Adres e-mail: jan.kowalski@zaplon.org.pl"
           />
 
@@ -186,7 +186,7 @@ export default function TeamEdit() {
             type="text"
             value={m.slug ?? ''}
             onChange={(e) => setM((s) => ({ ...s, slug: toSafeSlug(e.target.value) }))}
-            className="w-full p-2 border rounded focus:ring focus:ring-blue-200"
+            className="w-full p-2 border border-gray-200 dark:border-gray-600 rounded focus:ring-3 focus:ring-blue-200"
             placeholder="slug (np. jan-kowalski)"
             required
           />

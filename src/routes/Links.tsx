@@ -196,7 +196,7 @@ export default function Links() {
       </div>
 
       {activeModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-[100]">
           <button
             type="button"
             aria-label="Zamknij"

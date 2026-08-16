@@ -58,7 +58,7 @@ export default function Blog() {
               {posts.map((p) => (
                 <article
                   key={p.id}
-                  className="card overflow-hidden rounded-2xl shadow-sm hover:shadow-md transition"
+                  className="card overflow-hidden rounded-2xl shadow-xs hover:shadow-md transition"
                 >
                   <Link to={`/aktualnosci/${p.slug}`}>
                     {p.cover_url ? (

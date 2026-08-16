@@ -80,19 +80,19 @@ export default function MaterialsAdmin() {
             placeholder="Tytuł"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="border p-2 rounded w-full outline-none focus:border-brand-primary"
+            className="border border-gray-200 dark:border-gray-600 p-2 rounded w-full outline-hidden focus:border-brand"
           />
           <input
             placeholder="Format (np. PDF, PPTX)"
             value={form.format}
             onChange={(e) => setForm({ ...form, format: e.target.value })}
-            className="border p-2 rounded w-full outline-none focus:border-brand-primary"
+            className="border border-gray-200 dark:border-gray-600 p-2 rounded w-full outline-hidden focus:border-brand"
           />
           <textarea
             placeholder="Opis"
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="border p-2 rounded w-full md:col-span-2 outline-none focus:border-brand-primary"
+            className="border border-gray-200 dark:border-gray-600 p-2 rounded w-full md:col-span-2 outline-hidden focus:border-brand"
           />
           <input
             required
@@ -100,14 +100,14 @@ export default function MaterialsAdmin() {
             placeholder="Link do pliku (URL)"
             value={form.file_url}
             onChange={(e) => setForm({ ...form, file_url: e.target.value })}
-            className="border p-2 rounded w-full outline-none focus:border-brand-primary"
+            className="border border-gray-200 dark:border-gray-600 p-2 rounded w-full outline-hidden focus:border-brand"
           />
           <input
             type="url"
             placeholder="Link do miniatury (URL)"
             value={form.cover_image}
             onChange={(e) => setForm({ ...form, cover_image: e.target.value })}
-            className="border p-2 rounded w-full outline-none focus:border-brand-primary"
+            className="border border-gray-200 dark:border-gray-600 p-2 rounded w-full outline-hidden focus:border-brand"
           />
 
           <div className="md:col-span-2 mt-2">
@@ -132,7 +132,7 @@ export default function MaterialsAdmin() {
               <h3 className="font-bold">
                 {mat.title} <span className="text-sm font-normal text-gray-500">({mat.format})</span>
               </h3>
-              <p className="text-sm text-brand-primary truncate max-w-[250px] sm:max-w-md lg:max-w-xl" title={mat.file_url}>
+              <p className="text-sm text-brand dark:text-accent-orange truncate max-w-[250px] sm:max-w-md lg:max-w-xl" title={mat.file_url}>
                 🔗 {mat.file_url}
               </p>
             </div>

@@ -131,7 +131,7 @@ function KpiCard({ label, value, to }: { label: string; value: number | string; 
       <div className="mt-2 text-3xl font-semibold">{value}</div>
     </div>
   );
-  return to ? <Link to={to} className="block hover:shadow-sm transition-shadow">{content}</Link> : content;
+  return to ? <Link to={to} className="block hover:shadow-xs transition-shadow">{content}</Link> : content;
 }
 
 function QuickAction({ to, children }: { to: string; children: React.ReactNode }) {

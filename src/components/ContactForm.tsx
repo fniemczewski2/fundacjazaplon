@@ -38,7 +38,7 @@ export default function ContactForm() {
           <label className="block">
             <span className="text-sm text-text-black/70">Imię i nazwisko</span>
             <input
-              className="input-text"
+              className="input-text bg-gray-50 dark:bg-gray-800"
               name="name"
               placeholder="Jan Kowalski"
               required
@@ -49,7 +49,7 @@ export default function ContactForm() {
             <span className="text-sm text-text-black/70">Email</span>
             <input
               type="email"
-              className="input-text"
+              className="input-text bg-gray-50 dark:bg-gray-800"
               name="email"
               placeholder="jan.kowalski@example.com"
               required
@@ -60,7 +60,7 @@ export default function ContactForm() {
         <label className="block">
           <span className="text-sm text-text-black/70">Wiadomość</span>
           <textarea
-            className="input-textarea"
+            className="input-textarea bg-gray-50 dark:bg-gray-800"
             rows={6}
             name="message"
             placeholder="W czym możemy pomóc?"

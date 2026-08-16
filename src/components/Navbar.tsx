@@ -138,7 +138,7 @@ export default function Navbar() {
               );
             })}
 
-            <li className="px-1 flex flex-col gap-2 mt-2">
+            <li className="px-1 flex flex-col gap-2 mt-2 text-white">
               {joinUrl && (
                 <a
                   href={joinUrl}
@@ -147,7 +147,7 @@ export default function Navbar() {
                   tabIndex={open ? 0 : -1}
                   className="btn btn-secondary w-full"
                 >
-                  Dołącz do wolontariatu
+                  Dołączam
                 </a>
               )}
               <Link

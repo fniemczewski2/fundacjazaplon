@@ -45,7 +45,7 @@ export default function About() {
             <h2 id="about-desc" className="sr-only">Opis fundacji</h2>
             <Card>
               {descriptionBlocks.map((block, idx) => (
-                <div key={idx} className="py-2 text-md md:text-xl prose max-w-none">
+                <div key={idx} className="py-2 text-base md:text-xl prose max-w-none">
                   <ReactMarkdown>{block}</ReactMarkdown>
                 </div>
               ))}
