@@ -8,6 +8,7 @@ import Loader from '../components/Loader';
 import Modal from '../components/Modal';
 import Reveal from '../components/Reveal';
 import PrivacyPolicyLink from '../components/PrivacyPolicyLink';
+import Illustration from '../components/Illustration';
 
 interface Material {
   id: string;
@@ -97,14 +98,14 @@ export default function Materials() {
     <>
       <Seo
         title="Materiały | Fundacja „Zapłon”"
-        description="Pobierz bezpłatne materiały edukacyjne Fundacji „Zapłon” — poradniki dla osób działających społecznie."
+        description="Pobierz bezpłatne materiały edukacyjne Fundacji „Zapłon” - poradniki dla osób działających społecznie."
       />
 
       <Page
         eyebrow="Do pobrania"
         title="Materiały"
         lead="Poradniki i szablony, które przydają się na starcie działania społecznego. Za darmo."
-        illustration="notes"
+        illustration="skrzynka"
       >
         {loadingList && <Loader />}
 
@@ -116,15 +117,22 @@ export default function Materials() {
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {materials.map((mat, i) => (
               <Reveal as="li" key={mat.id} delay={(i % 3) * 110} className="h-full">
-                <article className="card card-interactive flex h-full flex-col overflow-hidden p-0">
-                  {mat.cover_image && (
+                <article className="card flex h-full flex-col overflow-hidden p-0">
+                  {mat.cover_image ? (
                     <img
                       src={mat.cover_image}
                       alt=""
                       aria-hidden="true"
-                      className="aspect-[16/9] w-full border-b object-cover"
+                      className="aspect-video w-full border-b object-cover"
                       loading="lazy"
                     />
+                  ) : (
+                    <div
+                      aria-hidden="true"
+                      className="grid aspect-video w-full place-items-center border-b panel-warm"
+                    >
+                      <Illustration name="notes" className="max-h-24 w-auto" />
+                    </div>
                   )}
 
                   <div className="flex flex-1 flex-col p-6">

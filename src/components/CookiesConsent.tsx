@@ -20,7 +20,7 @@ const CookieConsent = () => {
     if (!consent) {
       setIsVisible(true);
     } else {
-      // Niezależnie od wcześniejszego wyboru, odtwarzamy go po każdym wejściu —
+      // Niezależnie od wcześniejszego wyboru, odtwarzamy go po każdym wejściu -
       // domyślny stan z index.html to zawsze "denied", więc bez tego kroku
       // wcześniej zaakceptowana zgoda "gubiłaby się" przy każdym odświeżeniu.
       updateAnalyticsConsent(consent === 'accepted');
@@ -36,7 +36,7 @@ const CookieConsent = () => {
   const handleReject = () => {
     localStorage.setItem('cookieConsent', 'rejected' satisfies ConsentValue);
     setIsVisible(false);
-    // Wcześniej odrzucenie zgody tylko chowało baner, nic nie cofając — GA
+    // Wcześniej odrzucenie zgody tylko chowało baner, nic nie cofając - GA
     // i tak już zaczynał śledzić dzięki bezwarunkowemu gtag.js. Teraz jawnie
     // potwierdzamy odmowę w Consent Mode (choć domyślny stan i tak jest "denied").
     updateAnalyticsConsent(false);

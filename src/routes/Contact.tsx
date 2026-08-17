@@ -15,6 +15,11 @@ const COPYABLE = [
   { key: 'online_address', label: 'E-doręczenia' },
 ] as const;
 
+function toTelHref(phone: string): string {
+  const digits = phone.replace(/[^\d+]/g, '');
+  return `tel:${digits.startsWith('+') ? digits : `+48${digits}`}`;
+}
+
 export default function Contact() {
   const { data, isLoading } = useContactInfo();
   const [copied, setCopied] = useState<string | null>(null);
@@ -73,10 +78,6 @@ export default function Contact() {
                         <dt className="muted text-xs tracking-wide uppercase">{label}</dt>
                         <dd className="mt-1 flex flex-wrap items-center gap-2 text-lg">
                           <span className="break-all">{value}</span>
-                          {/* Przycisk jest widoczny zawsze. Wcześniej pojawiał
-                              się dopiero po najechaniu myszą (`opacity-0
-                              group-hover`), więc dla klawiatury i dotyku
-                              praktycznie nie istniał. */}
                           <button
                             type="button"
                             onClick={() => copyToClipboard(key, value)}
@@ -86,7 +87,7 @@ export default function Contact() {
                             {copied === key ? (
                               <FiCheck
                                 aria-hidden="true"
-                                className="size-4 text-[var(--color-success)]"
+                                className="size-4 text-success"
                               />
                             ) : (
                               <FiCopy aria-hidden="true" className="size-4" />
@@ -101,7 +102,7 @@ export default function Contact() {
                     <div>
                       <dt className="muted text-xs tracking-wide uppercase">Telefon</dt>
                       <dd className="mt-1 text-lg">
-                        <a href={`tel:${data.phone.replace(/\s+/g, '')}`} className="link-quiet">
+                        <a href={toTelHref(data.phone)} className="link-quiet">
                           {data.phone}
                         </a>
                       </dd>

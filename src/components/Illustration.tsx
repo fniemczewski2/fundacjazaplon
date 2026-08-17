@@ -4,7 +4,7 @@
  * Wszystkie pliki leżą w `public/images/illustrations/` w dwóch formatach:
  * WebP (podstawowy, ~2× lżejszy) i PNG (zapasowy). Wymiary są zaszyte
  * w manifeście, żeby przeglądarka rezerwowała miejsce jeszcze przed
- * pobraniem obrazka — bez tego siatka skacze przy wczytywaniu (CLS).
+ * pobraniem obrazka - bez tego siatka skacze przy wczytywaniu (CLS).
  */
 
 export const ILLUSTRATIONS = {
@@ -34,14 +34,14 @@ export type IllustrationName = keyof typeof ILLUSTRATIONS;
 type Props = {
   name: IllustrationName;
   /**
-   * Tekst alternatywny. Pomiń dla grafik czysto dekoracyjnych — komponent
+   * Tekst alternatywny. Pomiń dla grafik czysto dekoracyjnych - komponent
    * ustawi wtedy `alt=""` i `aria-hidden`, żeby czytnik ekranu ich nie czytał.
    */
   alt?: string;
   className?: string;
   /** Ilustracja nad zgięciem strony ładuje się od razu, reszta leniwie. */
   priority?: boolean;
-  /** Ciepła poświata pod spodem — dla motywu ognia. */
+  /** Ciepła poświata pod spodem - dla motywu ognia. */
   glow?: boolean;
   /** Delikatne unoszenie się. Wyłączane automatycznie przez `prefers-reduced-motion`. */
   float?: boolean;

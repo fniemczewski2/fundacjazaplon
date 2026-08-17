@@ -25,7 +25,7 @@ export default function NewsletterCard() {
         body: JSON.stringify({ name, email }),
       });
 
-      // Endpoint bywa odpowiada pustym ciałem przy błędzie — parsujemy
+      // Endpoint bywa odpowiada pustym ciałem przy błędzie - parsujemy
       // dopiero po sprawdzeniu nagłówka, żeby nie wywrócić się na JSON.parse.
       const contentType = res.headers.get('content-type') ?? '';
       const data = contentType.includes('application/json') ? await res.json() : null;
@@ -64,7 +64,7 @@ export default function NewsletterCard() {
             role="status"
             className="mt-8 rounded-2xl border p-5 font-medium panel-warm"
           >
-            Dziękujemy! Sprawdź skrzynkę — wysłaliśmy wiadomość potwierdzającą.
+            Dziękujemy! Sprawdź skrzynkę - wysłaliśmy wiadomość potwierdzającą.
           </p>
         ) : (
           <form onSubmit={handleSubscribe} className="mt-8 space-y-4 text-left">

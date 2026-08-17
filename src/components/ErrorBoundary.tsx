@@ -26,7 +26,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
           <div>
             <h1 className="text-2xl font-semibold mb-2 text-ink">Coś poszło nie tak.</h1>
             <p className="mb-6 muted">
-              Przepraszamy za utrudnienia — spróbuj odświeżyć stronę lub wrócić na stronę główną.
+              Przepraszamy za utrudnienia - spróbuj odświeżyć stronę lub wrócić na stronę główną.
             </p>
             <a href="/" className="btn btn-primary inline-flex">
               Strona główna

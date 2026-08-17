@@ -27,7 +27,7 @@ export default function JoinUsCard() {
           <p className="eyebrow mb-4">Wolontariat</p>
           <h2 className="section-title">Dołącz do nas</h2>
           <p className="lead mt-4 max-w-xl">
-            Szukamy osób, które chcą działać — nie tylko obserwować. Wypełnij krótką ankietę,
+            Szukamy osób, które chcą działać - nie tylko obserwować. Wypełnij krótką ankietę,
             odezwiemy się z propozycją.
           </p>
 
@@ -39,7 +39,7 @@ export default function JoinUsCard() {
           >
             Wypełnij ankietę
             <FaArrowRight aria-hidden="true" />
-            <span className="sr-only">— otwiera się w nowej karcie</span>
+            <span className="sr-only">- otwiera się w nowej karcie</span>
           </a>
         </div>
 

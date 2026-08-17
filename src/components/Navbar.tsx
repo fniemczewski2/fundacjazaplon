@@ -24,7 +24,7 @@ export default function Navbar() {
   // Zmiana trasy zamyka menu mobilne.
   React.useEffect(() => setOpen(false), [location]);
 
-  // Po ~12 px przewinięcia pasek się spłaszcza i dostaje cień — subtelny
+  // Po ~12 px przewinięcia pasek się spłaszcza i dostaje cień - subtelny
   // sygnał, że treść pod nim się przesuwa.
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -33,7 +33,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Escape zamyka menu i oddaje fokus przyciskowi, który je otworzył —
+  // Escape zamyka menu i oddaje fokus przyciskowi, który je otworzył -
   // bez tego fokus zostaje w zwiniętym, niewidocznym panelu.
   React.useEffect(() => {
     if (!open) return;
@@ -49,7 +49,7 @@ export default function Navbar() {
   const linkClass = (isActive: boolean) =>
     [
       'relative py-2 text-white/90 transition-colors hover:text-white',
-      'after:absolute after:-bottom-0.5 after:left-0 after:h-[3px] after:rounded-full',
+      'after:absolute after:-bottom-0.5 after:left-0 after:h-0.75 after:rounded-full',
       'after:bg-ember after:transition-all after:duration-300 after:content-[""]',
       isActive ? 'text-white after:w-full' : 'after:w-0 hover:after:w-full',
     ].join(' ');
@@ -69,7 +69,7 @@ export default function Navbar() {
             scrolled ? 'py-2' : 'py-3 md:py-4',
           ].join(' ')}
         >
-          <Link href="/" className="flex shrink-0 items-center" aria-label="Fundacja Zapłon — strona główna">
+          <Link href="/" className="flex shrink-0 items-center" aria-label="Fundacja Zapłon - strona główna">
             <img
               src="/images/logo.svg"
               alt="Fundacja Zapłon"
@@ -82,7 +82,7 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Nawigacja — desktop */}
+          {/* Nawigacja - desktop */}
           <ul className="hidden items-center gap-5 text-sm lg:flex lg:gap-7 lg:text-base xl:flex">
             {NAV_ITEMS.map((item) => {
               const isActive = location === item.to;
@@ -100,7 +100,7 @@ export default function Navbar() {
             })}
           </ul>
 
-          {/* Działania — desktop */}
+          {/* Działania - desktop */}
           <div className="hidden shrink-0 items-center gap-2 xl:flex">
             {joinUrl && (
               <a href={joinUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
@@ -113,7 +113,7 @@ export default function Navbar() {
             <ThemeSwitcher />
           </div>
 
-          {/* Działania — mobile */}
+          {/* Działania - mobile */}
           <div className="flex shrink-0 items-center gap-1 xl:hidden">
             <ThemeSwitcher />
             <button
@@ -127,17 +127,17 @@ export default function Navbar() {
             >
               <span className="relative block size-5" aria-hidden="true">
                 <span
-                  className={`absolute inset-x-0 top-0.5 h-[3px] rounded-full bg-current transition duration-300 ${
+                  className={`absolute inset-x-0 top-0.5 h-0.75 rounded-full bg-current transition duration-300 ${
                     open ? 'translate-y-2 rotate-45' : ''
                   }`}
                 />
                 <span
-                  className={`absolute inset-x-0 top-2.5 h-[3px] rounded-full bg-current transition duration-300 ${
+                  className={`absolute inset-x-0 top-2.5 h-0.75 rounded-full bg-current transition duration-300 ${
                     open ? 'opacity-0' : ''
                   }`}
                 />
                 <span
-                  className={`absolute inset-x-0 top-4.5 h-[3px] rounded-full bg-current transition duration-300 ${
+                  className={`absolute inset-x-0 top-4.5 h-0.75 rounded-full bg-current transition duration-300 ${
                     open ? '-translate-y-2 -rotate-45' : ''
                   }`}
                 />
@@ -150,13 +150,13 @@ export default function Navbar() {
       {/* Menu mobilne.
           `inert` (React 19) wyjmuje zwinięty panel z kolejności tabulacji
           i z drzewa dostępności naraz. Wcześniej był tu `aria-hidden` przy
-          wciąż fokusowalnych linkach — kombinacja, którą walidatory
+          wciąż fokusowalnych linkach - kombinacja, którą walidatory
           zgłaszają jako błąd. */}
       <div
         id="mobile-menu"
         inert={!open}
         className={`overflow-hidden transition-[max-height] duration-300 xl:hidden ${
-          open ? 'max-h-[36rem]' : 'max-h-0'
+          open ? 'max-h-144' : 'max-h-0'
         }`}
         style={{ transitionTimingFunction: 'var(--ease-out-soft)' }}
       >

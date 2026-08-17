@@ -9,12 +9,10 @@
           var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
           document.documentElement.setAttribute('data-theme', theme);
           if (theme === 'dark') document.documentElement.classList.add('dark');
-        } catch (e) { /* np. localStorage zablokowane — zostajemy przy domyślnym jasnym motywie */ }
+        } catch {}
       })();
     </script>
 
-    <!-- Google tag (gtag.js) — Consent Mode v2: domyślnie WSZYSTKO odmówione, dopóki
-         użytkownik nie zaakceptuje w bannerze (src/components/CookiesConsent.tsx) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-R3X89NGC74"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -63,32 +61,40 @@
         "@context": "https://schema.org",
         "@type": "NGO",
         "name": "Fundacja Zapłon",
+        "alternateName": "Fundacja „Zapłon”",
         "url": "https://zaplon.org.pl/",
         "logo": "https://zaplon.org.pl/images/logo.svg",
+        "image": "https://zaplon.org.pl/images/hero.jpg",
         "description": "Fundacja „Zapłon” wspiera aktywność społeczną, buduje kapitał społeczny i zaufanie do organizacji pozarządowych.",
         "email": "biuro@zaplon.org.pl",
+        "telephone": "+48783008255",
+        "foundingDate": "2025",
+        "taxID": "7773448597",
+        "vatID": "PL7773448597",
+        "identifier": [
+          { "@type": "PropertyValue", "propertyID": "KRS", "value": "0001178189" },
+          { "@type": "PropertyValue", "propertyID": "REGON", "value": "541978238" }
+        ],
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Baranówko 19B",
           "postalCode": "62-050",
           "addressLocality": "Mosina",
+          "addressRegion": "wielkopolskie",
           "addressCountry": "PL"
-        }
+        },
+        "sameAs": [
+          "https://instagram.com/fundacja_zaplon",
+          "https://www.linkedin.com/company/fundacja-zap%C5%82on/"
+        ]
       }
     </script>
-
-    <!-- Fonty ładujemy z wyprzedzeniem — inaczej przeglądarka odkrywa je
-         dopiero po sparsowaniu arkusza, co opóźnia pierwsze malowanie tekstu. -->
     <link rel="preload" href="/fonts/Signika.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/WorkSans.woff2" as="font" type="font/woff2" crossorigin />
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
-    <!-- Fonty: Signika i Work Sans są self-hostowane przez @font-face w src/index.css
-         (public/fonts/*.woff2) — nie ładujemy ich dodatkowo z Google Fonts (to był zbędny,
-         blokujący render, podwójny request i niepotrzebne przekazywanie IP użytkownika do
-         Google). Sam stylesheet aplikacji Vite wstrzykuje automatycznie przy buildzie. -->
   </head>
 
   <body class="bg-surface text-ink">

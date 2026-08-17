@@ -34,7 +34,7 @@ export default function AdminDashboard() {
       <aside className="border-r p-4 space-y-4">
         <div className="space-y-1">
           <div className="text-sm text-text-black/70">Zalogowany jako</div>
-          <div className="font-medium break-all">{email ?? '—'}</div>
+          <div className="font-medium break-all">{email ?? '-'}</div>
         </div>
 
         <nav className="space-y-2">

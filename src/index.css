@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *, [data-theme='dark'], [data-theme='dark'] *));
 
 /* ==========================================================================
-   SYSTEM DESIGNU — Fundacja „Zapłon”
+   SYSTEM DESIGNU - Fundacja „Zapłon”
    --------------------------------------------------------------------------
    Paleta wywodzi się z brandbooka (194770 / A6CBF0 / FFA962 / FFEEB5 /
    363636 / FAF6F3). Każda para tekst–tło użyta w interfejsie została
@@ -11,22 +11,22 @@
    w obu motywach.
 
    Dwie rodziny tokenów:
-   • semantyczne (surface / ink / ember / line …) — używaj ich w nowym kodzie,
-   • zgodnościowe (base-100 / text-black / accent-orange …) — zostawione jako
+   • semantyczne (surface / ink / ember / line …) - używaj ich w nowym kodzie,
+   • zgodnościowe (base-100 / text-black / accent-orange …) - zostawione jako
      aliasy, żeby panel administracyjny działał bez przepisywania.
    ========================================================================== */
 
 @theme {
   /* --- Marka ------------------------------------------------------------ */
-  --color-brand: #194770;          /* granat — navbar, stopka, przyciski       */
+  --color-brand: #194770;          /* granat - navbar, stopka, przyciski       */
   --color-brand-deep: #10314f;
-  --color-sky: #a6cbf0;            /* błękit — tła pomocnicze, linki w ciemnym */
-  --color-ember: #ffa962;          /* pomarańcz — WYŁĄCZNIE jako wypełnienie   */
+  --color-sky: #a6cbf0;            /* błękit - tła pomocnicze, linki w ciemnym */
+  --color-ember: #ffa962;          /* pomarańcz - WYŁĄCZNIE jako wypełnienie   */
   --color-cream: #ffeeb5;
 
   /* Wersja pomarańczu bezpieczna dla tekstu w motywie jasnym (5,6:1 na tle). */
   --color-ember-ink: #a34708;
-  /* Kolor marki bezpieczny dla tekstu — w ciemnym motywie staje się błękitem. */
+  /* Kolor marki bezpieczny dla tekstu - w ciemnym motywie staje się błękitem. */
   --color-brand-ink: #194770;
 
   /* --- Powierzchnie ----------------------------------------------------- */
@@ -43,7 +43,7 @@
   /* --- Krawędzie -------------------------------------------------------- */
   --color-line: rgb(25 71 112 / 0.14);
   --color-line-strong: rgb(25 71 112 / 0.28);
-  --color-field-border: #767c85;   /* 4,2:1 — spełnia 1.4.11 dla pól formularzy */
+  --color-field-border: #767c85;   /* 4,2:1 - spełnia 1.4.11 dla pól formularzy */
 
   /* --- Stany ------------------------------------------------------------ */
   --color-danger: #b3261e;
@@ -107,7 +107,7 @@
 
 }
 
-/* „Skala zapłonu” — ogień biegnie wzdłuż linii i zapala kolejne stopnie.
+/* „Skala zapłonu” - ogień biegnie wzdłuż linii i zapala kolejne stopnie.
 
    Te klatki celowo stoją POZA blokiem `@theme`. Tailwind v4 usuwa z bundla
    każde `@keyframes` zadeklarowane w `@theme`, do którego nie prowadzi token
@@ -167,7 +167,7 @@ html.dark {
 }
 
 /* ==========================================================================
-   FONTY (self-hosted — zero zapytań do Google Fonts)
+   FONTY (self-hosted - zero zapytań do Google Fonts)
    ========================================================================== */
 
 @font-face {
@@ -223,7 +223,7 @@ html.dark {
 
   p { text-wrap: pretty; }
 
-  /* Widoczny fokus w obu motywach — nigdy nie usuwamy obrysu bez zamiennika. */
+  /* Widoczny fokus w obu motywach - nigdy nie usuwamy obrysu bez zamiennika. */
   :focus-visible {
     outline: 3px solid var(--color-ember-ink);
     outline-offset: 3px;
@@ -272,18 +272,18 @@ html.dark {
     @apply mx-auto w-full max-w-3xl px-4 sm:px-6;
   }
 
-  /* Odstęp między sekcjami — jedno miejsce, jedna decyzja. */
+  /* Odstęp między sekcjami - jedno miejsce, jedna decyzja. */
   .section-gap {
     @apply mt-16 md:mt-24;
   }
 
-  /* Link „przejdź do treści” — widoczny dopiero po sfokusowaniu klawiaturą. */
+  /* Link „przejdź do treści” - widoczny dopiero po sfokusowaniu klawiaturą. */
   .skip-link {
     @apply sr-only;
   }
 
   .skip-link:focus-visible {
-    @apply not-sr-only fixed top-3 left-3 z-[200] rounded-xl px-4 py-3 font-semibold;
+    @apply not-sr-only fixed top-3 left-3 z-200 rounded-xl px-4 py-3 font-semibold;
     background: var(--color-surface-raised);
     color: var(--color-ink);
     box-shadow: var(--shadow-lift);
@@ -395,7 +395,7 @@ html.dark {
     box-shadow: var(--shadow-lift);
   }
 
-  /* Pomarańcz jako wypełnienie z ciemnym tekstem — 9,2:1, działa w obu motywach. */
+  /* Pomarańcz jako wypełnienie z ciemnym tekstem - 9,2:1, działa w obu motywach. */
   .btn-ember {
     background: var(--color-ember);
     color: #1a1a1a;
@@ -424,7 +424,7 @@ html.dark {
 
   .btn-danger { background: var(--color-danger); color: #ffffff; }
 
-  /* Na granatowym tle przyciski muszą się odwrócić — inaczej granat na
+  /* Na granatowym tle przyciski muszą się odwrócić - inaczej granat na
      granacie znika. */
   .panel-brand .btn-secondary,
   .on-brand .btn-secondary {
@@ -580,7 +580,7 @@ html.dark {
     filter: blur(6px);
   }
 
-  /* Delikatna siatka kropek — tło pasm sekcji. */
+  /* Delikatna siatka kropek - tło pasm sekcji. */
   .bg-dots {
     background-image: radial-gradient(var(--color-line-strong) 1px, transparent 1px);
     background-size: 22px 22px;

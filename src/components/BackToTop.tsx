@@ -3,7 +3,7 @@ import { FaArrowUp } from 'react-icons/fa6';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 /**
- * Powrót na górę — pojawia się dopiero po przewinięciu ekranu w dół.
+ * Powrót na górę - pojawia się dopiero po przewinięciu ekranu w dół.
  *
  * Gdy jest schowany, ma `inert`, więc nie łapie fokusu klawiatury. Sam skok
  * respektuje preferencję ograniczonego ruchu: bez niej płynnie, z nią

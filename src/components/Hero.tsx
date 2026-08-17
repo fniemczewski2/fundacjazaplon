@@ -5,9 +5,9 @@ type Cta = { label: string; href: string; external?: boolean };
 
 type Props = {
   eyebrow?: string;
-  /** Pierwsza linia nagłówka — neutralna. */
+  /** Pierwsza linia nagłówka - neutralna. */
   title: string;
-  /** Druga linia — dostaje akcent kolorystyczny. */
+  /** Druga linia - dostaje akcent kolorystyczny. */
   highlight: string;
   subtitle?: string;
   primaryCta?: Cta;
@@ -32,14 +32,6 @@ function CtaLink({ cta, className }: { cta: Cta; className: string }) {
   );
 }
 
-/**
- * Hero strony głównej.
- *
- * Cały ciężar wizualny niesie typografia (Signika w dużym stopniu, ciasny
- * tracking) oraz „skala zapłonu” pod spodem. Świadomie nie ma tu jeszcze
- * jednej dużej ilustracji — cztery na skali w zupełności wystarczą, a piąta
- * zamieniłaby hero w kolaż.
- */
 export default function Hero({
   eyebrow,
   title,
@@ -50,7 +42,7 @@ export default function Hero({
 }: Props) {
   return (
     <div className="relative overflow-hidden panel-warm border-b">
-      {/* Ciepła poświata i siatka kropek — tło, nie treść. */}
+      {/* Ciepła poświata i siatka kropek - tło, nie treść. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
@@ -82,7 +74,6 @@ export default function Hero({
         </div>
 
         <hr className="mt-14 border-t md:mt-20" />
-
       </div>
     </div>
   );

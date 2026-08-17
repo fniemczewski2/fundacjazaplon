@@ -25,7 +25,7 @@ export default function ResetPasswordPage() {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) {
             console.warn('exchangeCodeForSession error', error);
-            // don't return here — we still try to listen for onAuthStateChange below
+            // don't return here - we still try to listen for onAuthStateChange below
           } else {
             // If exchange succeeded, we should have a valid session and can allow update
             setReadyToUpdate(true);

@@ -4,7 +4,7 @@ import Reveal from './Reveal';
 import Illustration from './Illustration';
 
 /**
- * Pasmo „kim jesteśmy” — jedyne miejsce na stronie głównej z odwróconymi
+ * Pasmo „kim jesteśmy” - jedyne miejsce na stronie głównej z odwróconymi
  * kolorami. Przerywa rytm jasnych sekcji i wyznacza połowę strony.
  */
 export default function MissionBand() {
@@ -30,10 +30,13 @@ export default function MissionBand() {
             Fundacja-matronka kolektywów, ruchów i&nbsp;organizacji
           </h2>
 
+          {/* Skrót tekstu z tabeli `about_info`. Pełna wersja - razem z częścią
+              o wizji - jest na podstronie „O nas”, która pobiera go z bazy. */}
           <p className="lead mt-6">
-            Jesteśmy młodymi osobami, które w odpowiedzi na kryzysy współczesnego świata tworzą
-            przestrzeń dla osób aktywistycznych, wolontariackich i&nbsp;działających społecznie.
-            Budujemy kapitał społeczny i&nbsp;zaufanie do organizacji pozarządowych.
+            My - młode osoby - w odpowiedzi na otaczające nas kryzysy współczesnego świata
+            tworzymy przestrzeń wspierającą osoby aktywistyczne, wolontariackie
+            i&nbsp;działające społecznie. Odpowiadamy na realne potrzeby lokalnych
+            społeczności, wypełniając luki, których system nie jest w&nbsp;stanie zaadresować.
           </p>
 
           <div className="mt-9 flex flex-wrap gap-3">

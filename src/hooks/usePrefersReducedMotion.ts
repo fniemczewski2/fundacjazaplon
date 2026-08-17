@@ -7,7 +7,7 @@ const QUERY = '(prefers-reduced-motion: reduce)';
  *
  * Wartość startowa jest czytana synchronicznie, więc komponenty nie mrugają
  * pojedynczą klatką animacji przed pierwszym efektem. Nasłuchujemy też zmian
- * w trakcie sesji — ustawienie da się przełączyć bez przeładowania strony.
+ * w trakcie sesji - ustawienie da się przełączyć bez przeładowania strony.
  */
 export function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(

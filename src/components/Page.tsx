@@ -6,7 +6,7 @@ type Props = {
   title: string;
   /** Krótkie zdanie wprowadzające pod nagłówkiem. */
   lead?: string;
-  /** Nadlinia — nazwa działu, w którym użytkownik się znajduje. */
+  /** Nadlinia - nazwa działu, w którym użytkownik się znajduje. */
   eyebrow?: string;
   /** Ilustracja przy nagłówku. Dekoracyjna, nieczytana przez czytniki. */
   illustration?: IllustrationName;
@@ -19,7 +19,7 @@ type Props = {
  * Wspólna głowa i kontener podstrony.
  *
  * Wcześniej każdy widok samodzielnie składał `<h1 className="section-title">`
- * plus przypadkowy `container mx-auto p-4` — stąd różne szerokości i odstępy
+ * plus przypadkowy `container mx-auto p-4` - stąd różne szerokości i odstępy
  * na sąsiednich stronach. Tutaj jest jedna wersja tego układu.
  */
 export default function Page({

@@ -186,7 +186,7 @@ export default function Links() {
                     className={itemClasses}
                   >
                     {content}
-                    {isExternal && <span className="sr-only">— otwiera się w nowej karcie</span>}
+                    {isExternal && <span className="sr-only">- otwiera się w nowej karcie</span>}
                   </a>
                 )}
               </Reveal>

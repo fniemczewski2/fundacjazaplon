@@ -20,7 +20,7 @@ export type PostUpdate = Partial<Omit<Post, 'id' | 'created_at' | 'updated_at'>>
 
 const NOT_FOUND_CODE = 'PGRST116';
 
-/** Wszystkie wpisy (w tym szkice) — do użytku wyłącznie w panelu admina. */
+/** Wszystkie wpisy (w tym szkice) - do użytku wyłącznie w panelu admina. */
 export async function listPosts(): Promise<Post[]> {
   const { data, error } = await supabase
     .from('posts')
@@ -31,7 +31,7 @@ export async function listPosts(): Promise<Post[]> {
 }
 
 /**
- * Tylko realnie opublikowane wpisy (`published_at` w przeszłości) — do użytku
+ * Tylko realnie opublikowane wpisy (`published_at` w przeszłości) - do użytku
  * na stronach publicznych. W przeciwieństwie do samego filtrowania "czy pole
  * jest niepuste", to poprawnie ukrywa też wpisy zaplanowane na przyszłość.
  */

@@ -54,7 +54,7 @@ export default function Modal({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    // Fokus na panel — czytnik ekranu odczyta tytuł okna zaraz po otwarciu.
+    // Fokus na panel - czytnik ekranu odczyta tytuł okna zaraz po otwarciu.
     const raf = requestAnimationFrame(() => {
       const first = panelRef.current?.querySelector<HTMLElement>(FOCUSABLE);
       (first ?? panelRef.current)?.focus();
@@ -104,7 +104,7 @@ export default function Modal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Tło. Klik zamyka, ale element jest ukryty przed czytnikami —
+      {/* Tło. Klik zamyka, ale element jest ukryty przed czytnikami -
           zamykanie zapewnia już Escape i widoczny przycisk „Zamknij”. */}
       <div
         aria-hidden="true"

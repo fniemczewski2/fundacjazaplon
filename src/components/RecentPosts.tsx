@@ -19,7 +19,7 @@ export default function RecentPosts() {
         const published = await listPublishedPosts();
         if (alive) setPosts(published.slice(0, MAX_POSTS));
       } catch {
-        // Sekcja jest opcjonalna — przy błędzie po prostu jej nie pokazujemy.
+        // Sekcja jest opcjonalna - przy błędzie po prostu jej nie pokazujemy.
       } finally {
         if (alive) setLoading(false);
       }
@@ -61,9 +61,7 @@ export default function RecentPosts() {
           {posts.map((post, i) => (
             <Reveal as="li" key={post.id} delay={i * 110} className="h-full">
               <article className="card card-interactive flex h-full flex-col overflow-hidden p-0">
-                {/* Obrazek jest ozdobą tytułu obok — dublowanie linku
-                    zmuszałoby do dwukrotnego przetabowania tej samej treści. */}
-                <div aria-hidden="true" className="aspect-[16/9] w-full overflow-hidden panel-cool">
+                <div aria-hidden="true" className="aspect-video w-full overflow-hidden panel-cool">
                   {post.cover_url ? (
                     <img
                       src={`${post.cover_url}?width=560&height=315&resize=cover&quality=75`}

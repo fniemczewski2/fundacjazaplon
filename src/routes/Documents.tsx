@@ -12,14 +12,6 @@ type Group = {
   items: Array<{ name: string; url: string }>;
 };
 
-/** Ze „Sprawozdanie_finansowe_2024.pdf” robi czytelną nazwę dla człowieka. */
-function prettyName(fileName: string): string {
-  return fileName
-    .replace(/\.[a-z0-9]+$/i, '')
-    .replace(/[_-]+/g, ' ')
-    .trim();
-}
-
 export default function Documents() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,8 +20,6 @@ export default function Documents() {
     let alive = true;
 
     (async () => {
-      // Kategorie pobieramy równolegle — sekwencyjna pętla kazała czekać
-      // na sumę wszystkich zapytań zamiast na najwolniejsze z nich.
       const res = await Promise.all(
         ALL_CATEGORIES.map(async (c) => ({
           key: c.key,
@@ -60,7 +50,7 @@ export default function Documents() {
       <Page
         eyebrow="Jawność"
         title="Dokumenty"
-        lead="Statut, uchwały i sprawozdania. Wszystko, czego można od nas oczekiwać — w jednym miejscu."
+        lead="Statut, uchwały i sprawozdania. Wszystko, czego można od nas oczekiwać - w jednym miejscu."
         illustration="fabryka"
         width="prose"
       >
@@ -82,9 +72,8 @@ export default function Documents() {
                   {g.items.map((item) => (
                     <li
                       key={item.url}
-                      className="flex flex-wrap items-center justify-between gap-3 py-3"
+                      className="flex flex-nowrap items-center justify-end gap-3 py-3"
                     >
-                      <span className="min-w-0 text-sm break-words">{prettyName(item.name)}</span>
 
                       <a
                         href={item.url}
@@ -94,9 +83,7 @@ export default function Documents() {
                       >
                         Pobierz
                         <FaDownload aria-hidden="true" />
-                        {/* Nazwa pliku w etykiecie — bez niej lista linków
-                            w czytniku ekranu to sześć razy „Pobierz”. */}
-                        <span className="sr-only">: {prettyName(item.name)}</span>
+                        <span className="sr-only">: (item.name)</span>
                       </a>
                     </li>
                   ))}

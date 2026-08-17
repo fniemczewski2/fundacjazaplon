@@ -97,7 +97,7 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
 
         {step === 1 && (
           <form onSubmit={handleNextStep} className="animate-fade-in mt-8">
-            {/* Częstotliwość — grupa przycisków ze stanem `aria-pressed`,
+            {/* Częstotliwość - grupa przycisków ze stanem `aria-pressed`,
                 dzięki czemu czytnik ekranu mówi, która opcja jest wybrana. */}
             <p id={frequencyLabelId} className="field-label">
               Jak często chcesz wspierać?
@@ -281,7 +281,7 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
                 </button>
               </p>
 
-              {/* Komunikat dla czytników ekranu — sama zmiana ikony nie
+              {/* Komunikat dla czytników ekranu - sama zmiana ikony nie
                   informuje osoby niewidzącej, że kopiowanie się udało. */}
               <span role="status" aria-live="polite" className="sr-only">
                 {copied ? 'Skopiowano numer konta' : ''}

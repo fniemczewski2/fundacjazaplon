@@ -39,7 +39,7 @@ export default function Footer() {
 
   return (
     <footer className="panel-brand on-brand relative mt-auto overflow-hidden">
-      {/* Ognisko wtopione w róg stopki — domyka narrację ognia z góry strony. */}
+      {/* Ognisko wtopione w róg stopki - domyka narrację ognia z góry strony. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-6 -bottom-10 w-56 opacity-15 md:w-72"
@@ -58,7 +58,7 @@ export default function Footer() {
               className="mb-4 h-16 w-auto"
             />
             <p className="max-w-xs text-sm text-white/80">
-              Wspieramy osoby, które działają społecznie — żeby zapał nie kończył się na
+              Wspieramy osoby, które działają społecznie - żeby zapał nie kończył się na
               pierwszym projekcie.
             </p>
           </div>
@@ -124,7 +124,7 @@ export default function Footer() {
                       className="inline-flex size-11 items-center justify-center rounded-full border border-white/25 text-lg transition hover:border-white hover:bg-white hover:text-brand"
                     >
                       <Icon aria-hidden="true" />
-                      <span className="sr-only">{label} — otwiera się w nowej karcie</span>
+                      <span className="sr-only">{label} - otwiera się w nowej karcie</span>
                     </a>
                   </li>
                 );

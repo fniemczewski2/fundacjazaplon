@@ -8,12 +8,12 @@ import BackToTop from './BackToTop';
  * Dwie zmiany względem poprzedniej wersji, obie z powodów dostępności:
  *
  * • Jest tu dokładnie jeden landmark `<main>`. Wcześniej Layout renderował
- *   `<main>`, a widoki Home i Team dokładały własny — zagnieżdżone landmarki
+ *   `<main>`, a widoki Home i Team dokładały własny - zagnieżdżone landmarki
  *   mylą nawigację czytników ekranu.
  * • Na starcie stoi „Przejdź do treści”. Bez niego osoba korzystająca
  *   z klawiatury musi przetabować całe menu na każdej podstronie.
  *
- * `<main>` nie ma już własnego kontenera ani paddingu — dzięki temu strona
+ * `<main>` nie ma już własnego kontenera ani paddingu - dzięki temu strona
  * główna może puścić sekcje na pełną szerokość. Podstrony opakowują treść
  * w komponent `<Page>`.
  */

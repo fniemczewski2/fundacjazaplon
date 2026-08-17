@@ -45,7 +45,7 @@ export default function PrivacyPolicyLink({ black }: { black?: boolean }) {
       }
     >
       Polityka prywatności
-      <span className="sr-only"> — otwiera się w nowej karcie</span>
+      <span className="sr-only"> - otwiera się w nowej karcie</span>
     </a>
   );
 }

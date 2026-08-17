@@ -61,7 +61,7 @@ export default tseslint.config(
   {
     files: ['**/*.jsx'],
     rules: {
-      // Nowe pliki JS w projekcie TS-owym nie są mile widziane — patrz audyt 2.6.
+      // Nowe pliki JS w projekcie TS-owym nie są mile widziane - patrz audyt 2.6.
       'no-restricted-syntax': ['warn'],
     },
   },

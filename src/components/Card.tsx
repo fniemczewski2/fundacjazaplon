@@ -5,9 +5,9 @@ type Props = {
   className?: string;
   /** `warm` / `cool` zmieniają tło na jedno z pasm systemu. */
   tone?: 'default' | 'warm' | 'cool';
-  /** Unoszenie przy najechaniu — tylko dla kart, które są linkiem. */
+  /** Unoszenie przy najechaniu - tylko dla kart, które są linkiem. */
   interactive?: boolean;
-  /** Wyśrodkowanie zawartości. Domyślnie do lewej — tekst czyta się lepiej. */
+  /** Wyśrodkowanie zawartości. Domyślnie do lewej - tekst czyta się lepiej. */
   center?: boolean;
 };
 

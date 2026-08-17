@@ -22,11 +22,11 @@ export default function Home() {
   return (
     <>
       <Seo
-        title="Fundacja „Zapłon” — wspieramy aktywność społeczną"
+        title="Fundacja „Zapłon” - wspieramy aktywność społeczną"
         description="Fundacja „Zapłon” wspiera osoby angażujące się społecznie, buduje kapitał społeczny i wzmacnia organizacje pozarządowe. Dołącz do naszych działań."
       />
 
-      {/* Jeden H1 na stronę — jest nim nagłówek hero. Wcześniej strona miała
+      {/* Jeden H1 na stronę - jest nim nagłówek hero. Wcześniej strona miała
           dwa: ukryty w sekcji i widoczny w komponencie Hero. */}
       <Hero
         eyebrow="Fundacja Zapłon"
@@ -47,7 +47,7 @@ export default function Home() {
 
       <RecentPosts />
 
-      {/* Materiały — most między „chcę pomóc” a „potrzebuję pomocy”. */}
+      {/* Materiały - most między „chcę pomóc” a „potrzebuję pomocy”. */}
       <section aria-labelledby="materials-title" className="section-gap container-max">
         <Reveal>
           <div className="card panel-cool grid items-center gap-8 p-8 md:grid-cols-[auto_1fr] md:p-10">
@@ -73,7 +73,7 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* Sekcje poniżej nie mają własnych `aria-labelledby` — nagłówek H2
+      {/* Sekcje poniżej nie mają własnych `aria-labelledby` - nagłówek H2
           jest w środku karty i sam pełni tę rolę. Wcześniej obok widocznego
           tytułu stał drugi, ukryty, przez co spis nagłówków w czytniku
           ekranu pokazywał każdą pozycję dwa razy. */}

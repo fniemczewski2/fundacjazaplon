@@ -25,10 +25,10 @@ const PillarEditor = memo(function PillarEditor({
   const titleInputId = `pillar-title-${m.order_index}`;
   const bodyInputId = `pillar-body-${m.order_index}`;
 
-  // Wgrywanie obrazka przez uploadToMedia — ta sama, jedna funkcja co reszta
+  // Wgrywanie obrazka przez uploadToMedia - ta sama, jedna funkcja co reszta
   // aplikacji, więc walidacja typu/rozmiaru pliku i sanityzacja nazwy działają
   // tu automatycznie (wcześniej ten formularz miał własną, osobną, niewalidującą
-  // kopię logiki uploadu — dokładnie ten sam problem co w panelu Media).
+  // kopię logiki uploadu - dokładnie ten sam problem co w panelu Media).
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;

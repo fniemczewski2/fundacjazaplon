@@ -7,7 +7,7 @@ type Props = {
   children: React.ReactNode;
   /** Kierunek wejścia. Domyślnie delikatne podniesienie z dołu. */
   direction?: Direction;
-  /** Opóźnienie w ms — do kaskadowego odsłaniania kart w siatce. */
+  /** Opóźnienie w ms - do kaskadowego odsłaniania kart w siatce. */
   delay?: number;
   /** Element HTML do wyrenderowania. Domyślnie `div`. */
   as?: 'div' | 'section' | 'article' | 'li' | 'header' | 'aside';
@@ -27,12 +27,12 @@ const DIRECTION_CLASS: Record<Direction, string> = {
  *
  * Trzy decyzje warte odnotowania:
  *
- * 1. Animacja jest jednorazowa — po pokazaniu przestajemy obserwować element.
+ * 1. Animacja jest jednorazowa - po pokazaniu przestajemy obserwować element.
  *    Treść migocząca przy każdym przewinięciu w górę i w dół męczy.
  * 2. Przy `prefers-reduced-motion: reduce` w ogóle nie dodajemy klasy `reveal`,
  *    więc nie ma ani przejścia, ani stanu „niewidoczny”.
  * 3. Gdyby JavaScript nie wystartował, CSS i tak wymusza pełną widoczność
- *    w media query — treść nigdy nie zostaje uwięziona w `opacity: 0`.
+ *    w media query - treść nigdy nie zostaje uwięziona w `opacity: 0`.
  */
 export default function Reveal({
   children,
@@ -64,7 +64,7 @@ export default function Reveal({
         setVisible(true);
         observer.disconnect();
       },
-      // Odpalamy nieco zanim element w pełni wjedzie w kadr — dzięki temu
+      // Odpalamy nieco zanim element w pełni wjedzie w kadr - dzięki temu
       // ruch kończy się mniej więcej wtedy, gdy użytkownik na niego patrzy.
       { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
     );

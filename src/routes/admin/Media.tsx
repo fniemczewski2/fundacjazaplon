@@ -45,7 +45,7 @@ export default function Media() {
 
     setUploading(true);
     try {
-      // uploadToMedia sanityzuje nazwę pliku ORAZ waliduje typ/rozmiar —
+      // uploadToMedia sanityzuje nazwę pliku ORAZ waliduje typ/rozmiar -
       // wcześniej ten panel wgrywał `file.name` bezpośrednio, z pominięciem
       // obu tych zabezpieczeń.
       await uploadToMedia('', file);

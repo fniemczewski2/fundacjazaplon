@@ -43,7 +43,7 @@ export default function SocialEdit() {
   const save = async () => {
     setMsg(null);
 
-    // Każde niepuste pole musi być poprawnym adresem http(s) — te wartości trafiają
+    // Każde niepuste pole musi być poprawnym adresem http(s) - te wartości trafiają
     // później bezpośrednio jako `href` na publiczną stopkę i stronę /links.
     for (const { key, label } of FIELDS) {
       const value = links[key];

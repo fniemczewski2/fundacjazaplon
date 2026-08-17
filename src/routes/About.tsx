@@ -7,6 +7,11 @@ import Loader from '../components/Loader';
 import Reveal from '../components/Reveal';
 import { getAbout, getPillars, type AboutInfo, type Pillar } from '../lib/about';
 
+/** Rozpoznaje zapis „(wkrótce)” używany w `about_pillars.body_md`. */
+function isComingSoon(body: string | null): boolean {
+  return body?.trim().toLowerCase().replace(/[()]/g, '') === 'wkrótce';
+}
+
 export default function About() {
   const [about, setAbout] = useState<AboutInfo | null>(null);
   const [pillars, setPillars] = useState<Pillar[]>([]);
@@ -79,11 +84,9 @@ export default function About() {
                   delay={i * 90}
                   className="h-full"
                 >
-                  <article className="card card-interactive flex h-full flex-col items-center p-6 text-center">
+                  <article className="card flex h-full flex-col items-center p-6 text-center">
                     {p.image_url && (
                       <div className="mb-5 grid size-20 place-items-center rounded-full p-4 panel-cool">
-                        {/* Ikona powtarza tytuł tuż obok — czytnik ekranu
-                            nie musi jej ogłaszać drugi raz. */}
                         <img
                           src={p.image_url}
                           alt=""
@@ -98,10 +101,17 @@ export default function About() {
 
                     <h3 className="font-heading text-lg font-semibold">{p.title}</h3>
 
-                    {p.body_md && (
-                      <div className="prose muted mt-2 max-w-none text-sm">
-                        <ReactMarkdown>{p.body_md}</ReactMarkdown>
-                      </div>
+                    {/* W bazie część filarów ma w `body_md` dosłowne
+                        „(wkrótce)”. Zamiast drukować to jako zdanie,
+                        pokazujemy odznakę - tak samo jak na stronie głównej. */}
+                    {isComingSoon(p.body_md) ? (
+                      <span className="badge mt-3">Wkrótce</span>
+                    ) : (
+                      p.body_md && (
+                        <div className="prose muted mt-2 max-w-none text-sm">
+                          <ReactMarkdown>{p.body_md}</ReactMarkdown>
+                        </div>
+                      )
                     )}
                   </article>
                 </Reveal>
