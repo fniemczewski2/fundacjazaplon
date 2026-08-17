@@ -78,7 +78,7 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
   };
 
   return (
-    <div className="card relative overflow-hidden p-6 md:p-10">
+    <div className="card relative overflow-hidden p-6 md:p-10" id="donate" >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-8 -right-8 w-40 opacity-10 md:w-52"
