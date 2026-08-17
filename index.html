@@ -30,6 +30,8 @@
     </script>
 
     <meta charset="UTF-8" />
+    <meta name="theme-color" content="#194770" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1a26" media="(prefers-color-scheme: dark)" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Podstawowe SEO -->
@@ -46,14 +48,14 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Fundacja „Zapłon” – wspieramy aktywność społeczną" />
     <meta property="og:description" content="Dołącz do naszych działań. Wspieramy aktywność społeczną i organizacje pozarządowe." />
-    <meta property="og:image" content="/images/hero.jpg" />
+    <meta property="og:image" content="https://zaplon.org.pl/images/hero.jpg" />
     <meta property="og:url" content="https://zaplon.org.pl/" />
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Fundacja „Zapłon” – wspieramy aktywność społeczną" />
     <meta name="twitter:description" content="Wspieramy aktywność społeczną i organizacje pozarządowe." />
-    <meta name="twitter:image" content="/images/hero.jpg" />
+    <meta name="twitter:image" content="https://zaplon.org.pl/images/hero.jpg" />
 
     <!-- Dane strukturalne NGO -->
     <script type="application/ld+json">
@@ -75,6 +77,11 @@
       }
     </script>
 
+    <!-- Fonty ładujemy z wyprzedzeniem — inaczej przeglądarka odkrywa je
+         dopiero po sparsowaniu arkusza, co opóźnia pierwsze malowanie tekstu. -->
+    <link rel="preload" href="/fonts/Signika.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/WorkSans.woff2" as="font" type="font/woff2" crossorigin />
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
@@ -84,7 +91,7 @@
          Google). Sam stylesheet aplikacji Vite wstrzykuje automatycznie przy buildzie. -->
   </head>
 
-  <body class="bg-base-100 text-text-black">
+  <body class="bg-surface text-ink">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

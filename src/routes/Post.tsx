@@ -1,50 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'wouter';
 import ReactMarkdown from 'react-markdown';
+import { FaArrowLeft } from 'react-icons/fa6';
 import Seo from '../components/Seo';
 import ArticleSchema from '../components/ArticleSchema';
+import Loader from '../components/Loader';
 import { getPostBySlug, type Post } from '../lib/post';
 import { getErrorMessage } from '../lib/utils/errors';
-import { FaArrowLeft } from 'react-icons/fa6';
-import Loader from '../components/Loader';
-
-const markdownComponents = {
-  h2: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'h2'> & { node?: unknown }) => (
-    <h2 className="text-3xl md:text-4xl font-bold mt-10 mb-5 text-text-black dark:text-white" {...props}>
-      {children}
-    </h2>
-  ),
-  h3: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'h3'> & { node?: unknown }) => (
-    <h3 className="text-2xl md:text-3xl font-semibold mt-8 mb-4 text-text-black dark:text-white" {...props}>
-      {children}
-    </h3>
-  ),
-  h4: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'h4'> & { node?: unknown }) => (
-    <h4 className="text-xl md:text-2xl font-medium mt-6 mb-3 text-text-black dark:text-white" {...props}>
-      {children}
-    </h4>
-  ),
-  p: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'p'> & { node?: unknown }) => (
-    <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6" {...props}>
-      {children}
-    </p>
-  ),
-  ul: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'ul'> & { node?: unknown }) => (
-    <ul className="list-disc list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props}>
-      {children}
-    </ul>
-  ),
-  ol: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'ol'> & { node?: unknown }) => (
-    <ol className="list-decimal list-inside text-lg text-gray-700 dark:text-gray-300 mb-6 space-y-2" {...props}>
-      {children}
-    </ol>
-  ),
-  a: ({ node: _node, children, ...props }: React.ComponentPropsWithoutRef<'a'> & { node?: unknown }) => (
-    <a className="text-brand dark:text-accent-orange hover:underline font-medium" {...props}>
-      {children}
-    </a>
-  ),
-};
 
 export default function Post() {
   const { slug } = useParams<{ slug: string }>();
@@ -64,14 +26,10 @@ export default function Post() {
         const data = await getPostBySlug(slug);
         if (!alive) return;
 
-        if (!data) {
-          setErr('Nie znaleziono wpisu.');
-        } else {
-          setPost(data);
-        }
+        if (!data) setErr('Nie znaleźliśmy tego wpisu.');
+        else setPost(data);
       } catch (e) {
-        if (!alive) return;
-        setErr(getErrorMessage(e, 'Błąd wczytywania wpisu.'));
+        if (alive) setErr(getErrorMessage(e, 'Nie udało się wczytać wpisu.'));
       } finally {
         if (alive) setLoading(false);
       }
@@ -86,10 +44,11 @@ export default function Post() {
 
   if (err || !post) {
     return (
-      <div className="container mx-auto p-6">
-        <p className="mb-4">{err ?? 'Nie znaleziono wpisu.'}</p>
-        <Link to="/aktualnosci" className="underline flex items-center gap-2">
-          <FaArrowLeft />
+      <div className="container-prose py-20 text-center">
+        <h1 className="section-title">Nie znaleźliśmy tego wpisu</h1>
+        <p className="lead mt-4">{err ?? 'Adres mógł się zmienić albo wpis został usunięty.'}</p>
+        <Link to="/aktualnosci" className="btn btn-primary mt-8">
+          <FaArrowLeft aria-hidden="true" />
           Wróć do aktualności
         </Link>
       </div>
@@ -104,6 +63,7 @@ export default function Post() {
       <Seo
         title={`${title} | Fundacja „Zapłon”`}
         description={excerpt ?? 'Aktualność Fundacji „Zapłon”.'}
+        image={cover_url ?? undefined}
       />
 
       <ArticleSchema
@@ -114,41 +74,47 @@ export default function Post() {
         url={url}
       />
 
-      <article
-        className="container mx-auto p-4 w-full max-w-[1200px]"
-        aria-labelledby="post-title"
-      >
-        <header className="mb-4">
-          <h1 id="post-title" className="section-title">
-            {title}
-          </h1>
-        </header>
-        <div className='flex justify-between items-center mb-4'>
+      <article className="container-prose py-12 md:py-16">
+        <Link to="/aktualnosci" className="link-accent inline-flex items-center gap-2 text-sm">
+          <FaArrowLeft aria-hidden="true" />
+          Wszystkie aktualności
+        </Link>
 
-          <Link
-            to="/aktualnosci"
-            className="hover:underline dark:hover:decoration-accent-orange flex items-center text-sm text-brand"
-          >
-            <FaArrowLeft className='fill-brand dark:fill-accent-orange'/>
-            <p className="ml-1 mt-0 text-brand dark:text-accent-orange w-fit">Wszystkie aktualności</p>
-          </Link>
+        <header className="mt-6">
+          <h1 className="section-title">{title}</h1>
+
           {published_at && (
-            <p className="text-sm text-text-black/60 mt-2">
-              Opublikowano: {new Date(published_at).toLocaleDateString('pl-PL')}
+            <p className="muted mt-4 text-sm">
+              Opublikowano{' '}
+              <time dateTime={published_at}>
+                {new Date(published_at).toLocaleDateString('pl-PL', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </time>
             </p>
           )}
-        </div>
+
+          {excerpt && <p className="lead mt-5">{excerpt}</p>}
+        </header>
+
         {cover_url && (
           <img
             src={`${cover_url}?width=1200&quality=80`}
-            alt={`Okładka wpisu: ${title}`}
-            className="w-full rounded-xl mb-6 object-contain aspect-video max-h-[400px]"
+            alt=""
+            aria-hidden="true"
+            className="mt-8 aspect-video w-full rounded-2xl object-cover"
             loading="lazy"
           />
         )}
 
-        <div className="prose max-w-none">
-          <ReactMarkdown components={markdownComponents}>{body_md}</ReactMarkdown>
+        {/* Style Markdown pochodzą z klasy `.prose` zdefiniowanej w index.css.
+            Wcześniej każdy element miał tu własny zestaw klas z twardo
+            wpisanymi kolorami `text-gray-700`, które w ciemnym motywie
+            spadały poniżej progu kontrastu. */}
+        <div className="prose mt-10 max-w-none">
+          <ReactMarkdown>{body_md}</ReactMarkdown>
         </div>
       </article>
     </>

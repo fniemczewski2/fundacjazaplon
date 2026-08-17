@@ -1,10 +1,10 @@
-// src/routes/Documents.tsx
 import { useEffect, useState } from 'react';
-import { ALL_CATEGORIES, type DocCategory, listDocuments } from '../lib/documents';
-import Seo from '../components/Seo';
-import Card from '../components/Card';
 import { FaDownload } from 'react-icons/fa6';
+import Seo from '../components/Seo';
+import Page from '../components/Page';
 import Loader from '../components/Loader';
+import Reveal from '../components/Reveal';
+import { ALL_CATEGORIES, type DocCategory, listDocuments } from '../lib/documents';
 
 type Group = {
   key: DocCategory;
@@ -12,27 +12,40 @@ type Group = {
   items: Array<{ name: string; url: string }>;
 };
 
+/** Ze „Sprawozdanie_finansowe_2024.pdf” robi czytelną nazwę dla człowieka. */
+function prettyName(fileName: string): string {
+  return fileName
+    .replace(/\.[a-z0-9]+$/i, '')
+    .replace(/[_-]+/g, ' ')
+    .trim();
+}
+
 export default function Documents() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const res: Group[] = [];
+    let alive = true;
 
-      for (const c of ALL_CATEGORIES) {
-        const items = await listDocuments(c.key);
-        res.push({
+    (async () => {
+      // Kategorie pobieramy równolegle — sekwencyjna pętla kazała czekać
+      // na sumę wszystkich zapytań zamiast na najwolniejsze z nich.
+      const res = await Promise.all(
+        ALL_CATEGORIES.map(async (c) => ({
           key: c.key,
           label: c.label,
-          items: items.map((i) => ({ name: i.name, url: i.url })),
-        });
-      }
+          items: (await listDocuments(c.key)).map((i) => ({ name: i.name, url: i.url })),
+        })),
+      );
 
+      if (!alive) return;
       setGroups(res);
       setLoading(false);
     })();
+
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const nonEmpty = groups.filter((g) => g.items.length > 0);
@@ -41,63 +54,58 @@ export default function Documents() {
     <>
       <Seo
         title="Dokumenty | Fundacja „Zapłon”"
-        description="Pobierz dokumenty Fundacji „Zapłon”: statuty, uchwały, sprawozdania finansowe i merytoryczne."
+        description="Pobierz dokumenty Fundacji „Zapłon”: statut, uchwały, sprawozdania finansowe i merytoryczne."
       />
 
-      <h1 className="section-title">Dokumenty</h1>
-
-      <div className="container mx-auto mt-6 p-4 max-w-4xl grid gap-6">
+      <Page
+        eyebrow="Jawność"
+        title="Dokumenty"
+        lead="Statut, uchwały i sprawozdania. Wszystko, czego można od nas oczekiwać — w jednym miejscu."
+        illustration="fabryka"
+        width="prose"
+      >
         {loading && <Loader />}
 
         {!loading && nonEmpty.length === 0 && (
-          <p className="text-text-black/70">Brak dokumentów.</p>
+          <p className="muted">Nie opublikowaliśmy jeszcze żadnych dokumentów.</p>
         )}
 
-        {!loading &&
-          nonEmpty.map((g) => (
-            <Card key={g.key}>
-              <section aria-labelledby={`docs-${g.key}`}>
-                <h2 id={`docs-${g.key}`} className="text-xl text-center font-semibold mb-3">
+        <div className="space-y-6">
+          {nonEmpty.map((g, gi) => (
+            <Reveal key={g.key} delay={gi * 90}>
+              <section aria-labelledby={`docs-${g.key}`} className="card p-6 md:p-8">
+                <h2 id={`docs-${g.key}`} className="font-heading text-xl font-semibold">
                   {g.label}
                 </h2>
 
-                <ul className="divide-y">
-                  {g.items.map((i) => {
-                    let yearLabel: string | null = null;
+                <ul className="mt-4 divide-y">
+                  {g.items.map((item) => (
+                    <li
+                      key={item.url}
+                      className="flex flex-wrap items-center justify-between gap-3 py-3"
+                    >
+                      <span className="min-w-0 text-sm break-words">{prettyName(item.name)}</span>
 
-                    if (g.key === 'sprawozdania') {
-                      const match = i.name.match(/\b(20\d{2})\b/);
-                      yearLabel = match?.[1] ?? 'n/d';
-                    }
-
-                    return (
-                      <li
-                        key={i.url}
-                        className="py-3 flex items-center justify-center gap-3"
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-secondary shrink-0 px-4 py-2 text-sm"
                       >
-                        {yearLabel && (
-                          <span className="text-sm md:text-base">
-                            {`Sprawozdanie ${yearLabel}`}
-                          </span>
-                        )}
-
-                        <a
-                          href={i.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-secondary inline-flex items-center gap-2"
-                          aria-label={`Pobierz dokument: ${i.name}`}
-                        >
-                          Pobierz <FaDownload />
-                        </a>
-                      </li>
-                    );
-                  })}
+                        Pobierz
+                        <FaDownload aria-hidden="true" />
+                        {/* Nazwa pliku w etykiecie — bez niej lista linków
+                            w czytniku ekranu to sześć razy „Pobierz”. */}
+                        <span className="sr-only">: {prettyName(item.name)}</span>
+                      </a>
+                    </li>
+                  ))}
                 </ul>
               </section>
-            </Card>
+            </Reveal>
           ))}
-      </div>
+        </div>
+      </Page>
     </>
   );
 }

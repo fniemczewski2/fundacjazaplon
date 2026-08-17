@@ -22,10 +22,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
   override render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen grid place-items-center p-6 text-center bg-base-100">
+        <div className="min-h-screen grid place-items-center p-6 text-center bg-surface">
           <div>
-            <h1 className="text-2xl font-semibold mb-2 text-text-black">Coś poszło nie tak.</h1>
-            <p className="mb-6 text-text-black/70">
+            <h1 className="text-2xl font-semibold mb-2 text-ink">Coś poszło nie tak.</h1>
+            <p className="mb-6 muted">
               Przepraszamy za utrudnienia — spróbuj odświeżyć stronę lub wrócić na stronę główną.
             </p>
             <a href="/" className="btn btn-primary inline-flex">

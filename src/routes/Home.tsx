@@ -1,72 +1,99 @@
-import Hero from '../components/Hero';
+import { Link } from 'wouter';
+import { FaArrowRight } from 'react-icons/fa6';
 import Seo from '../components/Seo';
-import JoinUsCard from '../components/JoinUsCard';
+import Hero from '../components/Hero';
+import SupportPillars from '../components/SupportPillars';
+import MissionBand from '../components/MissionBand';
+import RecentPosts from '../components/RecentPosts';
 import DonateCard from '../components/DonateCard';
 import NewsletterCard from '../components/NewsletterCard';
-import RecentPosts from '../components/RecentPosts';
+import JoinUsCard from '../components/JoinUsCard';
+import Reveal from '../components/Reveal';
+import Illustration from '../components/Illustration';
+import { useJoinLink } from '../hooks/useAppData';
 import { useScrollToHash } from '../hooks/useScrollToHash';
 
 export default function Home() {
   useScrollToHash(true);
 
+  const { data: joinLink } = useJoinLink();
+  const joinUrl = joinLink?.survey_url ?? null;
+
   return (
     <>
       <Seo
-        title="Fundacja „Zapłon” - wspieramy aktywność społeczną"
-        description="Fundacja „Zapłon” wspiera osoby angażujące się społecznie, buduje kapitał społeczny i wzmacnia organizacje pozarządowe. Dołącz do naszych działań i pomóż nam zapalać aktywność."
+        title="Fundacja „Zapłon” — wspieramy aktywność społeczną"
+        description="Fundacja „Zapłon” wspiera osoby angażujące się społecznie, buduje kapitał społeczny i wzmacnia organizacje pozarządowe. Dołącz do naszych działań."
       />
 
-      <main>
+      {/* Jeden H1 na stronę — jest nim nagłówek hero. Wcześniej strona miała
+          dwa: ukryty w sekcji i widoczny w komponencie Hero. */}
+      <Hero
+        eyebrow="Fundacja Zapłon"
+        title="Zapalamy"
+        highlight="aktywność."
+        subtitle="Wspieramy osoby angażujące się społecznie i motywujemy do działania. Budujemy kapitał społeczny i zaufanie do organizacji pozarządowych. Dajemy narzędzia do zmiany."
+        primaryCta={{ label: 'Wspieram', href: '/#donate' }}
+        secondaryCta={
+          joinUrl
+            ? { label: 'Dołączam', href: joinUrl, external: true }
+            : { label: 'Poznaj nas', href: '/o-nas' }
+        }
+      />
 
-        <section aria-labelledby="hero-title">
-          <h1 id="hero-title" className="sr-only">
-            Fundacja „Zapłon” – zapalamy aktywność społeczną
-          </h1>
-          <Hero
-            title="Zapalamy aktywność"
-            subtitle="Wspieramy osoby angażujące się społecznie i motywujemy do działania. Budujemy kapitał społeczny i zaufanie do organizacji pozarządowych. Dajemy narzędzia do zmiany."
-            cta={{ label: 'Wspieram', href: '#donate' }}
-          />
-        </section>
+      <SupportPillars />
 
-        <section
-          aria-labelledby="mission-title"
-          className="mt-16 card p-8"
-        >
-          <h2 id="mission-title" className="section-title text-center">
-            Kim jesteśmy i&nbsp;dla kogo działamy
-          </h2>
-          <p className="mt-4 text-lg opacity-80 max-w-2xl mx-auto text-center leading-relaxed">
-            My — młode osoby — w odpowiedzi na kryzysy współczesnego świata tworzymy przestrzeń
-            wspierającą osoby aktywistyczne, wolontariackie i&nbsp;działające społecznie.
-            Chcemy być fundacją-matronką kolektywów, ruchów i&nbsp;organizacji.
-          </p>
-        </section>
+      <MissionBand />
 
-        <RecentPosts />
+      <RecentPosts />
 
-        <section id="donate" aria-labelledby="donate-title" className="mt-10">
-          <h2 id="donate-title" className="sr-only">
-            Wspieram Fundację „Zapłon”
-          </h2>
+      {/* Materiały — most między „chcę pomóc” a „potrzebuję pomocy”. */}
+      <section aria-labelledby="materials-title" className="section-gap container-max">
+        <Reveal>
+          <div className="card panel-cool grid items-center gap-8 p-8 md:grid-cols-[auto_1fr] md:p-10">
+            <div aria-hidden="true" className="mx-auto w-32 md:w-44">
+              <Illustration name="notes" />
+            </div>
+
+            <div>
+              <p className="eyebrow mb-4">Do pobrania</p>
+              <h2 id="materials-title" className="section-title">
+                Poradniki, których sami szukaliśmy
+              </h2>
+              <p className="lead mt-4 max-w-2xl">
+                Zebraliśmy to, co najczęściej przydaje się na starcie: formalności, planowanie
+                działań, rozliczenia. Za darmo.
+              </p>
+              <Link href="/materialy" className="btn btn-secondary mt-7">
+                Zobacz materiały
+                <FaArrowRight aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* Sekcje poniżej nie mają własnych `aria-labelledby` — nagłówek H2
+          jest w środku karty i sam pełni tę rolę. Wcześniej obok widocznego
+          tytułu stał drugi, ukryty, przez co spis nagłówków w czytniku
+          ekranu pokazywał każdą pozycję dwa razy. */}
+      <section id="donate" className="section-gap container-max scroll-mt-28">
+        <Reveal>
           <DonateCard />
-        </section>
+        </Reveal>
+      </section>
 
-        <section aria-labelledby="newsletter-title" className="mt-10">
-          <h2 id="newsletter-title" className="sr-only">
-            Newsletter Fundacji „Zapłon”
-          </h2>
+      <section className="section-gap container-max">
+        <Reveal>
           <NewsletterCard />
-        </section>
+        </Reveal>
+      </section>
 
-        <section aria-labelledby="volunteer-title" className="mt-10">
-          <h2 id="volunteer-title" className="sr-only">
-            Dołącz do Fundacji „Zapłon”
-          </h2>
+      <section className="section-gap container-max pb-20">
+        <Reveal>
           <JoinUsCard />
-        </section>
-
-      </main>
+        </Reveal>
+      </section>
     </>
   );
 }

@@ -8,12 +8,15 @@ import {
   FaUserPlus,
   FaEnvelope,
   FaDownload,
-  FaXmark,
+  FaArrowRight,
 } from 'react-icons/fa6';
 import { getSocialLinks, type SocialLinks } from '../lib/social';
 import { getJoinLink, type JoinUs } from '../lib/join';
 import Seo from '../components/Seo';
 import Loader from '../components/Loader';
+import Modal from '../components/Modal';
+import Reveal from '../components/Reveal';
+import Illustration from '../components/Illustration';
 import NewsletterCard from '../components/NewsletterCard';
 import DonateCard from '../components/DonateCard';
 
@@ -43,49 +46,47 @@ export default function Links() {
   }, [pathname]);
 
   useEffect(() => {
+    let alive = true;
+
     (async () => {
-      setLoading(true);
       const [social, join] = await Promise.all([getSocialLinks(), getJoinLink()]);
+      if (!alive) return;
       setSocialLinks(social);
       setJoinLink(join);
       setLoading(false);
     })();
+
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  // Blokowanie scrollowania pod modalem
-  useEffect(() => {
-    document.body.style.overflow = activeModal ? 'hidden' : 'unset';
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [activeModal]);
-
-  if (loading) return <Loader />;
-
+  // Blokadą przewijania i zwrotem fokusu zajmuje się teraz komponent Modal.
   const closeModal = () => {
     setActiveModal(null);
-    if (DEEP_LINK_PATHS.includes(pathname)) {
-      setLocation('/links');
-    }
+    if (DEEP_LINK_PATHS.includes(pathname)) setLocation('/links');
   };
 
+  // Nagłówek renderujemy od razu. Wcześniej cała strona była zastąpiona
+  // spinnerem do czasu odpowiedzi Supabase, więc przy wolnym łączu
+  // użytkownik przez chwilę nie widział nawet nazwy fundacji.
   const links: LinkItem[] = [
     {
       title: 'Bezpłatne materiały',
       url: '/materialy',
-      icon: <FaDownload className="text-2xl" />,
-      description: 'Pobierz nasze poradniki',
+      icon: <FaDownload aria-hidden="true" className="text-xl" />,
+      description: 'Poradniki do pobrania',
     },
     {
       title: 'Wpłacam darowiznę',
       onClick: () => setActiveModal('donate'),
-      icon: <FaHandHoldingHeart className="text-2xl" />,
+      icon: <FaHandHoldingHeart aria-hidden="true" className="text-xl" />,
       description: 'Wspieram wasze działania',
     },
     {
       title: 'Zapisuję się do\u00a0newslettera',
       onClick: () => setActiveModal('newsletter'),
-      icon: <FaEnvelope className="text-2xl" />,
+      icon: <FaEnvelope aria-hidden="true" className="text-xl" />,
       description: 'Chcę być na bieżąco',
     },
     ...(joinLink?.survey_url
@@ -93,7 +94,7 @@ export default function Links() {
           {
             title: 'Dołączam do\u00a0wolontariatu',
             url: joinLink.survey_url,
-            icon: <FaUserPlus className="text-2xl" />,
+            icon: <FaUserPlus aria-hidden="true" className="text-xl" />,
             description: 'Jestem częścią zmiany',
           },
         ]
@@ -103,7 +104,7 @@ export default function Links() {
           {
             title: 'Instagram',
             url: socialLinks.instagram,
-            icon: <FaInstagram className="text-2xl" />,
+            icon: <FaInstagram aria-hidden="true" className="text-xl" />,
             description: '@fundacjazaplon',
           },
         ]
@@ -113,7 +114,7 @@ export default function Links() {
           {
             title: 'LinkedIn',
             url: socialLinks.linkedin,
-            icon: <FaLinkedin className="text-2xl" />,
+            icon: <FaLinkedin aria-hidden="true" className="text-xl" />,
             description: 'Obserwuj nas',
           },
         ]
@@ -121,104 +122,105 @@ export default function Links() {
     {
       title: 'zaplon.org.pl',
       url: 'https://zaplon.org.pl',
-      icon: <FaGlobe className="text-2xl" />,
+      icon: <FaGlobe aria-hidden="true" className="text-xl" />,
       description: 'Nasza strona główna',
     },
   ];
 
+  const itemClasses =
+    'card card-interactive flex w-full items-center gap-4 p-5 text-left no-underline';
+
   return (
     <>
-      <Seo title='Linki | Fundacja „Zapłon”' description="Wszystkie ważne linki Fundacji „Zapłon” w jednym miejscu" />
+      <Seo
+        title="Linki | Fundacja „Zapłon”"
+        description="Wszystkie ważne linki Fundacji „Zapłon” w jednym miejscu."
+      />
 
-      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-2 px-4">
-        <div className="w-full max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Fundacja „Zapłon”</h1>
-            <p className="text-text-black/70">Wspieramy aktywność społeczną i budujemy kapitał społeczny</p>
+      <div className="container-prose py-14">
+        <Reveal className="text-center">
+          <div aria-hidden="true" className="mx-auto mb-6 w-20">
+            <Illustration name="plomyk" priority glow />
           </div>
+          <h1 className="section-title">Fundacja „Zapłon”</h1>
+          <p className="lead mt-3">Wspieramy aktywność społeczną i budujemy kapitał społeczny.</p>
+        </Reveal>
 
-          <div className="space-y-4">
-            {links.map((link) => {
-              const itemClasses =
-                'block w-full text-left bg-base-200 hover:bg-brand hover:text-white border border-white/20 rounded-2xl p-6 transition-all duration-200 hover:scale-105 hover:shadow-lg group cursor-pointer';
+        {loading && <Loader />}
 
-              const content = (
-                <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0 text-text-black group-hover:text-white transition-colors">
-                    {link.icon}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="font-semibold text-text-black group-hover:text-white text-lg leading-tight transition-colors">
-                      {link.title}
-                    </div>
-                    {link.description && (
-                      <div className="text-sm text-text-black/70 group-hover:text-white/80 transition-colors mt-2">
-                        {link.description}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
+        <ul className="mt-10 space-y-4">
+          {links.map((link, i) => {
+            const content = (
+              <>
+                <span className="grid size-12 shrink-0 place-items-center rounded-full panel-cool text-ember-ink">
+                  {link.icon}
+                </span>
 
-              if (link.onClick) {
-                return (
-                  <button key={link.title} type="button" onClick={link.onClick} className={itemClasses}>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-heading text-lg leading-tight font-semibold">
+                    {link.title}
+                  </span>
+                  {link.description && (
+                    <span className="muted mt-1 block text-sm">{link.description}</span>
+                  )}
+                </span>
+
+                <FaArrowRight aria-hidden="true" className="muted shrink-0" />
+              </>
+            );
+
+            const isExternal =
+              !!link.url && link.url.startsWith('http') && !link.url.includes('zaplon.org.pl');
+
+            return (
+              <Reveal as="li" key={link.title} delay={i * 70}>
+                {link.onClick ? (
+                  <button type="button" onClick={link.onClick} className={itemClasses}>
                     {content}
                   </button>
-                );
-              }
+                ) : (
+                  <a
+                    href={link.url}
+                    target={isExternal ? '_blank' : undefined}
+                    rel={isExternal ? 'noopener noreferrer' : undefined}
+                    className={itemClasses}
+                  >
+                    {content}
+                    {isExternal && <span className="sr-only">— otwiera się w nowej karcie</span>}
+                  </a>
+                )}
+              </Reveal>
+            );
+          })}
+        </ul>
 
-              const isExternal = !!link.url && link.url.startsWith('http') && !link.url.includes('zaplon.org.pl');
-
-              return (
-                <a
-                  key={link.title}
-                  href={link.url}
-                  target={isExternal ? '_blank' : undefined}
-                  rel={isExternal ? 'noopener noreferrer' : undefined}
-                  className={itemClasses}
-                >
-                  {content}
-                </a>
-              );
-            })}
-          </div>
-
-          <div className="text-center mt-12 text-sm text-text-black/70">
-            <p>© {new Date().getFullYear()} Fundacja „Zapłon”</p>
-            <p className="mt-1">
-              <a href="mailto:biuro@zaplon.org.pl" className="hover:underline">
-                biuro@zaplon.org.pl
-              </a>
-            </p>
-          </div>
-        </div>
+        <p className="muted mt-12 text-center text-sm">
+          © {new Date().getFullYear()} Fundacja „Zapłon” ·{' '}
+          <a href="mailto:biuro@zaplon.org.pl" className="link-quiet">
+            biuro@zaplon.org.pl
+          </a>
+        </p>
       </div>
 
-      {activeModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-[100]">
-          <button
-            type="button"
-            aria-label="Zamknij"
-            className="absolute inset-0 cursor-default"
-            onClick={closeModal}
-          />
+      <Modal
+        open={activeModal === 'donate'}
+        onClose={closeModal}
+        title="Wspieram Fundację „Zapłon”"
+        hideTitle
+        size="lg"
+      >
+        <DonateCard />
+      </Modal>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-4xl relative shadow-2xl overflow-y-auto max-h-[90vh]">
-            <button
-              type="button"
-              onClick={closeModal}
-              aria-label="Zamknij okno"
-              className="absolute top-4 right-4 z-10 p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors"
-            >
-              <FaXmark className="w-5 h-5" />
-            </button>
-
-            {activeModal === 'donate' && <DonateCard />}
-            {activeModal === 'newsletter' && <NewsletterCard />}
-          </div>
-        </div>
-      )}
+      <Modal
+        open={activeModal === 'newsletter'}
+        onClose={closeModal}
+        title="Newsletter Fundacji „Zapłon”"
+        hideTitle
+        size="lg"
+      >
+        <NewsletterCard />
+      </Modal>
     </>
   );
 }

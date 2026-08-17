@@ -1,81 +1,91 @@
-// src/components/ContactForm.tsx
-import { useEffect, useState } from "react";
-import Card from "./Card";
-import { FaPaperPlane } from "react-icons/fa6";
+import { useEffect, useId, useState } from 'react';
+import { FaPaperPlane } from 'react-icons/fa6';
 
 export default function ContactForm() {
   const [sent, setSent] = useState(false);
+  const [origin, setOrigin] = useState('');
+
+  const nameId = useId();
+  const emailId = useId();
+  const messageId = useId();
 
   useEffect(() => {
+    setOrigin(window.location.origin);
     const params = new URLSearchParams(window.location.search);
-    if (params.get("sent") === "1") setSent(true);
+    if (params.get('sent') === '1') setSent(true);
   }, []);
 
   return (
-    <Card>
-      <h2 className="text-2xl font-semibold mb-4">Napisz do nas</h2>
+    <div className="card p-6 md:p-8">
+      <h2 className="font-heading text-2xl font-semibold">Napisz do nas</h2>
+      <p className="lead mt-2 text-base">Odpisujemy zwykle w ciągu kilku dni roboczych.</p>
 
       {sent && (
-        <div className="mb-3 text-brand text-sm">
+        <p role="status" className="mt-5 rounded-xl border p-4 text-sm panel-warm">
           Dziękujemy! Twoja wiadomość została wysłana.
-        </div>
+        </p>
       )}
 
       <form
         action="https://formsubmit.co/biuro@zaplon.org.pl"
         method="POST"
-        className="space-y-4"
+        className="mt-6 space-y-5"
       >
         <input type="hidden" name="_captcha" value="true" />
-        <input
-          type="hidden"
-          name="_next"
-          value={`${window.location.origin}/kontakt?sent=1`}
-        />
+        <input type="hidden" name="_next" value={`${origin}/kontakt?sent=1`} />
         <input type="hidden" name="_subject" value="Nowa wiadomość z formularza kontaktowego" />
 
-        <div className="flex flex-col gap-4">
-          <label className="block">
-            <span className="text-sm text-text-black/70">Imię i nazwisko</span>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor={nameId} className="field-label">
+              Imię i nazwisko
+            </label>
             <input
-              className="input-text bg-gray-50 dark:bg-gray-800"
+              id={nameId}
               name="name"
+              type="text"
+              required
+              autoComplete="name"
               placeholder="Jan Kowalski"
-              required
+              className="input-text"
             />
-          </label>
+          </div>
 
-          <label className="block">
-            <span className="text-sm text-text-black/70">Email</span>
+          <div>
+            <label htmlFor={emailId} className="field-label">
+              Adres e-mail
+            </label>
             <input
-              type="email"
-              className="input-text bg-gray-50 dark:bg-gray-800"
+              id={emailId}
               name="email"
-              placeholder="jan.kowalski@example.com"
+              type="email"
               required
+              autoComplete="email"
+              placeholder="jan.kowalski@example.com"
+              className="input-text"
             />
-          </label>
+          </div>
         </div>
 
-        <label className="block">
-          <span className="text-sm text-text-black/70">Wiadomość</span>
+        <div>
+          <label htmlFor={messageId} className="field-label">
+            Wiadomość
+          </label>
           <textarea
-            className="input-textarea bg-gray-50 dark:bg-gray-800"
-            rows={6}
+            id={messageId}
             name="message"
-            placeholder="W czym możemy pomóc?"
+            rows={6}
             required
+            placeholder="W czym możemy pomóc?"
+            className="input-textarea"
           />
-        </label>
+        </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary"
-        >
+        <button type="submit" className="btn btn-primary">
           Wyślij wiadomość
-          <FaPaperPlane className="ml-1" />
+          <FaPaperPlane aria-hidden="true" />
         </button>
       </form>
-    </Card>
+    </div>
   );
 }

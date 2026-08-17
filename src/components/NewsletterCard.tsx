@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
 import PrivacyPolicyLink from './PrivacyPolicyLink';
+import Illustration from './Illustration';
 import { getErrorMessage } from '../lib/utils/errors';
 
 export default function NewsletterCard() {
@@ -8,6 +9,9 @@ export default function NewsletterCard() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const nameId = useId();
+  const emailId = useId();
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,23 +22,20 @@ export default function NewsletterCard() {
       const res = await fetch('/api/subscribe-newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // NAPRAWA: Dodano zmienną name do wysyłanego payloadu
-        body: JSON.stringify({ name, email }), 
+        body: JSON.stringify({ name, email }),
       });
 
-      // NAPRAWA: Bezpieczne parsowanie odpowiedzi, aby uniknąć błędu "Unexpected end of JSON input"
-      const contentType = res.headers.get("content-type");
-      let data = null;
-      if (contentType && contentType.indexOf("application/json") !== -1) {
-        data = await res.json();
-      }
+      // Endpoint bywa odpowiada pustym ciałem przy błędzie — parsujemy
+      // dopiero po sprawdzeniu nagłówka, żeby nie wywrócić się na JSON.parse.
+      const contentType = res.headers.get('content-type') ?? '';
+      const data = contentType.includes('application/json') ? await res.json() : null;
 
       if (!res.ok) {
-        throw new Error(data?.error || `Wystąpił błąd serwera (${res.status}). Spróbuj ponownie.`);
+        throw new Error(data?.error || `Serwer odpowiedział błędem (${res.status}).`);
       }
 
       setStatus('success');
-      setName(''); // NAPRAWA: Czyszczenie pola imię po sukcesie
+      setName('');
       setEmail('');
     } catch (error) {
       setStatus('error');
@@ -43,61 +44,86 @@ export default function NewsletterCard() {
   };
 
   return (
-    <div className="card p-8 text-center">
-      <h2 className="section-title">Newsletter</h2>
-      <p className="mt-5 mb-6 text-text-black/80">
-        Chcesz być na&nbsp;bieżąco z&nbsp;naszymi działaniami? Zapisz&nbsp;się, aby otrzymywać informacje o&nbsp;realizowanych przez nas projektach.
-      </p>
+    <div className="card relative overflow-hidden p-6 md:p-10">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-6 -left-8 w-40 opacity-10 md:w-52"
+      >
+        <Illustration name="koperta" />
+      </div>
 
-      {status === 'success' ? (
-        <div className="text-brand dark:text-accent-orange p-4 rounded-lg inline-block font-medium">
-          Dziękujemy! Sprawdź swoją skrzynkę e-mail.
-        </div>
-      ) : (
-        <form onSubmit={handleSubscribe} className="max-w-lg mx-auto flex flex-col items-center gap-3">
-          <div className="flex flex-col sm:flex-row w-full gap-2">
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Twoje imię"
-              required
-              className="input-text"
-            />
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Twój adres e-mail"
-              required
-              className="input-text"
-            />
+      <div className="relative mx-auto max-w-lg text-center">
+        <p className="eyebrow mb-4 justify-center">Newsletter</p>
+        <h2 className="section-title">Bądź na bieżąco</h2>
+        <p className="lead mt-4">
+          Raz na jakiś czas piszemy o tym, co robimy i&nbsp;gdzie można się przyłączyć. Bez spamu.
+        </p>
+
+        {status === 'success' ? (
+          <p
+            role="status"
+            className="mt-8 rounded-2xl border p-5 font-medium panel-warm"
+          >
+            Dziękujemy! Sprawdź skrzynkę — wysłaliśmy wiadomość potwierdzającą.
+          </p>
+        ) : (
+          <form onSubmit={handleSubscribe} className="mt-8 space-y-4 text-left">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor={nameId} className="field-label">
+                  Imię
+                </label>
+                <input
+                  id={nameId}
+                  type="text"
+                  required
+                  autoComplete="given-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="input-text"
+                />
+              </div>
+
+              <div>
+                <label htmlFor={emailId} className="field-label">
+                  Adres e-mail
+                </label>
+                <input
+                  id={emailId}
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-text"
+                />
+              </div>
             </div>
-          <div className="flex items-center">
-            <button
-              type="submit"
-              disabled={status === 'loading'}
-              className="btn btn-secondary inline-flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-70"
-            >
-              {status === 'loading' ? 'Zapisywanie...' : (
-                <>
-                  Zapisz się <FaPaperPlane />
-                </>
-              )}
-            </button>
-          </div>
-          
-          {status === 'error' && (
-             <p className="text-text-black text-sm font-medium w-full text-left sm:text-center mt-1">
-               Wystąpił błąd: {errorMessage}
-             </p>
-          )}
-        </form>
-      )}
 
-      <div className="text-xs text-text-black/80 mt-6 max-w-lg mx-auto leading-relaxed">
-        Zapisując się wyrażam zgodę na przetwarzanie danych w&nbsp;celach marketingowych. 
-        Szczegóły: <PrivacyPolicyLink black />
+            <div className="flex justify-center pt-1">
+              <button type="submit" disabled={status === 'loading'} className="btn btn-ember">
+                {status === 'loading' ? (
+                  'Zapisujemy…'
+                ) : (
+                  <>
+                    Zapisz się <FaPaperPlane aria-hidden="true" />
+                  </>
+                )}
+              </button>
+            </div>
+
+            {status === 'error' && (
+              <p role="alert" className="field-error text-center">
+                {errorMessage}
+              </p>
+            )}
+          </form>
+        )}
+
+        <p className="field-hint mt-6 leading-relaxed">
+          Zapisując się, zgadzasz się na przetwarzanie danych w&nbsp;celach marketingowych.
+          Szczegóły: <PrivacyPolicyLink black />
+        </p>
       </div>
     </div>
   );

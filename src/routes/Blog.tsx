@@ -1,10 +1,11 @@
-// src/routes/Blog.tsx
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import Seo from '../components/Seo';
+import Page from '../components/Page';
+import Loader from '../components/Loader';
+import Reveal from '../components/Reveal';
 import { listPublishedPosts, type Post } from '../lib/post';
 import { getErrorMessage } from '../lib/utils/errors';
-import Loader from '../components/Loader';
 
 export default function Blog() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -12,17 +13,22 @@ export default function Blog() {
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
+    let alive = true;
+
     (async () => {
       try {
-        setLoading(true);
-        setErr(null);
-        setPosts(await listPublishedPosts());
+        const data = await listPublishedPosts();
+        if (alive) setPosts(data);
       } catch (e) {
-        setErr(getErrorMessage(e, 'Błąd wczytywania wpisów.'));
+        if (alive) setErr(getErrorMessage(e, 'Nie udało się wczytać wpisów.'));
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     })();
+
+    return () => {
+      alive = false;
+    };
   }, []);
 
   return (
@@ -32,75 +38,76 @@ export default function Blog() {
         description="Najnowsze aktualności, wydarzenia i projekty Fundacji „Zapłon”. Bądź na bieżąco z naszymi działaniami społecznymi."
       />
 
-      <h1 className="section-title">Aktualności</h1>
+      <Page
+        eyebrow="Co u nas"
+        title="Aktualności"
+        lead="Relacje z działań, zapowiedzi wydarzeń i to, co udało się dzięki wsparciu."
+        illustration="megafon"
+      >
+        {loading && <Loader />}
 
-      {loading && <Loader />}
+        {!loading && err && (
+          <p role="alert" className="field-error">
+            {err}
+          </p>
+        )}
 
-      {!loading && err && (
-        <p className="text-brand dark:text-accent-orange mt-6">{err}</p>
-      )}
+        {!loading && !err && posts.length === 0 && (
+          <p className="muted">Nie opublikowaliśmy jeszcze żadnych wpisów. Zajrzyj wkrótce.</p>
+        )}
 
-      {!loading && !err && (
-        <>
-          {posts.length === 0 ? (
-            <p className="text-text-black/70 mt-6">
-              Brak opublikowanych aktualności.
-            </p>
-          ) : (
-            <section
-              aria-labelledby="news-list"
-              className="p-4 mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-            >
-              <h2 id="news-list" className="sr-only">
-                Lista aktualności
-              </h2>
-
-              {posts.map((p) => (
-                <article
-                  key={p.id}
-                  className="card overflow-hidden rounded-2xl shadow-xs hover:shadow-md transition"
-                >
-                  <Link to={`/aktualnosci/${p.slug}`}>
+        {!loading && !err && posts.length > 0 && (
+          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((p, i) => (
+              <Reveal as="li" key={p.id} delay={(i % 3) * 110} className="h-full">
+                <article className="card card-interactive flex h-full flex-col overflow-hidden p-0">
+                  <div aria-hidden="true" className="aspect-[16/9] w-full overflow-hidden panel-cool">
                     {p.cover_url ? (
                       <img
-                        src={`${p.cover_url}?width=480&height=270&resize=cover&quality=75`}
-                        alt={p.title || 'Okładka wpisu'}
-                        className="w-full h-48 object-cover aspect-video"
+                        src={`${p.cover_url}?width=560&height=315&resize=cover&quality=75`}
+                        alt=""
+                        width={560}
+                        height={315}
+                        className="size-full object-cover"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
+                      <div className="muted grid size-full place-items-center text-sm">
                         Brak zdjęcia
                       </div>
                     )}
-                  </Link>
+                  </div>
 
-                  <div className="p-5 space-y-2">
-                    <Link
-                      to={`/aktualnosci/${p.slug}`}
-                      className="text-xl font-semibold hover:underline block"
-                    >
-                      {p.title}
-                    </Link>
-
-                    <p className="text-sm opacity-70">
+                  <div className="flex flex-1 flex-col gap-2 p-6">
+                    <p className="muted text-xs tracking-wide uppercase">
                       {p.published_at
-                        ? new Date(p.published_at).toLocaleDateString('pl-PL')
+                        ? new Date(p.published_at).toLocaleDateString('pl-PL', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })
                         : 'Szkic'}
                     </p>
 
+                    <h2 className="font-heading text-xl leading-snug font-semibold">
+                      <Link
+                        to={`/aktualnosci/${p.slug}`}
+                        className="underline-offset-4 hover:underline"
+                      >
+                        {p.title}
+                      </Link>
+                    </h2>
+
                     {p.excerpt && (
-                      <p className="text-text-black/70 text-sm line-clamp-3">
-                        {p.excerpt}
-                      </p>
+                      <p className="muted line-clamp-3 text-sm leading-relaxed">{p.excerpt}</p>
                     )}
                   </div>
                 </article>
-              ))}
-            </section>
-          )}
-        </>
-      )}
+              </Reveal>
+            ))}
+          </ul>
+        )}
+      </Page>
     </>
   );
 }

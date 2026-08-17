@@ -1,39 +1,50 @@
 import React from 'react';
 import { FaMoon, FaSun } from 'react-icons/fa6';
 
-function getInitialTheme(): 'light' | 'dark' {
-  const saved = localStorage.getItem('theme');
-  if (saved === 'light' || saved === 'dark') return saved;
-  // Ten sam fallback co blokujący skrypt anty-FOUC w index.html — dla nowych
-  // odwiedzających bez zapisanej preferencji szanujemy ustawienia systemowe
-  // zamiast zawsze zakładać jasny motyw.
+type Theme = 'light' | 'dark';
+
+function getInitialTheme(): Theme {
+  try {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light' || saved === 'dark') return saved;
+  } catch {
+    // localStorage bywa zablokowany (tryb prywatny, polityka cookies).
+  }
+  // Ten sam fallback co skrypt anty-FOUC w index.html: dla nowych osób
+  // szanujemy ustawienie systemowe zamiast zakładać jasny motyw.
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export default function ThemeSwitcher() {
-  const [theme, setTheme] = React.useState<'light' | 'dark'>(getInitialTheme);
+  const [theme, setTheme] = React.useState<Theme>(getInitialTheme);
 
   React.useEffect(() => {
     const root = document.documentElement;
+    root.classList.toggle('dark', theme === 'dark');
+    root.setAttribute('data-theme', theme);
 
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      root.setAttribute('data-theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      root.setAttribute('data-theme', 'light');
+    try {
+      localStorage.setItem('theme', theme);
+    } catch {
+      // Brak zapisu to nie powód, żeby przełącznik przestał działać
+      // w bieżącej sesji.
     }
-
-    localStorage.setItem('theme', theme);
   }, [theme]);
+
+  const isDark = theme === 'dark';
 
   return (
     <button
-      className="btn btn-ghost text-2xl text-text-navbar"
-      onClick={() => setTheme(t => (t === 'light' ? 'dark' : 'light'))}
-      aria-label="Przełącz motyw"
+      type="button"
+      // `aria-pressed` mówi czytnikowi ekranu, czy tryb ciemny jest włączony.
+      // Sama zamiana ikony słońca na księżyc niesie tę informację wyłącznie
+      // wzrokowo.
+      aria-pressed={isDark}
+      aria-label="Tryb ciemny"
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      className="btn btn-ghost px-3 text-xl text-white"
     >
-      {theme === 'light' ? <FaMoon /> : <FaSun />}
+      {isDark ? <FaSun aria-hidden="true" /> : <FaMoon aria-hidden="true" />}
     </button>
   );
 }

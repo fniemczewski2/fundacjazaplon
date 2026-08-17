@@ -14,152 +14,190 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const [open, setOpen] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
   const [location] = useLocation();
+  const toggleRef = React.useRef<HTMLButtonElement>(null);
 
   const { data: joinLink } = useJoinLink();
   const joinUrl = joinLink?.survey_url ?? null;
 
-  React.useEffect(() => {
-    setOpen(false);
-  }, [location]);
+  // Zmiana trasy zamyka menu mobilne.
+  React.useEffect(() => setOpen(false), [location]);
 
+  // Po ~12 px przewinięcia pasek się spłaszcza i dostaje cień — subtelny
+  // sygnał, że treść pod nim się przesuwa.
+  React.useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Escape zamyka menu i oddaje fokus przyciskowi, który je otworzył —
+  // bez tego fokus zostaje w zwiniętym, niewidocznym panelu.
   React.useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setOpen(false);
+      toggleRef.current?.focus();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
+  const linkClass = (isActive: boolean) =>
+    [
+      'relative py-2 text-white/90 transition-colors hover:text-white',
+      'after:absolute after:-bottom-0.5 after:left-0 after:h-[3px] after:rounded-full',
+      'after:bg-ember after:transition-all after:duration-300 after:content-[""]',
+      isActive ? 'text-white after:w-full' : 'after:w-0 hover:after:w-full',
+    ].join(' ');
+
   return (
-    <header className="sticky top-0 z-50 bg-brand text-white shadow-md">
-      <nav className="container-max flex items-center justify-between py-3 md:py-4">
-
-        <Link href="/" className="flex items-center gap-3">
-          <img
-            src="/images/logo.svg"
-            alt="Logo Fundacji Zapłon"
-            className="h-16 w-auto md:h-14 logo"
-          />
-        </Link>
-
-        {/* Menu Desktop */}
-        <ul className="hidden md:flex text-sm lg:text-base lg:gap-6 gap-4 items-center text-white">
-          {NAV_ITEMS.map((item) => {
-            const isActive = location === item.to;
-            return (
-              <li key={item.to}>
-                <Link
-                  href={item.to}
-                  className={`hover:opacity-80 transition ${
-                    isActive ? 'underline underline-offset-8 decoration-brand' : ''
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-
-        {/* CTA + Theme (desktop) */}
-        <div className="hidden md:flex items-center gap-2 text-text-black">
-          {joinUrl && (
-            <a
-              href={joinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary"
-            >
-              Dołączam
-            </a>
-          )}
-          <Link href="/#donate" className="btn btn-primary">
-            Wspieram
+    <header
+      className={[
+        'on-brand sticky top-0 z-50 border-b border-white/10 bg-brand text-white',
+        'transition-shadow duration-300',
+        scrolled ? 'shadow-lg' : '',
+      ].join(' ')}
+    >
+      <nav aria-label="Główne" className="container-max">
+        <div
+          className={[
+            'flex items-center justify-between gap-4 transition-[padding] duration-300',
+            scrolled ? 'py-2' : 'py-3 md:py-4',
+          ].join(' ')}
+        >
+          <Link href="/" className="flex shrink-0 items-center" aria-label="Fundacja Zapłon — strona główna">
+            <img
+              src="/images/logo.svg"
+              alt="Fundacja Zapłon"
+              width={104}
+              height={64}
+              className={[
+                'w-auto transition-[height] duration-300',
+                scrolled ? 'h-11' : 'h-14 md:h-16',
+              ].join(' ')}
+            />
           </Link>
-          <ThemeSwitcher />
-        </div>
 
-        {/* Przycisk mobile */}
-        <div className="md:hidden flex items-center text-text-black gap-2">
-          <ThemeSwitcher />
-          <button
-            onClick={() => setOpen((s) => !s)}
-            aria-expanded={open}
-            aria-controls="mobile-menu"
-            aria-label="Otwórz menu"
-            className="inline-flex items-center justify-center btn btn-ghost"
-          >
-            <span className="sr-only">Menu</span>
-            <div className="relative w-5 h-5">
-              <span
-                className={`absolute inset-x-0 top-0 h-[3px] rounded-full bg-current transition ${
-                  open ? 'translate-y-2 rotate-45' : ''
-                }`}
-              />
-              <span
-                className={`absolute inset-x-0 top-2 h-[3px] rounded-full bg-current transition ${
-                  open ? 'opacity-0' : ''
-                }`}
-              />
-              <span
-                className={`absolute inset-x-0 top-4 h-[3px] rounded-full bg-current transition ${
-                  open ? '-translate-y-2 -rotate-45' : ''
-                }`}
-              />
-            </div>
-          </button>
-        </div>
-      </nav>
-
-      {/* Menu Mobile */}
-      <div
-        id="mobile-menu"
-        aria-hidden={!open}
-        className={`md:hidden overflow-hidden transition-[max-height] duration-300 z-30 text-text-black ${
-          open ? 'max-h-[32rem]' : 'max-h-0'
-        }`}
-      >
-        <div className="container-max pb-3">
-          <ul className="flex flex-col gap-1">
+          {/* Nawigacja — desktop */}
+          <ul className="hidden items-center gap-5 text-sm lg:flex lg:gap-7 lg:text-base xl:flex">
             {NAV_ITEMS.map((item) => {
               const isActive = location === item.to;
               return (
                 <li key={item.to}>
                   <Link
                     href={item.to}
-                    tabIndex={open ? 0 : -1}
-                    className={`block rounded-xl px-4 py-3 transition text-white ${
-                      isActive ? 'underline underline-offset-8 decoration-brand' : ''
-                    }`}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={linkClass(isActive)}
                   >
                     {item.label}
                   </Link>
                 </li>
               );
             })}
-
-            <li className="px-1 flex flex-col gap-2 mt-2 text-white">
-              {joinUrl && (
-                <a
-                  href={joinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  tabIndex={open ? 0 : -1}
-                  className="btn btn-secondary w-full"
-                >
-                  Dołączam
-                </a>
-              )}
-              <Link
-                href="/#donate"
-                tabIndex={open ? 0 : -1}
-                className="btn btn-secondary w-full"
-                onClick={() => setOpen(false)}
-              >
-                Wspieram
-              </Link>
-            </li>
           </ul>
+
+          {/* Działania — desktop */}
+          <div className="hidden shrink-0 items-center gap-2 xl:flex">
+            {joinUrl && (
+              <a href={joinUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+                Dołączam
+              </a>
+            )}
+            <Link href="/#donate" className="btn btn-ember">
+              Wspieram
+            </Link>
+            <ThemeSwitcher />
+          </div>
+
+          {/* Działania — mobile */}
+          <div className="flex shrink-0 items-center gap-1 xl:hidden">
+            <ThemeSwitcher />
+            <button
+              ref={toggleRef}
+              type="button"
+              onClick={() => setOpen((s) => !s)}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+              aria-label={open ? 'Zamknij menu' : 'Otwórz menu'}
+              className="btn btn-ghost px-3 text-white"
+            >
+              <span className="relative block size-5" aria-hidden="true">
+                <span
+                  className={`absolute inset-x-0 top-0.5 h-[3px] rounded-full bg-current transition duration-300 ${
+                    open ? 'translate-y-2 rotate-45' : ''
+                  }`}
+                />
+                <span
+                  className={`absolute inset-x-0 top-2.5 h-[3px] rounded-full bg-current transition duration-300 ${
+                    open ? 'opacity-0' : ''
+                  }`}
+                />
+                <span
+                  className={`absolute inset-x-0 top-4.5 h-[3px] rounded-full bg-current transition duration-300 ${
+                    open ? '-translate-y-2 -rotate-45' : ''
+                  }`}
+                />
+              </span>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Menu mobilne.
+          `inert` (React 19) wyjmuje zwinięty panel z kolejności tabulacji
+          i z drzewa dostępności naraz. Wcześniej był tu `aria-hidden` przy
+          wciąż fokusowalnych linkach — kombinacja, którą walidatory
+          zgłaszają jako błąd. */}
+      <div
+        id="mobile-menu"
+        inert={!open}
+        className={`overflow-hidden transition-[max-height] duration-300 xl:hidden ${
+          open ? 'max-h-[36rem]' : 'max-h-0'
+        }`}
+        style={{ transitionTimingFunction: 'var(--ease-out-soft)' }}
+      >
+        <div className="container-max pb-4">
+          <ul className="flex flex-col gap-1 border-t border-white/15 pt-3">
+            {NAV_ITEMS.map((item) => {
+              const isActive = location === item.to;
+              return (
+                <li key={item.to}>
+                  <Link
+                    href={item.to}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-white transition ${
+                      isActive ? 'bg-white/12 font-semibold' : 'hover:bg-white/8'
+                    }`}
+                  >
+                    {isActive && (
+                      <span aria-hidden="true" className="size-1.5 rounded-full bg-ember" />
+                    )}
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-4 flex flex-col gap-2">
+            {joinUrl && (
+              <a
+                href={joinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary w-full"
+              >
+                Dołączam
+              </a>
+            )}
+            <Link href="/#donate" className="btn btn-ember w-full">
+              Wspieram
+            </Link>
+          </div>
         </div>
       </div>
     </header>

@@ -1,10 +1,11 @@
-// src/routes/About.tsx
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import Seo from '../components/Seo';
-import { getAbout, getPillars, type AboutInfo, type Pillar } from '../lib/about';
+import Page from '../components/Page';
 import Card from '../components/Card';
 import Loader from '../components/Loader';
+import Reveal from '../components/Reveal';
+import { getAbout, getPillars, type AboutInfo, type Pillar } from '../lib/about';
 
 export default function About() {
   const [about, setAbout] = useState<AboutInfo | null>(null);
@@ -12,13 +13,19 @@ export default function About() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let alive = true;
+
     (async () => {
-      setLoading(true);
       const [a, p] = await Promise.all([getAbout(), getPillars()]);
+      if (!alive) return;
       setAbout(a);
       setPillars(p);
       setLoading(false);
     })();
+
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const descriptionBlocks = about?.description_md
@@ -35,62 +42,74 @@ export default function About() {
         description="Poznaj misję, wartości i działania Fundacji „Zapłon”. Wspieramy aktywność społeczną, budujemy kapitał społeczny i wzmacniamy organizacje pozarządowe."
       />
 
-      <h1 className="section-title mt-8">O nas</h1>
-
-      <div className="container mx-auto mt-6 p-4 space-y-12">
+      <Page
+        eyebrow="Fundacja Zapłon"
+        title="O nas"
+        lead="Skąd się wzięliśmy, dla kogo działamy i na czym opiera się nasza praca."
+        illustration="ognisko"
+      >
         {loading && <Loader />}
 
         {!loading && descriptionBlocks.length > 0 && (
-          <section aria-labelledby="about-desc">
-            <h2 id="about-desc" className="sr-only">Opis fundacji</h2>
-            <Card>
+          <Reveal>
+            <Card className="mx-auto max-w-3xl">
               {descriptionBlocks.map((block, idx) => (
-                <div key={idx} className="py-2 text-base md:text-xl prose max-w-none">
+                <div key={idx} className="prose max-w-none">
                   <ReactMarkdown>{block}</ReactMarkdown>
                 </div>
               ))}
             </Card>
-          </section>
+          </Reveal>
         )}
 
         {!loading && pillars.length > 0 && (
-          <section aria-labelledby="pillars-title">
-            <h2 id="pillars-title" className="text-3xl font-bold mb-8 text-center text-text-black dark:text-white font-['Signika']">
-              Filary naszej działalności
-            </h2>
+          <section aria-labelledby="pillars-title" className="section-gap">
+            <Reveal className="mx-auto max-w-2xl text-center">
+              <p className="eyebrow mb-4 justify-center">Jak pomagamy</p>
+              <h2 id="pillars-title" className="section-title">
+                Filary naszej działalności
+              </h2>
+            </Reveal>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
-              {pillars.map((p) => (
-                <Card key={p.id || `pillar-${p.order_index}`}>
-                  <div className="flex flex-col items-center h-full">
-                    {/* Wyświetlanie obrazka */}
+            <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {pillars.map((p, i) => (
+                <Reveal
+                  as="li"
+                  key={p.id || `pillar-${p.order_index}`}
+                  delay={i * 90}
+                  className="h-full"
+                >
+                  <article className="card card-interactive flex h-full flex-col items-center p-6 text-center">
                     {p.image_url && (
-                      <div className="w-20 h-20 mb-5 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-full p-4 shadow-inner">
-                        <img 
-                          src={p.image_url} 
-                          alt={`Ikona filaru: ${p.title}`} 
-                          className="w-full h-full object-contain"
+                      <div className="mb-5 grid size-20 place-items-center rounded-full p-4 panel-cool">
+                        {/* Ikona powtarza tytuł tuż obok — czytnik ekranu
+                            nie musi jej ogłaszać drugi raz. */}
+                        <img
+                          src={p.image_url}
+                          alt=""
+                          aria-hidden="true"
+                          width={48}
+                          height={48}
+                          className="size-full object-contain"
                           loading="lazy"
                         />
                       </div>
                     )}
-                    
-                    <h3 className="text-xl font-bold text-center mb-3 text-text-black dark:text-white">
-                      {p.title}
-                    </h3>
-                    
+
+                    <h3 className="font-heading text-lg font-semibold">{p.title}</h3>
+
                     {p.body_md && (
-                      <div className="prose max-w-none text-sm text-center text-gray-600 dark:text-gray-300 mt-auto">
+                      <div className="prose muted mt-2 max-w-none text-sm">
                         <ReactMarkdown>{p.body_md}</ReactMarkdown>
                       </div>
                     )}
-                  </div>
-                </Card>
+                  </article>
+                </Reveal>
               ))}
-            </div>
+            </ul>
           </section>
         )}
-      </div>
+      </Page>
     </>
   );
 }

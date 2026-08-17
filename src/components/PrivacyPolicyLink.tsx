@@ -1,46 +1,51 @@
 import { useEffect, useState } from 'react';
 import { listDocuments } from '../lib/documents';
 
+/**
+ * Link do polityki prywatności pobieranej z Supabase.
+ *
+ * Kolory pochodzą teraz z tokenów motywu. Wcześniej były zaszyte na sztywno
+ * (`text-gray-300` w stopce, `text-gray-700` w kartach), przez co w motywie
+ * ciemnym link wtapiał się w tło.
+ */
 export default function PrivacyPolicyLink({ black }: { black?: boolean }) {
   const [url, setUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPrivacyPolicy = async () => {
+    let alive = true;
+
+    (async () => {
       try {
-        const items = await listDocuments('polityka-prywatnosci'); 
-
-        const policyDoc = items.find((doc) => 
-          doc.name.toLowerCase().includes('polityka')
-        );
-
-        if (policyDoc) {
-          setUrl(policyDoc.url);
-        }
+        const items = await listDocuments('polityka-prywatnosci');
+        const policyDoc = items.find((doc) => doc.name.toLowerCase().includes('polityka'));
+        if (alive && policyDoc) setUrl(policyDoc.url);
       } catch (error) {
-        console.error('Błąd podczas pobierania Polityki Prywatności:', error);
-      } finally {
-        setLoading(false);
+        console.error('Nie udało się pobrać polityki prywatności:', error);
       }
-    };
+    })();
 
-    fetchPrivacyPolicy();
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  if (loading || !url) {
-    return null;
-  }
+  if (!url) return null;
 
   return (
-    <span className={black ? 'text-text-black hover:text-gray-700' : 'text-gray-300 hover:text-white'}>
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-sm transition hover:underline"
+      // `black` = link stoi na jasnej karcie, więc dostaje kolor akcentu.
+      // Bez niego dziedziczy kolor otoczenia (stopka na granacie).
+      className={
+        black
+          ? 'link-accent text-sm'
+          : 'text-sm underline-offset-4 transition-colors hover:underline'
+      }
     >
       Polityka prywatności
+      <span className="sr-only"> — otwiera się w nowej karcie</span>
     </a>
-    </span>
   );
 }

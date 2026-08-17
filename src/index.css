@@ -2,52 +2,173 @@
 
 @custom-variant dark (&:where(.dark, .dark *, [data-theme='dark'], [data-theme='dark'] *));
 
+/* ==========================================================================
+   SYSTEM DESIGNU — Fundacja „Zapłon”
+   --------------------------------------------------------------------------
+   Paleta wywodzi się z brandbooka (194770 / A6CBF0 / FFA962 / FFEEB5 /
+   363636 / FAF6F3). Każda para tekst–tło użyta w interfejsie została
+   sprawdzona pod kątem WCAG 2.2 AA (4.5:1 dla treści, 3:1 dla elementów UI)
+   w obu motywach.
+
+   Dwie rodziny tokenów:
+   • semantyczne (surface / ink / ember / line …) — używaj ich w nowym kodzie,
+   • zgodnościowe (base-100 / text-black / accent-orange …) — zostawione jako
+     aliasy, żeby panel administracyjny działał bez przepisywania.
+   ========================================================================== */
+
 @theme {
-  --color-brand: hsl(208 63% 27%);
-  --color-button: hsl(208 63% 27%);
+  /* --- Marka ------------------------------------------------------------ */
+  --color-brand: #194770;          /* granat — navbar, stopka, przyciski       */
+  --color-brand-deep: #10314f;
+  --color-sky: #a6cbf0;            /* błękit — tła pomocnicze, linki w ciemnym */
+  --color-ember: #ffa962;          /* pomarańcz — WYŁĄCZNIE jako wypełnienie   */
+  --color-cream: #ffeeb5;
 
-  --color-base-100: hsl(30 30% 98%);
-  --color-base-200: hsl(208 69% 80%);
-  --color-base-300: hsl(208 40% 88%);
+  /* Wersja pomarańczu bezpieczna dla tekstu w motywie jasnym (5,6:1 na tle). */
+  --color-ember-ink: #a34708;
+  /* Kolor marki bezpieczny dla tekstu — w ciemnym motywie staje się błękitem. */
+  --color-brand-ink: #194770;
 
-  --color-text-black: hsl(0 0% 21%);
-  --color-text-white: hsl(0 0% 100%);
-  --color-text-navbar: hsl(0 0% 100%);
+  /* --- Powierzchnie ----------------------------------------------------- */
+  --color-surface: #faf6f3;        /* tło strony                              */
+  --color-surface-raised: #ffffff; /* karty                                   */
+  --color-surface-warm: #fff6e3;   /* pasma „ciepłe” (misja, CTA)             */
+  --color-surface-cool: #edf4fc;   /* pasma „chłodne”                         */
 
-  --color-accent-orange: hsl(24 95% 38%);
-  --color-danger: hsl(0 72% 42%);
-  --color-success: hsl(152 69% 27%);
+  /* --- Treść ------------------------------------------------------------ */
+  --color-ink: #2a2a2a;
+  --color-ink-muted: #5c5f66;
+  --color-ink-inverse: #ffffff;
 
+  /* --- Krawędzie -------------------------------------------------------- */
+  --color-line: rgb(25 71 112 / 0.14);
+  --color-line-strong: rgb(25 71 112 / 0.28);
+  --color-field-border: #767c85;   /* 4,2:1 — spełnia 1.4.11 dla pól formularzy */
+
+  /* --- Stany ------------------------------------------------------------ */
+  --color-danger: #b3261e;
+  --color-success: #1c6b45;
+
+  /* --- Aliasy zgodnościowe (stary kod / panel admina) ------------------- */
+  --color-base-100: #faf6f3;
+  --color-base-200: #edf4fc;
+  --color-base-300: #dbe6f2;
+  --color-text-black: #2a2a2a;
+  --color-text-white: #ffffff;
+  --color-text-navbar: #ffffff;
+  --color-accent-orange: #a34708;
+  --color-button: #194770;
+
+  /* --- Typografia ------------------------------------------------------- */
   --font-sans: 'Work Sans', ui-sans-serif, system-ui, sans-serif;
   --font-heading: 'Signika', ui-sans-serif, system-ui, sans-serif;
 
-  --radius-2xl: 1.25rem;
+  --text-display: clamp(2.75rem, 1.6rem + 5vw, 5.5rem);
+  --text-display--line-height: 0.96;
+  --text-display--letter-spacing: -0.035em;
 
-  --animate-fade-in: fade-in 200ms ease-out both;
+  --text-headline: clamp(1.9rem, 1.2rem + 2.6vw, 3rem);
+  --text-headline--line-height: 1.08;
+  --text-headline--letter-spacing: -0.02em;
+
+  --text-lead: clamp(1.05rem, 0.98rem + 0.4vw, 1.3rem);
+  --text-lead--line-height: 1.65;
+
+  /* --- Kształt i głębia ------------------------------------------------- */
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+
+  --shadow-soft: 0 1px 2px rgb(16 49 79 / 0.05), 0 8px 24px -12px rgb(16 49 79 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(16 49 79 / 0.06), 0 20px 44px -20px rgb(16 49 79 / 0.3);
+  --shadow-ember: 0 14px 36px -18px rgb(163 71 8 / 0.55);
+
+  /* --- Ruch ------------------------------------------------------------- */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-in: fade-in 220ms var(--ease-out-soft) both;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-flicker: flicker 3.4s ease-in-out infinite;
 
   @keyframes fade-in {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
   }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-10px) rotate(-1.5deg); }
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    45%      { opacity: 1;    transform: scale(1.04); }
+    70%      { opacity: 0.92; transform: scale(0.99); }
+  }
+
 }
+
+/* „Skala zapłonu” — ogień biegnie wzdłuż linii i zapala kolejne stopnie.
+
+   Te klatki celowo stoją POZA blokiem `@theme`. Tailwind v4 usuwa z bundla
+   każde `@keyframes` zadeklarowane w `@theme`, do którego nie prowadzi token
+   `--animate-*`, a te dwie animacje są przypisywane w `style` komponentu.
+   Wewnątrz `@theme` po prostu znikały przy buildzie. */
+@keyframes ignite-line {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes ignite-step {
+  from { opacity: 0; transform: translateY(14px) scale(0.9); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ==========================================================================
+   MOTYW CIEMNY
+   ========================================================================== */
 
 html[data-theme='dark'],
 html.dark {
-  --color-brand: hsl(208 63% 27%);
-  --color-button: hsl(0 0% 100%);
+  --color-brand: #194770;
+  --color-brand-deep: #0b2135;
+  --color-brand-ink: #a6cbf0;
+  --color-ember-ink: #ffa962;
 
-  --color-base-100: hsl(210 28% 11%);
-  --color-base-200: hsl(210 22% 16%);
-  --color-base-300: hsl(210 18% 24%);
+  --color-surface: #0e1a26;
+  --color-surface-raised: #16283a;
+  --color-surface-warm: #24190f;
+  --color-surface-cool: #132538;
 
-  --color-text-black: hsl(0 0% 100%);
-  --color-text-white: hsl(0 0% 14%);
-  --color-text-navbar: hsl(0 0% 100%);
+  --color-ink: #eaf0f6;
+  --color-ink-muted: #9fb0c0;
+  --color-ink-inverse: #0e1a26;
 
-  --color-accent-orange: hsl(28 92% 62%);
-  --color-danger: hsl(0 84% 71%);
-  --color-success: hsl(152 60% 60%);
+  --color-line: rgb(166 203 240 / 0.16);
+  --color-line-strong: rgb(166 203 240 / 0.32);
+  --color-field-border: #6b8aaa;
+
+  --color-danger: #ff9d94;
+  --color-success: #6bd6a4;
+
+  --color-base-100: #0e1a26;
+  --color-base-200: #132538;
+  --color-base-300: #1f3549;
+  --color-text-black: #eaf0f6;
+  --color-text-white: #0e1a26;
+  --color-text-navbar: #ffffff;
+  --color-accent-orange: #ffa962;
+  --color-button: #a6cbf0;
+
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.4), 0 20px 44px -20px rgb(0 0 0 / 0.75);
+  --shadow-ember: 0 14px 36px -18px rgb(255 169 98 / 0.4);
+
+  color-scheme: dark;
 }
+
+/* ==========================================================================
+   FONTY (self-hosted — zero zapytań do Google Fonts)
+   ========================================================================== */
 
 @font-face {
   font-family: 'Signika';
@@ -65,85 +186,414 @@ html.dark {
   font-display: swap;
 }
 
+/* ==========================================================================
+   WARSTWA BAZOWA
+   ========================================================================== */
+
 @layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-line);
+  }
+
   html {
-    overscroll-behavior-y: none;
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+    overscroll-behavior-y: none;
     font-family: var(--font-sans);
-    color: var(--color-text-black);
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     margin: 0;
     width: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow-x: clip;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    color: var(--color-text-black);
+    color: var(--color-ink);
+    text-wrap: balance;
   }
 
+  p { text-wrap: pretty; }
+
+  /* Widoczny fokus w obu motywach — nigdy nie usuwamy obrysu bez zamiennika. */
   :focus-visible {
-    outline: 2px solid var(--color-accent-orange);
-    outline-offset: 2px;
+    outline: 3px solid var(--color-ember-ink);
+    outline-offset: 3px;
+    border-radius: 0.35rem;
   }
 
+  button, [role='button'], a, input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  ::selection {
+    background: var(--color-ember);
+    color: #1a1a1a;
+  }
+
+  img, svg, video { max-width: 100%; height: auto; }
+
+  /* Pełne poszanowanie preferencji „ogranicz ruch”. */
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
+/* ==========================================================================
+   KOMPONENTY
+   ========================================================================== */
+
 @layer components {
+
+  /* --- Układ ------------------------------------------------------------ */
+
   .container-max {
-    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
-  .card {
-    @apply rounded-2xl border border-black/10 bg-base-100 dark:border-white/20 dark:bg-white/5;
-    box-shadow: rgb(0 0 0 / 0.15) 0 5px 15px 0;
+  .container-prose {
+    @apply mx-auto w-full max-w-3xl px-4 sm:px-6;
   }
 
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 font-semibold transition
-      hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60
-      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-orange;
+  /* Odstęp między sekcjami — jedno miejsce, jedna decyzja. */
+  .section-gap {
+    @apply mt-16 md:mt-24;
   }
 
-  .btn-primary { @apply bg-brand text-white; }
-
-  .btn-secondary {
-    @apply border-2 border-solid border-button text-button hover:border-button hover:bg-button hover:text-base-100;
+  /* Link „przejdź do treści” — widoczny dopiero po sfokusowaniu klawiaturą. */
+  .skip-link {
+    @apply sr-only;
   }
 
-  .btn-ghost { @apply bg-transparent; }
+  .skip-link:focus-visible {
+    @apply not-sr-only fixed top-3 left-3 z-[200] rounded-xl px-4 py-3 font-semibold;
+    background: var(--color-surface-raised);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-lift);
+  }
 
-  .btn-danger { @apply bg-danger text-white; }
+  /* --- Typografia ------------------------------------------------------- */
 
-  .badge {
-    @apply inline-flex rounded-full border border-black/10 px-2 py-1 text-sm dark:border-white/20;
+  /* Nadlinia: Work Sans wersalikami, szeroko rozstrzelony. Nadaje rytm
+     sekcjom i zastępuje ozdobne numerki „01 / 02 / 03”. */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 font-sans text-xs font-semibold uppercase;
+    letter-spacing: 0.16em;
+    color: var(--color-ember-ink);
+  }
+
+  .eyebrow::before {
+    content: '';
+    width: 1.75rem;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.65;
+  }
+
+  .display {
+    @apply font-heading font-bold;
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    letter-spacing: var(--text-display--letter-spacing);
   }
 
   .section-title {
-    @apply w-full text-center font-heading text-3xl font-semibold tracking-tight text-text-black md:text-4xl;
+    @apply w-full font-heading font-semibold;
+    font-size: var(--text-headline);
+    line-height: var(--text-headline--line-height);
+    letter-spacing: var(--text-headline--letter-spacing);
+    color: var(--color-ink);
   }
 
-  .input-text {
-    @apply w-full rounded-full border border-black/20 bg-transparent p-3 transition-shadow outline-hidden
-      focus-visible:ring-2 focus-visible:ring-accent-orange
-      dark:border-white/20 dark:bg-white/5 dark:text-white;
+  .lead {
+    font-size: var(--text-lead);
+    line-height: var(--text-lead--line-height);
+    color: var(--color-ink-muted);
   }
 
-  .input-textarea {
-    @apply w-full rounded-xl border border-black/20 bg-transparent p-3 transition-shadow outline-hidden
-      focus-visible:ring-2 focus-visible:ring-accent-orange
-      dark:border-white/20 dark:bg-white/5 dark:text-white;
+  .muted { color: var(--color-ink-muted); }
+
+  /* --- Powierzchnie ----------------------------------------------------- */
+
+  .card {
+    @apply rounded-2xl border;
+    background: var(--color-surface-raised);
+    border-color: var(--color-line);
+    box-shadow: var(--shadow-soft);
   }
 
-  .shadow-orange-sp {
-    box-shadow: rgb(255 169 98 / 0.75) 0 5px 15px 0;
+  .card-interactive {
+    @apply transition duration-300;
+    transition-timing-function: var(--ease-out-soft);
   }
+
+  .card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
+    border-color: var(--color-line-strong);
+  }
+
+  .panel-warm {
+    background: var(--color-surface-warm);
+    border-color: var(--color-line);
+  }
+
+  .panel-cool {
+    background: var(--color-surface-cool);
+    border-color: var(--color-line);
+  }
+
+  .panel-brand {
+    background: var(--color-brand);
+    color: #ffffff;
+  }
+
+  .panel-brand :is(h1, h2, h3, h4) { color: #ffffff; }
+  .panel-brand .lead,
+  .panel-brand .muted { color: rgb(255 255 255 / 0.82); }
+  .panel-brand .eyebrow { color: var(--color-ember); }
+
+  /* --- Przyciski -------------------------------------------------------- */
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5
+      font-semibold no-underline transition duration-200
+      disabled:cursor-not-allowed disabled:opacity-60;
+    min-height: 2.75rem;
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  .btn:not(:disabled):hover { transform: translateY(-2px); }
+  .btn:not(:disabled):active { transform: translateY(0); }
+
+  .btn-primary {
+    background: var(--color-brand);
+    color: #ffffff;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .btn-primary:not(:disabled):hover {
+    background: var(--color-brand-deep);
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* Pomarańcz jako wypełnienie z ciemnym tekstem — 9,2:1, działa w obu motywach. */
+  .btn-ember {
+    background: var(--color-ember);
+    color: #1a1a1a;
+    box-shadow: var(--shadow-ember);
+  }
+
+  .btn-ember:not(:disabled):hover { background: #ffbb80; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-brand-ink);
+    border: 2px solid currentColor;
+  }
+
+  .btn-secondary:not(:disabled):hover {
+    background: var(--color-brand-ink);
+    color: var(--color-surface);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: inherit;
+  }
+
+  .btn-ghost:not(:disabled):hover { background: rgb(127 127 127 / 0.14); }
+
+  .btn-danger { background: var(--color-danger); color: #ffffff; }
+
+  /* Na granatowym tle przyciski muszą się odwrócić — inaczej granat na
+     granacie znika. */
+  .panel-brand .btn-secondary,
+  .on-brand .btn-secondary {
+    color: #ffffff;
+  }
+
+  .panel-brand .btn-secondary:hover,
+  .on-brand .btn-secondary:hover {
+    background: #ffffff;
+    color: var(--color-brand);
+  }
+
+  /* --- Odznaki i linki -------------------------------------------------- */
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold;
+    border-color: var(--color-line);
+    background: var(--color-surface-cool);
+    color: var(--color-ink);
+  }
+
+  .link-accent {
+    color: var(--color-ember-ink);
+    text-underline-offset: 4px;
+    @apply font-semibold hover:underline;
+  }
+
+  .link-quiet {
+    color: var(--color-brand-ink);
+    text-underline-offset: 4px;
+    @apply hover:underline;
+  }
+
+  /* --- Formularze ------------------------------------------------------- */
+
+  .input-text,
+  .input-textarea,
+  .input-select {
+    @apply w-full px-4 py-3 transition;
+    background: var(--color-surface-raised);
+    color: var(--color-ink);
+    border: 1px solid var(--color-field-border);
+    outline: none;
+  }
+
+  .input-text { @apply rounded-full; }
+  .input-textarea,
+  .input-select { @apply rounded-xl; }
+
+  .input-text::placeholder,
+  .input-textarea::placeholder { color: var(--color-ink-muted); opacity: 1; }
+
+  .input-text:focus-visible,
+  .input-textarea:focus-visible,
+  .input-select:focus-visible {
+    border-color: var(--color-ember-ink);
+    outline: 3px solid var(--color-ember-ink);
+    outline-offset: 2px;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-sm font-semibold;
+    color: var(--color-ink);
+  }
+
+  .field-hint { @apply text-xs; color: var(--color-ink-muted); }
+  .field-error { @apply text-sm font-medium; color: var(--color-danger); }
+
+  /* --- Treść z Markdown (react-markdown) -------------------------------- */
+  /* Projekt nie ma @tailwindcss/typography, a klasa `prose` była używana
+     w kilku widokach i nie robiła nic. Poniżej minimalny odpowiednik,
+     spójny z motywem. */
+
+  .prose { color: var(--color-ink); line-height: 1.7; }
+  .prose > * + * { margin-top: 1em; }
+  .prose h2 { @apply font-heading text-2xl font-semibold; margin-top: 1.6em; }
+  .prose h3 { @apply font-heading text-xl font-semibold; margin-top: 1.4em; }
+  .prose a { color: var(--color-ember-ink); text-underline-offset: 3px; @apply font-medium underline; }
+  .prose strong { font-weight: 600; }
+  .prose ul { @apply list-disc pl-5; }
+  .prose ol { @apply list-decimal pl-5; }
+  .prose li + li { margin-top: 0.35em; }
+  .prose blockquote {
+    @apply border-l-4 pl-4 italic;
+    border-color: var(--color-ember);
+    color: var(--color-ink-muted);
+  }
+  .prose code {
+    @apply rounded px-1.5 py-0.5 text-[0.9em];
+    background: var(--color-surface-cool);
+  }
+  .prose img { @apply rounded-xl; }
+  .prose hr { border-color: var(--color-line); }
 }
 
-img[loading='lazy'] { filter: saturate(1.02); }
+/* ==========================================================================
+   NARZĘDZIA
+   ========================================================================== */
+
+@layer utilities {
+
+  /* --- Odsłanianie przy przewijaniu ------------------------------------- */
+  /* Stan początkowy nadaje komponent <Reveal>. Jeśli JS nie wystartuje albo
+     użytkownik ma włączone „ogranicz ruch”, treść jest po prostu widoczna. */
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 700ms var(--ease-out-soft),
+      transform 700ms var(--ease-out-soft);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+
+  .reveal-left  { transform: translateX(-26px); }
+  .reveal-right { transform: translateX(26px); }
+  .reveal-zoom  { transform: scale(0.94); }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal.is-visible {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
+  /* --- Ozdoby ----------------------------------------------------------- */
+
+  /* Ciepła poświata pod ilustracjami „ognia”. */
+  .glow-ember {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .glow-ember::after {
+    content: '';
+    position: absolute;
+    inset: 8% 8% 0;
+    z-index: -1;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle at 50% 60%,
+      rgb(255 169 98 / 0.45),
+      rgb(255 169 98 / 0) 68%
+    );
+    filter: blur(6px);
+  }
+
+  /* Delikatna siatka kropek — tło pasm sekcji. */
+  .bg-dots {
+    background-image: radial-gradient(var(--color-line-strong) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .text-gradient-ember {
+    background: linear-gradient(96deg, var(--color-ember-ink), #d4741f 55%, var(--color-ember-ink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .edge-fade-top {
+    mask-image: linear-gradient(to bottom, transparent, black 12%);
+  }
+}

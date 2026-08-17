@@ -45,15 +45,21 @@ const CookieConsent = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-base-100 text-text-black px-6 py-4 flex flex-col md:flex-row items-center justify-between z-[9999] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] font-sans">
-      <div className="mb-4 md:mb-0 text-center md:text-left text-sm max-w-3xl">
+    // `role="region"` + etykieta sprawiają, że baner jest wykrywalny jako
+    // osobny obszar strony. Wcześniej był anonimowym `div`-em na końcu DOM.
+    <div
+      role="region"
+      aria-label="Zgoda na pliki cookie"
+      className="fixed bottom-0 left-0 z-[9999] flex w-full flex-col items-center justify-between gap-4 border-t bg-surface-raised px-6 py-4 font-sans text-ink shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.35)] md:flex-row"
+    >
+      <div className="max-w-3xl text-center text-sm md:text-left">
         <p className="m-0 leading-relaxed">
           <strong>Szanujemy Twoją prywatność.</strong> Nasza strona używa plików
           cookie (ciasteczek) w celach statystycznych (Google Analytics) oraz do
           prawidłowego działania serwisu. Zgodnie z polskim prawem i RODO, prosimy
           o Twoją zgodę. Możesz zarządzać swoimi preferencjami lub dowiedzieć się
           więcej w naszej{' '}
-          <PrivacyPolicyLink />.
+          <PrivacyPolicyLink black />.
         </p>
       </div>
       <div className="flex gap-3 shrink-0">
