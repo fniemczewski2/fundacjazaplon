@@ -15,13 +15,6 @@ type Props = {
   children: React.ReactNode;
 };
 
-/**
- * Wspólna głowa i kontener podstrony.
- *
- * Wcześniej każdy widok samodzielnie składał `<h1 className="section-title">`
- * plus przypadkowy `container mx-auto p-4` - stąd różne szerokości i odstępy
- * na sąsiednich stronach. Tutaj jest jedna wersja tego układu.
- */
 export default function Page({
   title,
   lead,

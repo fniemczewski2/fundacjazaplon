@@ -2,26 +2,12 @@
 
 @custom-variant dark (&:where(.dark, .dark *, [data-theme='dark'], [data-theme='dark'] *));
 
-/* ==========================================================================
-   SYSTEM DESIGNU - Fundacja „Zapłon”
-   --------------------------------------------------------------------------
-   Paleta wywodzi się z brandbooka (194770 / A6CBF0 / FFA962 / FFEEB5 /
-   363636 / FAF6F3). Każda para tekst–tło użyta w interfejsie została
-   sprawdzona pod kątem WCAG 2.2 AA (4.5:1 dla treści, 3:1 dla elementów UI)
-   w obu motywach.
-
-   Dwie rodziny tokenów:
-   • semantyczne (surface / ink / ember / line …) - używaj ich w nowym kodzie,
-   • zgodnościowe (base-100 / text-black / accent-orange …) - zostawione jako
-     aliasy, żeby panel administracyjny działał bez przepisywania.
-   ========================================================================== */
-
 @theme {
   /* --- Marka ------------------------------------------------------------ */
   --color-brand: #194770;          /* granat - navbar, stopka, przyciski       */
   --color-brand-deep: #10314f;
   --color-sky: #a6cbf0;            /* błękit - tła pomocnicze, linki w ciemnym */
-  --color-ember: #ffa962;          /* pomarańcz - WYŁĄCZNIE jako wypełnienie   */
+  --color-ember: #ffa962;          
   --color-cream: #ffeeb5;
 
   /* Wersja pomarańczu bezpieczna dla tekstu w motywie jasnym (5,6:1 na tle). */
@@ -107,21 +93,6 @@
 
 }
 
-/* „Skala zapłonu” - ogień biegnie wzdłuż linii i zapala kolejne stopnie.
-
-   Te klatki celowo stoją POZA blokiem `@theme`. Tailwind v4 usuwa z bundla
-   każde `@keyframes` zadeklarowane w `@theme`, do którego nie prowadzi token
-   `--animate-*`, a te dwie animacje są przypisywane w `style` komponentu.
-   Wewnątrz `@theme` po prostu znikały przy buildzie. */
-@keyframes ignite-line {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
-}
-
-@keyframes ignite-step {
-  from { opacity: 0; transform: translateY(14px) scale(0.9); }
-  to   { opacity: 1; transform: none; }
-}
 
 /* ==========================================================================
    MOTYW CIEMNY
@@ -380,9 +351,6 @@ html.dark {
     min-height: 2.75rem;
     transition-timing-function: var(--ease-out-soft);
   }
-
-  .btn:not(:disabled):hover { transform: translateY(-2px); }
-  .btn:not(:disabled):active { transform: translateY(0); }
 
   .btn-primary {
     background: var(--color-brand);

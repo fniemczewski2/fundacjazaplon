@@ -1,13 +1,12 @@
 import { Link } from 'wouter';
 import { FaArrowRight } from 'react-icons/fa6';
+import Illustration from './Illustration';
 
 type Cta = { label: string; href: string; external?: boolean };
 
 type Props = {
   eyebrow?: string;
-  /** Pierwsza linia nagłówka - neutralna. */
   title: string;
-  /** Druga linia - dostaje akcent kolorystyczny. */
   highlight: string;
   subtitle?: string;
   primaryCta?: Cta;
@@ -42,7 +41,6 @@ export default function Hero({
 }: Props) {
   return (
     <div className="relative overflow-hidden panel-warm border-b">
-      {/* Ciepła poświata i siatka kropek - tło, nie treść. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
@@ -54,6 +52,7 @@ export default function Hero({
       <div aria-hidden="true" className="bg-dots pointer-events-none absolute inset-0 opacity-40" />
 
       <div className="relative container-max py-16 md:py-24">
+        <div className='flex justify-between items-center'>
         <div className="max-w-4xl">
           {eyebrow && <p className="eyebrow animate-fade-in mb-6">{eyebrow}</p>}
 
@@ -72,7 +71,8 @@ export default function Hero({
             </div>
           )}
         </div>
-
+        <Illustration name="zapalki" className="md:w-[30vw] hidden sm:inline"/>
+        </div>
         <hr className="mt-14 border-t md:mt-20" />
       </div>
     </div>

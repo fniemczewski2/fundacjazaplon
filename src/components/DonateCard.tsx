@@ -97,8 +97,6 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
 
         {step === 1 && (
           <form onSubmit={handleNextStep} className="animate-fade-in mt-8">
-            {/* Częstotliwość - grupa przycisków ze stanem `aria-pressed`,
-                dzięki czemu czytnik ekranu mówi, która opcja jest wybrana. */}
             <p id={frequencyLabelId} className="field-label">
               Jak często chcesz wspierać?
             </p>
@@ -227,7 +225,7 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
                 type="checkbox"
                 checked={marketingConsent}
                 onChange={(e) => setMarketingConsent(e.target.checked)}
-                className="mt-1 size-4 shrink-0 accent-[var(--color-brand)]"
+                className="mt-1 size-4 shrink-0 accent-(--color-brand)"
               />
               <label htmlFor={consentId} className="field-hint cursor-pointer leading-relaxed">
                 Chcę dostawać od Fundacji „Zapłon” informacje o&nbsp;jej działaniach. Zgoda jest
@@ -240,8 +238,6 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
               Szczegóły: <PrivacyPolicyLink black />
             </p>
 
-            {/* `role="alert"` sprawia, że błąd jest odczytany od razu po
-                pojawieniu się, bez przenoszenia fokusu. */}
             {stripeError && (
               <p role="alert" className="field-error mt-4 text-center">
                 {stripeError}
@@ -253,11 +249,11 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
         {acct && (
           <>
             <div className="my-8 flex items-center gap-4">
-              <span className="h-px flex-1 bg-[var(--color-line)]" />
+              <span className="h-px flex-1 bg-line" />
               <span className="muted text-xs font-semibold tracking-wider uppercase">
                 lub przelew tradycyjny
               </span>
-              <span className="h-px flex-1 bg-[var(--color-line)]" />
+              <span className="h-px flex-1 bg-line" />
             </div>
 
             <div className="rounded-2xl border p-5 text-center panel-cool">
@@ -274,15 +270,13 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
                   aria-label={copied ? 'Numer konta skopiowany' : 'Skopiuj numer konta'}
                 >
                   {copied ? (
-                    <FiCheck aria-hidden="true" className="size-4 text-[var(--color-success)]" />
+                    <FiCheck aria-hidden="true" className="size-4 text-success" />
                   ) : (
                     <FiCopy aria-hidden="true" className="size-4" />
                   )}
                 </button>
               </p>
 
-              {/* Komunikat dla czytników ekranu - sama zmiana ikony nie
-                  informuje osoby niewidzącej, że kopiowanie się udało. */}
               <span role="status" aria-live="polite" className="sr-only">
                 {copied ? 'Skopiowano numer konta' : ''}
               </span>
