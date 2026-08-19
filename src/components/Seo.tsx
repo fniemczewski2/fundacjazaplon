@@ -45,7 +45,7 @@ function ensureCanonicalLink(): HTMLLinkElement {
 export default function Seo({ title, description, image }: Props) {
   React.useEffect(() => {
     const url =
-      typeof window !== 'undefined' ? window.location.href : undefined;
+      typeof globalThis.window === 'undefined' ? undefined : globalThis.location.href;
 
     // Title
     if (title) {

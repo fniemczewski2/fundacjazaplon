@@ -27,10 +27,10 @@ export default function Navbar() {
   // Po ~12 px przewinięcia pasek się spłaszcza i dostaje cień - subtelny
   // sygnał, że treść pod nim się przesuwa.
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => setScrolled(globalThis.scrollY > 12);
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    globalThis.addEventListener('scroll', onScroll, { passive: true });
+    return () => globalThis.removeEventListener('scroll', onScroll);
   }, []);
 
   // Escape zamyka menu i oddaje fokus przyciskowi, który je otworzył -
@@ -42,8 +42,8 @@ export default function Navbar() {
       setOpen(false);
       toggleRef.current?.focus();
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    globalThis.addEventListener('keydown', onKey);
+    return () => globalThis.removeEventListener('keydown', onKey);
   }, [open]);
 
   const linkClass = (isActive: boolean) =>

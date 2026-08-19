@@ -58,8 +58,8 @@ export default function About() {
         {!loading && descriptionBlocks.length > 0 && (
           <Reveal>
             <Card className="mx-auto max-w-3xl">
-              {descriptionBlocks.map((block, idx) => (
-                <div key={idx} className="prose max-w-none">
+              {descriptionBlocks.map((block) => (
+                <div key={block.slice(0, 60)} className="prose max-w-none">
                   <ReactMarkdown>{block}</ReactMarkdown>
                 </div>
               ))}

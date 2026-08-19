@@ -29,3 +29,6 @@ interface Window {
   dataLayer: unknown[];
   gtag: GtagFn;
 }
+
+declare var dataLayer: unknown[];
+declare var gtag: GtagFn;

@@ -28,7 +28,7 @@ export default function Card({
   tone = 'default',
   interactive = false,
   center = false,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <div
       className={[

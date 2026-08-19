@@ -5,6 +5,13 @@ import { listPosts, type Post } from '../../../lib/post';
 import { getErrorMessage } from '../../../lib/utils/errors';
 import Loader from '../../../components/Loader';
 
+type PostStatus = 'draft' | 'scheduled' | 'published';
+
+function getPostStatus(publishedAt: number | null, now: number): PostStatus {
+  if (publishedAt === null) return 'draft';
+  return publishedAt > now ? 'scheduled' : 'published';
+}
+
 export default function PostsList() {
   const [rows, setRows] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,19 +46,21 @@ export default function PostsList() {
         </div>
       </div>
 
-      {loading ? (
-        <Loader />
-      ) : err ? (
-        <div className="text-sm text-brand dark:text-accent-orange">{err}</div>
-      ) : rows.length === 0 ? (
-        <div className="text-sm text-text-black/70">Brak wpisów.</div>
-      ) : (
+      {renderPosts()}
+    </div>
+  );
+
+  function renderPosts() {
+    if (loading) return <Loader />;
+    if (err) return <div className="text-sm text-brand dark:text-accent-orange">{err}</div>;
+    if (rows.length === 0) return <div className="text-sm text-text-black/70">Brak wpisów.</div>;
+
+    return (
         <ul className="space-y-2">
           {rows.map((r) => {
             const now = Date.now();
             const publishedAt = r.published_at ? new Date(r.published_at).getTime() : null;
-            const status: 'draft' | 'scheduled' | 'published' =
-              publishedAt === null ? 'draft' : publishedAt > now ? 'scheduled' : 'published';
+            const status = getPostStatus(publishedAt, now);
             const statusLabel = { draft: 'szkic', scheduled: 'zaplanowany', published: 'opublikowany' }[status];
             const statusClass = {
               draft: 'bg-base-100 text-text-black/70',
@@ -100,7 +109,6 @@ export default function PostsList() {
             );
           })}
         </ul>
-      )}
-    </div>
-  );
+    );
+  }
 }

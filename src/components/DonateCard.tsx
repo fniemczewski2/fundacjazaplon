@@ -10,7 +10,7 @@ type Props = { title?: string };
 
 const AMOUNTS = [20, 50, 100] as const;
 
-export default function DonateCard({ title = 'Wspieram' }: Props) {
+export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
   const { data } = useContactInfo();
   const [copied, setCopied] = useState(false);
 
@@ -69,7 +69,7 @@ export default function DonateCard({ title = 'Wspieram' }: Props) {
         throw new Error(result.error || 'Nie udało się połączyć z operatorem płatności.');
       }
 
-      if (result.url) window.location.href = result.url;
+      if (result.url) globalThis.location.href = result.url;
     } catch (err) {
       console.error(err);
       setStripeError(getErrorMessage(err, 'Nie udało się połączyć z operatorem płatności.'));

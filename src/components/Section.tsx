@@ -25,7 +25,7 @@ export default function Section({
   layout = 'grid',
   align = 'start',
   className = '',
-}: Props) {
+}: Readonly<Props>) {
   // Nagłówek dostaje id, żeby `aria-labelledby` wskazywało na realny tekst,
   // a nie na ukryty duplikat.
   const headingId = id ? `${id}-title` : undefined;

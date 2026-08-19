@@ -12,7 +12,7 @@ function getInitialTheme(): Theme {
   }
   // Ten sam fallback co skrypt anty-FOUC w index.html: dla nowych osób
   // szanujemy ustawienie systemowe zamiast zakładać jasny motyw.
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export default function ThemeSwitcher() {
@@ -21,7 +21,7 @@ export default function ThemeSwitcher() {
   React.useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle('dark', theme === 'dark');
-    root.setAttribute('data-theme', theme);
+    root.dataset.theme = theme;
 
     try {
       localStorage.setItem('theme', theme);

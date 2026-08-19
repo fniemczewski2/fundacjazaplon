@@ -38,7 +38,7 @@ export default function Hero({
   subtitle,
   primaryCta,
   secondaryCta,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <div className="relative overflow-hidden panel-warm border-b">
       <div

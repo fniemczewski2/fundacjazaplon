@@ -17,7 +17,7 @@ export default function ResetPasswordPage() {
 
     async function handlePossibleCode() {
       try {
-        const url = new URL(window.location.href);
+        const url = new URL(globalThis.location.href);
         const code = url.searchParams.get('code');
 
         if (code) {
@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4 bg-white p-6 rounded-2xl shadow">
         <h1 className="text-2xl font-semibold">Reset hasła</h1>
 
-        {message && <p className="text-sm text-gray-700" role="status">{message}</p>}
+        {message && <output className="block text-sm text-gray-700">{message}</output>}
         {error && <p className="text-sm text-brand dark:text-accent-orange" role="alert">{error}</p>}
 
         <label className="block">

@@ -18,7 +18,7 @@ export default function ArticleSchema({
   dateModified,
   author = 'Fundacja Zapłon',
   url
-}: Props) {
+}: Readonly<Props>) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Article',

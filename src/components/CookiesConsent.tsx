@@ -5,8 +5,8 @@ import PrivacyPolicyLink from './PrivacyPolicyLink';
 type ConsentValue = 'accepted' | 'rejected';
 
 function updateAnalyticsConsent(granted: boolean) {
-  if (typeof window.gtag === 'function') {
-    window.gtag('consent', 'update', {
+  if (typeof globalThis.gtag === 'function') {
+    globalThis.gtag('consent', 'update', {
       analytics_storage: granted ? 'granted' : 'denied',
     });
   }

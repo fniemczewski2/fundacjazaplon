@@ -107,16 +107,16 @@ export default function AdminDashboard() {
 }
 
 /* --- Helper UI components --- */
-function NiceDate({ iso }: { iso: string | null }) {
+function NiceDate({ iso }: Readonly<{ iso: string | null }>) {
   if (!iso) return <span className="text-text-black/70">brak danych</span>;
   return <span>{new Date(iso).toLocaleString()}</span>;
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children }: Readonly<{ children: React.ReactNode }>) {
   return <div className="text-xs uppercase tracking-wide text-text-black/70">{children}</div>;
 }
 
-function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
+function NavItem({ to, children }: Readonly<{ to: string; children: React.ReactNode }>) {
   return (
     <Link to={to} className="block w-full px-3 py-2 rounded-xl text-black hover:bg-gray-50 border border-transparent hover:border-gray-200">
       {children}
@@ -124,7 +124,7 @@ function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
   );
 }
 
-function KpiCard({ label, value, to }: { label: string; value: number | string; to?: string }) {
+function KpiCard({ label, value, to }: Readonly<{ label: string; value: number | string; to?: string }>) {
   const content = (
     <div className="border rounded-2xl p-4">
       <div className="text-sm text-text-black/70">{label}</div>
@@ -134,7 +134,7 @@ function KpiCard({ label, value, to }: { label: string; value: number | string; 
   return to ? <Link to={to} className="block hover:shadow-xs transition-shadow">{content}</Link> : content;
 }
 
-function QuickAction({ to, children }: { to: string; children: React.ReactNode }) {
+function QuickAction({ to, children }: Readonly<{ to: string; children: React.ReactNode }>) {
   return (
     <Link to={to} className="inline-flex items-center justify-center rounded-xl px-3 py-2 border hover:bg-gray-50">
       {children}
@@ -142,7 +142,7 @@ function QuickAction({ to, children }: { to: string; children: React.ReactNode }
   );
 }
 
-function PageCard({ title, updatedAt, to }: { title: string; updatedAt: React.ReactNode; to: string }) {
+function PageCard({ title, updatedAt, to }: Readonly<{ title: string; updatedAt: React.ReactNode; to: string }>) {
   return (
     <div className="border rounded-2xl p-4 flex items-start justify-between">
       <div>
@@ -154,7 +154,7 @@ function PageCard({ title, updatedAt, to }: { title: string; updatedAt: React.Re
   );
 }
 
-function ShortcutCard({ title, description, to, cta }: { title: string; description: string; to: string; cta: string }) {
+function ShortcutCard({ title, description, to, cta }: Readonly<{ title: string; description: string; to: string; cta: string }>) {
   return (
     <div className="border rounded-2xl p-5">
       <div className="text-lg font-medium">{title}</div>

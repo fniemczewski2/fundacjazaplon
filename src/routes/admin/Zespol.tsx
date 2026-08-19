@@ -11,7 +11,7 @@ export default function Zespol(){
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {rows.map(m=>(
           <div key={m.id} className="border rounded-2xl overflow-hidden">
-            {m.photo_url && <img src={m.photo_url} className="w-full aspect-square object-cover" />}
+            {m.photo_url && <img src={m.photo_url} alt={m.name} className="w-full aspect-square object-cover" />}
             <div className="p-4">
               <div className="font-medium text-lg">{m.name}</div>
               <div className="text-sm text-text-black/70 mb-2">{m.role}</div>

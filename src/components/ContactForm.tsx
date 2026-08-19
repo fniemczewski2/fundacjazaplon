@@ -10,8 +10,8 @@ export default function ContactForm() {
   const messageId = useId();
 
   useEffect(() => {
-    setOrigin(window.location.origin);
-    const params = new URLSearchParams(window.location.search);
+    setOrigin(globalThis.location.origin);
+    const params = new URLSearchParams(globalThis.location.search);
     if (params.get('sent') === '1') setSent(true);
   }, []);
 

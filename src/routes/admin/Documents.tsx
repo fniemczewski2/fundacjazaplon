@@ -66,6 +66,31 @@ export default function AdminDocuments() {
     }
   };
 
+  const renderFileList = () => {
+    if (loading) return <Loader />;
+    if (files.length === 0) {
+      return <div className="text-text-black/70 text-sm">Brak plików w tej kategorii.</div>;
+    }
+    return (
+      <ul className="divide-y border rounded-xl">
+        {files.map((f) => (
+          <li key={f.path} className="p-3 flex items-center justify-between">
+            <a href={f.url} target="_blank" rel="noopener noreferrer" className="underline truncate max-w-[70%]">
+              {f.name}
+            </a>
+            <button
+              onClick={() => onDelete(f.path)}
+              className="px-3 py-2 rounded-xl border hover:bg-gray-50"
+              disabled={busy}
+            >
+              <FiTrash2 />
+            </button>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-2xl font-semibold">Dokumenty</h1>
@@ -91,28 +116,7 @@ export default function AdminDocuments() {
         {msg && <span className="text-sm text-text-black/70">{msg}</span>}
       </div>
 
-      {loading ? (
-        <Loader />
-      ) : files.length === 0 ? (
-        <div className="text-text-black/70 text-sm">Brak plików w tej kategorii.</div>
-      ) : (
-        <ul className="divide-y border rounded-xl">
-          {files.map((f) => (
-            <li key={f.path} className="p-3 flex items-center justify-between">
-              <a href={f.url} target="_blank" rel="noopener noreferrer" className="underline truncate max-w-[70%]">
-                {f.name}
-              </a>
-              <button
-                onClick={() => onDelete(f.path)}
-                className="px-3 py-2 rounded-xl border hover:bg-gray-50"
-                disabled={busy}
-              >
-                <FiTrash2 />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      {renderFileList()}
     </div>
   );
 }

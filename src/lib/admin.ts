@@ -62,5 +62,5 @@ export async function getCurrentUserEmail(): Promise<string | null> {
 
 export async function signOutAdmin() {
   await supabase.auth.signOut();
-  window.location.href = '/admin/login';
+  globalThis.location.href = '/admin/login';
 }

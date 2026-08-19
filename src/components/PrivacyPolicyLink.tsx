@@ -8,7 +8,7 @@ import { listDocuments } from '../lib/documents';
  * (`text-gray-300` w stopce, `text-gray-700` w kartach), przez co w motywie
  * ciemnym link wtapiał się w tło.
  */
-export default function PrivacyPolicyLink({ black }: { black?: boolean }) {
+export default function PrivacyPolicyLink({ black }: Readonly<{ black?: boolean }>) {
   const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {

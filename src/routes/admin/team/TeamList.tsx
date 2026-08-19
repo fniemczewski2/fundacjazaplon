@@ -37,25 +37,28 @@ export default function TeamList() {
         </div>
       </div>
 
-      {loading ? (
-        <Loader />
-      ) : err ? (
-        <div className="text-sm text-brand dark:text-accent-orange">{err}</div>
-      ) : (
-        <ul className="space-y-2">
-          {rows.map((m) => (
-            <li key={m.id} className="p-3 border rounded-xl flex items-center justify-between">
-              <div>
-                <div className="font-medium">{m.name}</div>
-                <div className="text-sm text-text-black/70">
-                  {m.role ?? ''} • #{m.order_index} • {m.active ? 'aktywny' : 'ukryty'}
-                </div>
-              </div>
-              <Link to={`/admin/zespol/${m.id}`} className="px-3 py-2 rounded-xl border">Edytuj</Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      {renderTeam()}
     </div>
   );
+
+  function renderTeam() {
+    if (loading) return <Loader />;
+    if (err) return <div className="text-sm text-brand dark:text-accent-orange">{err}</div>;
+
+    return (
+      <ul className="space-y-2">
+        {rows.map((m) => (
+          <li key={m.id} className="p-3 border rounded-xl flex items-center justify-between">
+            <div>
+              <div className="font-medium">{m.name}</div>
+              <div className="text-sm text-text-black/70">
+                {m.role ?? ''} • #{m.order_index} • {m.active ? 'aktywny' : 'ukryty'}
+              </div>
+            </div>
+            <Link to={`/admin/zespol/${m.id}`} className="px-3 py-2 rounded-xl border">Edytuj</Link>
+          </li>
+        ))}
+      </ul>
+    );
+  }
 }
