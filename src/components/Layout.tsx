@@ -17,7 +17,7 @@ import BackToTop from './BackToTop';
  * główna może puścić sekcje na pełną szerokość. Podstrony opakowują treść
  * w komponent `<Page>`.
  */
-export default function Layout({ children }: { children?: React.ReactNode }) {
+export default function Layout({ children }: Readonly<{ children?: React.ReactNode }>) {
   return (
     <div className="flex min-h-screen flex-col bg-surface text-ink">
       <a href="#main-content" className="skip-link">

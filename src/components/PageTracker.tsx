@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 
-export default function PageTracker({ children }: { children: React.ReactNode }) {
+export default function PageTracker({ children }: Readonly<{ children: React.ReactNode }>) {
   const [location] = useLocation(); // <--- Zwraca string (ścieżkę)
 
   useEffect(() => {

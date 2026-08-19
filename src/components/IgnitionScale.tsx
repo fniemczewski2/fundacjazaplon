@@ -29,7 +29,7 @@ const STEPS: readonly Step[] = [
 /** Wysokość pola na ilustrację. Linia postępu kotwiczy się do tej wartości. */
 const ART_BOX = '7.5rem';
 
-export default function IgnitionScale({ className = '' }: { className?: string }) {
+export default function IgnitionScale({ className = '' }: Readonly<{ className?: string }>) {
   const reduced = usePrefersReducedMotion();
 
   return (

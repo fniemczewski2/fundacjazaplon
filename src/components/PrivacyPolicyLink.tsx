@@ -44,8 +44,8 @@ export default function PrivacyPolicyLink({ black }: Readonly<{ black?: boolean 
           : 'text-sm underline-offset-4 transition-colors hover:underline'
       }
     >
-      Polityka prywatności
-      <span className="sr-only"> - otwiera się w nowej karcie</span>
+      Polityka prywatności{' '}
+      <span className="sr-only">- otwiera się w nowej karcie</span>
     </a>
   );
 }

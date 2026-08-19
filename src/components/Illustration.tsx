@@ -54,7 +54,7 @@ export default function Illustration({
   priority = false,
   glow = false,
   float = false,
-}: Props) {
+}: Readonly<Props>) {
   const { w, h } = ILLUSTRATIONS[name];
   const base = `/images/illustrations/${name}`;
   const decorative = !alt;

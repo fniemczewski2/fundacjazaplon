@@ -11,7 +11,8 @@ import { useScrollToHash } from '../hooks/useScrollToHash';
 /** Buduje adres `tel:` - dokłada +48, gdy numer zapisano bez prefiksu kraju. */
 function toTelHref(phone: string): string {
   const digits = phone.replace(/[^\d+]/g, '');
-  return `tel:${digits.startsWith('+') ? digits : `+48${digits}`}`;
+  const normalized = digits.startsWith('+') ? digits : `+48${digits}`;
+  return `tel:${normalized}`;
 }
 
 export default function Team() {

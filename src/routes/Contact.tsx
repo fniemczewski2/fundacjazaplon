@@ -17,7 +17,8 @@ const COPYABLE = [
 
 function toTelHref(phone: string): string {
   const digits = phone.replace(/[^\d+]/g, '');
-  return `tel:${digits.startsWith('+') ? digits : `+48${digits}`}`;
+  const normalized = digits.startsWith('+') ? digits : `+48${digits}`;
+  return `tel:${normalized}`;
 }
 
 export default function Contact() {

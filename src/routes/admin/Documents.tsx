@@ -79,6 +79,7 @@ export default function AdminDocuments() {
               {f.name}
             </a>
             <button
+              type="button"
               onClick={() => onDelete(f.path)}
               className="px-3 py-2 rounded-xl border hover:bg-gray-50"
               disabled={busy}

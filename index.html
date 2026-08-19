@@ -7,7 +7,7 @@
         try {
           var saved = localStorage.getItem('theme');
           var theme = saved || (globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.dataset.theme = theme;
           if (theme === 'dark') document.documentElement.classList.add('dark');
         } catch {}
       })();

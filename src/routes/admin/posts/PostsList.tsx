@@ -39,7 +39,7 @@ export default function PostsList() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Aktualności</h1>
         <div className="flex gap-2">
-          <button onClick={refresh} className="px-3 py-2 rounded-xl border">Odśwież</button>
+          <button type="button" onClick={refresh} className="px-3 py-2 rounded-xl border">Odśwież</button>
           <Link to="/admin/aktualnosci/new" className="px-3 py-2 rounded-xl bg-black text-white">
             Nowy wpis
           </Link>

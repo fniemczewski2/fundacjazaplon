@@ -22,7 +22,7 @@ export default function Page({
   illustration,
   width = 'wide',
   children,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <>
       <header className="border-b panel-cool">

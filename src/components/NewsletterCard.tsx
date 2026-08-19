@@ -60,12 +60,9 @@ export default function NewsletterCard() {
         </p>
 
         {status === 'success' ? (
-          <p
-            role="status"
-            className="mt-8 rounded-2xl border p-5 font-medium panel-warm"
-          >
+          <output className="mt-8 block rounded-2xl border p-5 font-medium panel-warm">
             Dziękujemy! Sprawdź skrzynkę - wysłaliśmy wiadomość potwierdzającą.
-          </p>
+          </output>
         ) : (
           <form onSubmit={handleSubscribe} className="mt-8 space-y-4 text-left">
             <div className="grid gap-4 sm:grid-cols-2">

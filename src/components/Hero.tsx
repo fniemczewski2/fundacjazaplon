@@ -13,7 +13,7 @@ type Props = {
   secondaryCta?: Cta;
 };
 
-function CtaLink({ cta, className }: { cta: Cta; className: string }) {
+function CtaLink({ cta, className }: Readonly<{ cta: Cta; className: string }>) {
   if (cta.external) {
     return (
       <a href={cta.href} target="_blank" rel="noopener noreferrer" className={className}>

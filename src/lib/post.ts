@@ -48,7 +48,7 @@ export async function listPublishedPosts(): Promise<Post[]> {
 
 export async function getPostById(id: string): Promise<Post | null> {
   const { data, error } = await supabase.from('posts').select('*').eq('id', id).single();
-  if (error && error.code === NOT_FOUND_CODE) return null;
+  if (error?.code === NOT_FOUND_CODE) return null;
   if (error) throw new Error(error.message);
   return (data as Post) ?? null;
 }
@@ -80,7 +80,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     .lte('published_at', nowIso)
     .single();
 
-  if (error && error.code === NOT_FOUND_CODE) return null;
+  if (error?.code === NOT_FOUND_CODE) return null;
   if (error) throw new Error(error.message);
   return data as Post;
 }

@@ -50,7 +50,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function ProtectedAdminRoute({ component: Component }: { component: React.ComponentType }) {
+function ProtectedAdminRoute({ component: Component }: Readonly<{ component: React.ComponentType }>) {
   const [authed, setAuthed] = React.useState<boolean | null>(null);
 
   React.useEffect(() => {

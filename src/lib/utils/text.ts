@@ -13,7 +13,8 @@ export function toSafeSlug(input: string, opts: { keepDots?: boolean } = {}): st
   return base
     .replace(disallowed, '-')
     .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
 }
 
 /** Wariant dedykowany nazwom plików - zawsze zwraca niepustą wartość. */

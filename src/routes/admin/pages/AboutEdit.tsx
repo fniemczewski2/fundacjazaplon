@@ -123,7 +123,7 @@ export default function AboutEdit() {
         setAboutId(a.id);
         setDescription(a.description_md ?? '');
       }
-      if (p && p.length) {
+      if (p?.length) {
         const mapped: PillarModel[] = [1, 2, 3, 4, 5].map((i) => {
           const found = p.find((x) => x.order_index === i);
           return {
@@ -165,6 +165,7 @@ export default function AboutEdit() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Edycja: O nas</h1>
         <button
+          type="button"
           onClick={save}
           disabled={saving}
           className={`px-6 py-2 rounded-xl text-white font-medium transition-all ${saving ? 'bg-gray-400' : 'bg-brand hover:opacity-90'}`}
@@ -188,13 +189,12 @@ export default function AboutEdit() {
         </div>
         <div className="flex flex-col">
           <span id="about-preview-label" className="text-sm font-semibold mb-2">Podgląd na żywo</span>
-          <div
-            role="region"
+          <section
             aria-labelledby="about-preview-label"
             className="prose max-w-none border rounded-xl p-6 flex-1 bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-auto max-h-[500px]"
           >
             <ReactMarkdown>{description || '_Brak treści_'}</ReactMarkdown>
-          </div>
+          </section>
         </div>
       </section>
 

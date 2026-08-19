@@ -47,7 +47,7 @@ export async function getTeamMember(id: string): Promise<TeamMember | null> {
     .eq('id', id)
     .single();
 
-  if (error && error.code === 'PGRST116') return null;
+  if (error?.code === 'PGRST116') return null;
   if (error) throw new Error(error.message);
   return (data as TeamMember) ?? null;
 }

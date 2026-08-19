@@ -100,8 +100,7 @@ export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
             <p id={frequencyLabelId} className="field-label">
               Jak często chcesz wspierać?
             </p>
-            <div
-              role="group"
+            <fieldset
               aria-labelledby={frequencyLabelId}
               className="relative mb-6 flex rounded-full border p-1 panel-cool"
             >
@@ -132,12 +131,12 @@ export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
                   </button>
                 );
               })}
-            </div>
+            </fieldset>
 
             <p id={amountLabelId} className="field-label">
               Kwota
             </p>
-            <div role="group" aria-labelledby={amountLabelId} className="mb-7 grid grid-cols-3 gap-2">
+            <fieldset aria-labelledby={amountLabelId} className="mb-7 grid grid-cols-3 gap-2">
               {AMOUNTS.map((val) => {
                 const active = amount === val;
                 return (
@@ -152,7 +151,7 @@ export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
                   </button>
                 );
               })}
-            </div>
+            </fieldset>
 
             <button type="submit" className="btn btn-ember w-full">
               Dalej <FaArrowRight aria-hidden="true" />

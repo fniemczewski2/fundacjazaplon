@@ -16,7 +16,13 @@ type FeedbackContextValue = {
 
 const FeedbackContext = createContext<FeedbackContextValue | null>(null);
 
-export function FeedbackProvider({ children }: { children: React.ReactNode }) {
+const TOAST_BG: Record<ToastType, string> = {
+  error: 'bg-red-600',
+  success: 'bg-emerald-600',
+  info: 'bg-brand',
+};
+
+export function FeedbackProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
   const nextId = useRef(0);
@@ -45,26 +51,28 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
     setConfirmState(null);
   };
 
+  const contextValue = React.useMemo(() => ({ showToast, confirm }), [showToast, confirm]);
+
   return (
-    <FeedbackContext.Provider value={{ showToast, confirm }}>
+    <FeedbackContext.Provider value={contextValue}>
       {children}
 
       <div
         className="fixed bottom-4 right-4 z-[200] flex flex-col gap-2 max-w-sm w-[calc(100%-2rem)]"
-        role="region"
         aria-live="polite"
       >
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            role={t.type === 'error' ? 'alert' : 'status'}
-            className={`rounded-xl px-4 py-3 shadow-lg text-sm font-medium text-white ${
-              t.type === 'error' ? 'bg-red-600' : t.type === 'success' ? 'bg-emerald-600' : 'bg-brand'
-            }`}
-          >
-            {t.text}
-          </div>
-        ))}
+        {toasts.map((t) => {
+          const className = `rounded-xl px-4 py-3 shadow-lg text-sm font-medium text-white ${TOAST_BG[t.type]}`;
+          return t.type === 'error' ? (
+            <div key={t.id} role="alert" className={className}>
+              {t.text}
+            </div>
+          ) : (
+            <output key={t.id} className={`block ${className}`}>
+              {t.text}
+            </output>
+          );
+        })}
       </div>
 
       {confirmState && (

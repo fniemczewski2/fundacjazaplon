@@ -87,6 +87,7 @@ export default function SocialEdit() {
       ))}
 
       <button
+        type="button"
         onClick={save}
         disabled={saving}
         className={`px-4 py-2 rounded-xl text-white ${saving ? 'bg-gray-400' : 'bg-black'}`}

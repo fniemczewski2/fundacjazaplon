@@ -30,18 +30,14 @@ export default function Section({
   // a nie na ukryty duplikat.
   const headingId = id ? `${id}-title` : undefined;
 
+  let headerClass = 'max-w-3xl';
+  if (action) headerClass = 'flex flex-wrap items-end justify-between gap-4';
+  else if (align === 'center') headerClass = 'mx-auto max-w-2xl';
+
   return (
     <section id={id} aria-labelledby={headingId} className={`section-gap ${className}`}>
       <Reveal className={align === 'center' ? 'text-center' : ''}>
-        <div
-          className={
-            action
-              ? 'flex flex-wrap items-end justify-between gap-4'
-              : align === 'center'
-                ? 'mx-auto max-w-2xl'
-                : 'max-w-3xl'
-          }
-        >
+        <div className={headerClass}>
           <div className={align === 'center' && !action ? 'mx-auto' : ''}>
             {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
             <h2 id={headingId} className="section-title">

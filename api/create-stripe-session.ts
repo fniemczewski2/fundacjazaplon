@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import Stripe from 'stripe';
 
 interface ApiRequest extends IncomingMessage {
@@ -13,7 +13,7 @@ const MIN_AMOUNT_PLN = 1;
 const MAX_AMOUNT_PLN = 50_000;
 
 function isValidEmail(value: unknown): value is string {
-  return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  return typeof value === 'string' && /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(value);
 }
 
 function sendJson(res: ServerResponse, statusCode: number, body: unknown) {

@@ -21,9 +21,9 @@ export default function ContactForm() {
       <p className="lead mt-2 text-base">Odpisujemy zwykle w ciągu kilku dni roboczych.</p>
 
       {sent && (
-        <p role="status" className="mt-5 rounded-xl border p-4 text-sm panel-warm">
+        <output className="mt-5 block rounded-xl border p-4 text-sm panel-warm">
           Dziękujemy! Twoja wiadomość została wysłana.
-        </p>
+        </output>
       )}
 
       <form

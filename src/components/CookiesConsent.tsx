@@ -45,10 +45,9 @@ const CookieConsent = () => {
   if (!isVisible) return null;
 
   return (
-    // `role="region"` + etykieta sprawiają, że baner jest wykrywalny jako
-    // osobny obszar strony. Wcześniej był anonimowym `div`-em na końcu DOM.
-    <div
-      role="region"
+    // Etykieta na <section> sprawia, że baner jest wykrywalny jako osobny
+    // obszar strony. Wcześniej był anonimowym `div`-em na końcu DOM.
+    <section
       aria-label="Zgoda na pliki cookie"
       className="fixed bottom-0 left-0 z-[9999] flex w-full flex-col items-center justify-between gap-4 border-t bg-surface-raised px-6 py-4 font-sans text-ink shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.35)] md:flex-row"
     >
@@ -63,14 +62,14 @@ const CookieConsent = () => {
         </p>
       </div>
       <div className="flex gap-3 shrink-0">
-        <button onClick={handleAccept} className="btn btn-primary inline-flex">
+        <button type="button" onClick={handleAccept} className="btn btn-primary inline-flex">
           Akceptuję
         </button>
-        <button onClick={handleReject} className="btn btn-secondary inline-flex">
+        <button type="button" onClick={handleReject} className="btn btn-secondary inline-flex">
           Odrzucam
         </button>
       </div>
-    </div>
+    </section>
   );
 };
 

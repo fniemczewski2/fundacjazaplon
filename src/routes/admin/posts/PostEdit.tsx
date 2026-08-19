@@ -205,6 +205,7 @@ export default function PostEdit() {
 
       <div className="flex gap-2">
         <button
+          type="button"
           onClick={() => save(false)}
           disabled={saving}
           className="px-3 py-2 rounded-xl border"
@@ -212,6 +213,7 @@ export default function PostEdit() {
           {saving ? 'Zapisywanie…' : 'Zapisz szkic'}
         </button>
         <button
+          type="button"
           onClick={() => save(true)}
           disabled={saving}
           className="px-3 py-2 rounded-xl bg-black text-white"
@@ -219,7 +221,7 @@ export default function PostEdit() {
           {saving ? 'Zapisywanie…' : 'Opublikuj'}
         </button>
         {!isNew && (
-          <button onClick={remove} className="px-3 py-2 rounded-xl border">
+          <button type="button" onClick={remove} className="px-3 py-2 rounded-xl border">
             Usuń
           </button>
         )}

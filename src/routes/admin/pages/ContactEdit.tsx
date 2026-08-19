@@ -28,7 +28,7 @@ const empty: Model = {
 
 type InputFieldProps = { label: string; value: string; onChange: (v: string) => void; type?: string };
 
-function InputField({ label, value, onChange, type = 'text' }: InputFieldProps) {
+function InputField({ label, value, onChange, type = 'text' }: Readonly<InputFieldProps>) {
   return (
     <label className="block">
       <div className="text-sm text-text-black/70 mb-1">{label}</div>
@@ -121,6 +121,7 @@ export default function ContactEdit() {
       </div>
 
       <button
+        type="button"
         onClick={save}
         disabled={saving}
         className={`px-3 py-2 rounded-xl text-white ${saving ? 'bg-gray-400' : 'bg-black'}`}

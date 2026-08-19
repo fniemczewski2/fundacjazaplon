@@ -205,7 +205,7 @@ export default function TeamEdit() {
               checked={m.active}
               onChange={(e) => setM((s) => ({ ...s, active: e.target.checked }))}
             />
-            Aktywny
+            <span>Aktywny</span>
           </label>
         </div>
 
@@ -232,6 +232,7 @@ export default function TeamEdit() {
 
       <div className="flex gap-2">
         <button
+          type="button"
           onClick={handleSave}
           disabled={saving}
           className={`px-3 py-2 rounded-xl text-white ${saving ? 'bg-gray-400' : 'bg-black'}`}
@@ -239,7 +240,7 @@ export default function TeamEdit() {
           {saving ? 'Zapisywanie…' : 'Zapisz'}
         </button>
         {!isNew && (
-          <button onClick={handleDelete} className="px-3 py-2 rounded-xl border hover:bg-red-50 hover:text-red-600 transition-colors">
+          <button type="button" onClick={handleDelete} className="px-3 py-2 rounded-xl border hover:bg-red-50 hover:text-red-600 transition-colors">
             Usuń
           </button>
         )}

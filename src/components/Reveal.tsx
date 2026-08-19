@@ -41,7 +41,7 @@ export default function Reveal({
   as: Tag = 'div',
   className = '',
   id,
-}: Props) {
+}: Readonly<Props>) {
   const reduced = usePrefersReducedMotion();
   const ref = React.useRef<HTMLElement | null>(null);
   const [visible, setVisible] = React.useState(false);

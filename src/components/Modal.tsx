@@ -41,7 +41,7 @@ export default function Modal({
   hideTitle = false,
   size = 'md',
   children,
-}: Props) {
+}: Readonly<Props>) {
   const panelRef = React.useRef<HTMLDivElement>(null);
   const returnFocusRef = React.useRef<HTMLElement | null>(null);
   const titleId = React.useId();
@@ -78,7 +78,7 @@ export default function Modal({
       if (items.length === 0) return;
 
       const first = items[0];
-      const last = items[items.length - 1];
+      const last = items.at(-1);
       if (!first || !last) return;
 
       if (e.shiftKey && document.activeElement === first) {

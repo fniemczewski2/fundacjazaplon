@@ -35,7 +35,7 @@ export default function About() {
 
   const descriptionBlocks = about?.description_md
     ? about.description_md
-        .split(/^\s*---\s*$/m)
+        .split(/^[ \t]*---[ \t]*$/m)
         .map((part) => part.trim())
         .filter(Boolean)
     : [];

@@ -76,26 +76,29 @@ export default function Media() {
         </label>
       </div>
 
-      {loading ? (
-        <p className="text-text-black/70">Ładowanie…</p>
-      ) : files.length === 0 ? (
-        <p className="text-text-black/70">Brak wgranych plików.</p>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {files.map((f) => (
-            <a
-              key={f.name}
-              href={f.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block border rounded-xl overflow-hidden"
-            >
-              <img src={f.url} alt={f.name} className="w-full aspect-square object-cover" loading="lazy" />
-              <div className="p-2 text-sm truncate">{f.name}</div>
-            </a>
-          ))}
-        </div>
-      )}
+      {renderFiles()}
     </div>
   );
+
+  function renderFiles() {
+    if (loading) return <p className="text-text-black/70">Ładowanie…</p>;
+    if (files.length === 0) return <p className="text-text-black/70">Brak wgranych plików.</p>;
+
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {files.map((f) => (
+          <a
+            key={f.name}
+            href={f.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block border rounded-xl overflow-hidden"
+          >
+            <img src={f.url} alt={f.name} className="w-full aspect-square object-cover" loading="lazy" />
+            <div className="p-2 text-sm truncate">{f.name}</div>
+          </a>
+        ))}
+      </div>
+    );
+  }
 }

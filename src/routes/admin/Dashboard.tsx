@@ -54,6 +54,7 @@ export default function AdminDashboard() {
 
         <div className="pt-4">
           <button
+            type="button"
             onClick={signOutAdmin}
             className="w-full rounded-xl border px-3 py-2 hover:bg-gray-50"
           >

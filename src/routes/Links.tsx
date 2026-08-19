@@ -30,7 +30,7 @@ type LinkItem = {
   onClick?: () => void;
 };
 
-const DEEP_LINK_PATHS = ['/wplacam', '/newsletter', '/dolacz'];
+const DEEP_LINK_PATHS = new Set(['/wplacam', '/newsletter', '/dolacz']);
 
 export default function Links() {
   const [pathname, setLocation] = useLocation();
@@ -64,7 +64,7 @@ export default function Links() {
   // Blokadą przewijania i zwrotem fokusu zajmuje się teraz komponent Modal.
   const closeModal = () => {
     setActiveModal(null);
-    if (DEEP_LINK_PATHS.includes(pathname)) setLocation('/links');
+    if (DEEP_LINK_PATHS.has(pathname)) setLocation('/links');
   };
 
   // Nagłówek renderujemy od razu. Wcześniej cała strona była zastąpiona

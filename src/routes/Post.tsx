@@ -56,7 +56,7 @@ export default function Post() {
   }
 
   const { title, excerpt, body_md, cover_url, published_at } = post;
-  const url = typeof globalThis.window === 'undefined' ? undefined : globalThis.location.href;
+  const url = globalThis.window === undefined ? undefined : globalThis.location.href;
 
   return (
     <>

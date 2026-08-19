@@ -137,6 +137,7 @@ export default function MaterialsAdmin() {
               </p>
             </div>
             <button
+              type="button"
               onClick={() => handleDelete(mat.id)}
               className="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded transition-colors whitespace-nowrap"
             >
