@@ -69,10 +69,10 @@ export default function Links() {
 
   const links: LinkItem[] = [
     {
-      title: 'Aktywny Samorząd Uczniowski - zapisy',
+      title: 'Aktywny Samorząd Uczniowski',
       url: 'https://forms.cloud.microsoft/e/mSaJs7P03a',
       icon: <FaClipboard aria-hidden="true" className="text-xl" />,
-      description: 'Poradniki do pobrania',
+      description: 'Zapisz się do programu i zgłoś swój samorząd',
     },
     {
       title: 'Bezpłatne materiały',
