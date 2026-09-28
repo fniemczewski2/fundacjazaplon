@@ -19,6 +19,7 @@ import Reveal from '../components/Reveal';
 import Illustration from '../components/Illustration';
 import NewsletterCard from '../components/NewsletterCard';
 import DonateCard from '../components/DonateCard';
+import { FaClipboard } from 'react-icons/fa';
 
 type ModalKind = 'donate' | 'newsletter' | null;
 
@@ -61,16 +62,18 @@ export default function Links() {
     };
   }, []);
 
-  // Blokadą przewijania i zwrotem fokusu zajmuje się teraz komponent Modal.
   const closeModal = () => {
     setActiveModal(null);
     if (DEEP_LINK_PATHS.has(pathname)) setLocation('/links');
   };
 
-  // Nagłówek renderujemy od razu. Wcześniej cała strona była zastąpiona
-  // spinnerem do czasu odpowiedzi Supabase, więc przy wolnym łączu
-  // użytkownik przez chwilę nie widział nawet nazwy fundacji.
   const links: LinkItem[] = [
+    {
+      title: 'Aktywny Samorząd Uczniowski - zapisy',
+      url: 'https://forms.cloud.microsoft/e/mSaJs7P03a',
+      icon: <FaClipboard aria-hidden="true" className="text-xl" />,
+      description: 'Poradniki do pobrania',
+    },
     {
       title: 'Bezpłatne materiały',
       url: '/materialy',
