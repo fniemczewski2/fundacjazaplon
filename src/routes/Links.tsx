@@ -69,6 +69,12 @@ export default function Links() {
 
   const links: LinkItem[] = [
     {
+      title: 'Warsztaty Akademia Młodych Liderów',
+      url: 'https://forms.cloud.microsoft/e/E7Dt1qDqm4',
+      icon: <FaClipboard aria-hidden="true" className="text-xl" />,
+      description: 'Zapisz się na warsztaty i działaj skuteczniej',
+    },
+    {
       title: 'Aktywny Samorząd Uczniowski',
       url: 'https://forms.cloud.microsoft/e/mSaJs7P03a',
       icon: <FaClipboard aria-hidden="true" className="text-xl" />,
