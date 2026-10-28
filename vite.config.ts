@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import apiDevServer from './vite-plugin-api-dev.ts';
 
 const VENDOR_CHUNKS: ReadonlyArray<[chunk: string, match: string]> = [
   ['supabase', 'node_modules/@supabase/'],
@@ -9,7 +10,7 @@ const VENDOR_CHUNKS: ReadonlyArray<[chunk: string, match: string]> = [
 ];
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), apiDevServer()],
   build: {
     sourcemap: false,
     rollupOptions: {

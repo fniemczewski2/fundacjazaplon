@@ -390,7 +390,9 @@ html.dark {
 
   .btn-ghost:not(:disabled):hover { background: rgb(127 127 127 / 0.14); }
 
-  .btn-danger { background: var(--color-danger); color: #ffffff; }
+  /* Tekst z --color-ink-inverse: biały na ciemnej czerwieni (jasny motyw), ciemny na jasnej
+     czerwieni (ciemny motyw). Stały biały miał w ciemnym motywie kontrast 2,0:1. */
+  .btn-danger { background: var(--color-danger); color: var(--color-ink-inverse); }
 
   /* Na granatowym tle przyciski muszą się odwrócić - inaczej granat na
      granacie znika. */

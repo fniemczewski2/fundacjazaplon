@@ -23,6 +23,7 @@ const Documents = React.lazy(() => import('./routes/Documents'));
 const Materials = React.lazy(() => import('./routes/Materials'));
 const NotFound  = React.lazy(() => import('./routes/NotFound'));
 const Links     = React.lazy(() => import('./routes/Links'));
+const Settlement = React.lazy(() => import('./routes/Settlement'));
 const ThankYou  = React.lazy(() => import('./routes/ThankYou'));
 const TeamMemberCard = React.lazy(() => import('./routes/TeamMemberCard'));
 
@@ -40,6 +41,7 @@ const Media           = React.lazy(() => import('./routes/admin/Media'));
 const AdminDocuments  = React.lazy(() => import('./routes/admin/Documents'));
 const ResetPasswordPage = React.lazy(() => import('./routes/admin/Password'));
 const MaterialsAdmin  = React.lazy(() => import('./routes/admin/pages/Materials'));
+const AdminSettlements = React.lazy(() => import('./routes/admin/Settlements'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -105,6 +107,9 @@ export default function AppRoutes() {
         <Route path="/admin/media">
           <ProtectedAdminRoute component={Media} />
         </Route>
+        <Route path="/admin/rozliczenia">
+          <ProtectedAdminRoute component={AdminSettlements} />
+        </Route>
         <Route path="/admin/dokumenty">
           <ProtectedAdminRoute component={AdminDocuments} />
         </Route>
@@ -125,6 +130,7 @@ export default function AppRoutes() {
               <Route path="/materialy" component={Materials} />
               <Route path="/wplacam" component={Links} />
               <Route path="/newsletter" component={Links} />
+              <Route path="/rozliczenia" component={Settlement} />
               <Route path="/dziekujemy" component={ThankYou} />
               <Route path="/w/:slug" component={TeamMemberCard} />
               <Route component={NotFound} />

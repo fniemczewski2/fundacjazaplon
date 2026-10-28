@@ -29,7 +29,7 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] grid md:grid-cols-[260px,1fr]">
+    <div className="min-h-[calc(100vh-4rem)] grid md:grid-cols-[260px_1fr]">
       {/* Sidebar */}
       <aside className="border-r p-4 space-y-4">
         <div className="space-y-1">
@@ -45,6 +45,9 @@ export default function AdminDashboard() {
           <NavItem to="/admin/strony/kontakt">Kontakt</NavItem>
           <NavItem to="/admin/strony/join">Dołącz do nas</NavItem>
           <NavItem to="/admin/strony/social">Social Media</NavItem>
+
+          <SectionLabel>Finanse</SectionLabel>
+          <NavItem to="/admin/rozliczenia">Rozliczenia faktur</NavItem>
 
           <SectionLabel>Pliki</SectionLabel>
           <NavItem to="/admin/media">Media</NavItem>
