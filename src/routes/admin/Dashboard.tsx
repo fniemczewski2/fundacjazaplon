@@ -46,8 +46,9 @@ export default function AdminDashboard() {
           <NavItem to="/admin/strony/join">Dołącz do nas</NavItem>
           <NavItem to="/admin/strony/social">Social Media</NavItem>
 
-          <SectionLabel>Finanse</SectionLabel>
+          <SectionLabel>Finanse i współpraca</SectionLabel>
           <NavItem to="/admin/rozliczenia">Rozliczenia faktur</NavItem>
+          <NavItem to="/admin/umowy">Umowy i zgody</NavItem>
 
           <SectionLabel>Pliki</SectionLabel>
           <NavItem to="/admin/media">Media</NavItem>

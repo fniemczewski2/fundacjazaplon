@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /umowa
 
 Sitemap: https://zaplon.org.pl/sitemap.xml

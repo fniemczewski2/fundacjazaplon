@@ -24,6 +24,8 @@ const Materials = React.lazy(() => import('./routes/Materials'));
 const NotFound  = React.lazy(() => import('./routes/NotFound'));
 const Links     = React.lazy(() => import('./routes/Links'));
 const Settlement = React.lazy(() => import('./routes/Settlement'));
+const Agreement = React.lazy(() => import('./routes/Agreement'));
+const AgreementSign = React.lazy(() => import('./routes/AgreementSign'));
 const ThankYou  = React.lazy(() => import('./routes/ThankYou'));
 const TeamMemberCard = React.lazy(() => import('./routes/TeamMemberCard'));
 
@@ -42,6 +44,7 @@ const AdminDocuments  = React.lazy(() => import('./routes/admin/Documents'));
 const ResetPasswordPage = React.lazy(() => import('./routes/admin/Password'));
 const MaterialsAdmin  = React.lazy(() => import('./routes/admin/pages/Materials'));
 const AdminSettlements = React.lazy(() => import('./routes/admin/Settlements'));
+const AdminAgreements = React.lazy(() => import('./routes/admin/Agreements'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -110,6 +113,9 @@ export default function AppRoutes() {
         <Route path="/admin/rozliczenia">
           <ProtectedAdminRoute component={AdminSettlements} />
         </Route>
+        <Route path="/admin/umowy">
+          <ProtectedAdminRoute component={AdminAgreements} />
+        </Route>
         <Route path="/admin/dokumenty">
           <ProtectedAdminRoute component={AdminDocuments} />
         </Route>
@@ -131,6 +137,8 @@ export default function AppRoutes() {
               <Route path="/wplacam" component={Links} />
               <Route path="/newsletter" component={Links} />
               <Route path="/rozliczenia" component={Settlement} />
+              <Route path="/wspolpraca" component={Agreement} />
+              <Route path="/umowa/:token?" component={AgreementSign} />
               <Route path="/dziekujemy" component={ThankYou} />
               <Route path="/w/:slug" component={TeamMemberCard} />
               <Route component={NotFound} />

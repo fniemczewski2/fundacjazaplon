@@ -1,8 +1,9 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
 import Seo from '../components/Seo';
 import Page from '../components/Page';
 import PrivacyPolicyLink from '../components/PrivacyPolicyLink';
+import Field from '../components/ui/Field';
 import { getErrorMessage } from '../lib/utils/errors';
 import {
   formatIban,
@@ -13,47 +14,6 @@ import {
   type FieldErrors,
   type InvoiceKind,
 } from '../lib/settlements';
-
-type FieldProps = {
-  label: string;
-  error?: string;
-  hint?: string;
-  children: (a11y: {
-    id: string;
-    'aria-invalid': boolean | undefined;
-    'aria-describedby': string | undefined;
-  }) => ReactNode;
-};
-
-function Field({ label, error, hint, children }: Readonly<FieldProps>) {
-  const id = useId();
-  const hintId = `${id}-hint`;
-  const errorId = `${id}-error`;
-  const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
-
-  return (
-    <div>
-      <label htmlFor={id} className="field-label">
-        {label}
-      </label>
-      {children({
-        id,
-        'aria-invalid': error ? true : undefined,
-        'aria-describedby': describedBy || undefined,
-      })}
-      {hint && (
-        <p id={hintId} className="field-hint mt-1">
-          {hint}
-        </p>
-      )}
-      {error && (
-        <p id={errorId} className="field-error mt-1">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
 
 export default function Settlement() {
   const [firstName, setFirstName] = useState('');

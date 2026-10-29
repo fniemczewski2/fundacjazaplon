@@ -21,7 +21,7 @@ import { loadEnv, type Plugin, type ResolvedConfig } from 'vite';
  * a zmienne ustawione już w systemie mają pierwszeństwo.
  */
 
-const MAX_BODY_BYTES = 1_000_000;
+const MAX_BODY_BYTES = 4_500_000; // jak limit funkcji na Vercelu
 const NAME_RE = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
 const EXTENSIONS = ['.ts', '.js', '.mjs'] as const;
 
