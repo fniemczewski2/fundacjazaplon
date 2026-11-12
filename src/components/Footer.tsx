@@ -3,6 +3,7 @@ import { FaInstagram, FaFacebook, FaXTwitter, FaLinkedin } from 'react-icons/fa6
 import type { IconType } from 'react-icons';
 import { useContactInfo, useSocialLinks } from '../hooks/useAppData';
 import PrivacyPolicyLink from './PrivacyPolicyLink';
+import { openCookieSettings } from '../lib/analytics';
 import Illustration from './Illustration';
 import type { SocialLinks } from '../lib/social';
 
@@ -57,10 +58,13 @@ export default function Footer() {
               height={64}
               className="mb-4 h-16 w-auto"
             />
-            <p className="max-w-xs text-sm text-white/80">
-              Wspieramy osoby, które działają społecznie - żeby zapał nie kończył się na
+            <p className="max-w-xs text-sm text-on-brand/80">
+              Wspieramy osoby, które działają społecznie, żeby zapał nie kończył się na
               pierwszym projekcie.
             </p>
+            <Link href="/wplacam" className="btn btn-ember mt-5 inline-flex">
+              Wspieram
+            </Link>
           </div>
 
           <nav aria-labelledby="footer-nav">
@@ -72,7 +76,7 @@ export default function Footer() {
                 <li key={item.to}>
                   <Link
                     href={item.to}
-                    className="text-white/80 underline-offset-4 transition-colors hover:text-white hover:underline"
+                    className="text-on-brand/80 underline-offset-4 transition-colors hover:text-on-brand hover:underline"
                   >
                     {item.label}
                   </Link>
@@ -85,11 +89,11 @@ export default function Footer() {
             <h2 id="footer-contact" className="mb-4 text-sm font-semibold tracking-wide uppercase">
               Kontakt
             </h2>
-            <address className="space-y-2.5 text-sm text-white/80 not-italic">
+            <address className="space-y-2.5 text-sm text-on-brand/80 not-italic">
               <p>
                 <a
                   href={`mailto:${email}`}
-                  className="underline underline-offset-4 transition-colors hover:text-white"
+                  className="underline underline-offset-4 transition-colors hover:text-on-brand"
                 >
                   {email}
                 </a>
@@ -97,7 +101,7 @@ export default function Footer() {
               <p>{address}</p>
               {account && (
                 <p className="pt-1">
-                  <span className="block text-xs tracking-wide text-white/60 uppercase">
+                  <span className="block text-xs tracking-wide text-on-brand/80 uppercase">
                     Numer konta
                   </span>
                   <span className="font-mono text-[0.8rem] break-all">{account}</span>
@@ -121,7 +125,7 @@ export default function Footer() {
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex size-11 items-center justify-center rounded-full border border-white/25 text-lg transition hover:border-white hover:bg-white hover:text-brand"
+                      className="inline-flex size-11 items-center justify-center rounded-full border border-on-brand/25 text-lg transition hover:border-on-brand hover:bg-on-brand hover:text-brand"
                     >
                       <Icon aria-hidden="true" />
                       <span className="sr-only">{label} - otwiera się w nowej karcie</span>
@@ -133,9 +137,27 @@ export default function Footer() {
           </section>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/15 pt-6 text-sm text-white/70 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-3 border-t border-on-brand/15 pt-6 text-sm text-on-brand/80 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Fundacja „Zapłon”. Wszelkie prawa zastrzeżone.</p>
-          <PrivacyPolicyLink />
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <li>
+              <PrivacyPolicyLink />
+            </li>
+            <li>
+              <Link href="/regulamin" className="text-sm underline-offset-4 transition-colors hover:underline">
+                Regulamin
+              </Link>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={openCookieSettings}
+                className="text-sm underline-offset-4 transition-colors hover:underline"
+              >
+                Ustawienia cookies
+              </button>
+            </li>
+          </ul>
         </div>
       </div>
     </footer>

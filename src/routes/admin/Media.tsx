@@ -1,42 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
-import { uploadToMedia, MediaValidationError } from '../../lib/media';
+import { useState } from 'react';
+import { listMediaFiles, uploadToMedia, MediaValidationError, type MediaFile } from '../../lib/media';
+import { useAsyncData } from '../../hooks/useAsyncData';
 import { getErrorMessage } from '../../lib/utils/errors';
 import { useToast } from '../../components/ui/Feedback';
 
-type FileRow = { name: string; url: string };
-
 export default function Media() {
-  const [files, setFiles] = useState<FileRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: files, loading, error, reload: list } = useAsyncData(listMediaFiles, [] as MediaFile[], 'Nie udało się wczytać listy plików.');
   const [uploading, setUploading] = useState(false);
   const showToast = useToast();
-
-  const list = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase.storage
-      .from('media')
-      .list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
-
-    if (error) {
-      showToast(getErrorMessage(error, 'Nie udało się wczytać listy plików.'), 'error');
-      setLoading(false);
-      return;
-    }
-
-    // getPublicUrl jest operacją synchroniczną (samo budowanie URL-a, bez sieci),
-    // więc nie ma potrzeby owijać jej w Promise.all/async.
-    const rows: FileRow[] = (data ?? []).map((f) => ({
-      name: f.name,
-      url: supabase.storage.from('media').getPublicUrl(f.name).data.publicUrl,
-    }));
-    setFiles(rows);
-    setLoading(false);
-  }, [showToast]);
-
-  useEffect(() => {
-    list();
-  }, [list]);
 
   const onChoose = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,9 +16,7 @@ export default function Media() {
 
     setUploading(true);
     try {
-      // uploadToMedia sanityzuje nazwę pliku ORAZ waliduje typ/rozmiar -
-      // wcześniej ten panel wgrywał `file.name` bezpośrednio, z pominięciem
-      // obu tych zabezpieczeń.
+      // uploadToMedia sanityzuje nazwę pliku i waliduje typ oraz rozmiar.
       await uploadToMedia('', file);
       await list();
       showToast('Plik został wgrany.', 'success');
@@ -81,8 +50,9 @@ export default function Media() {
   );
 
   function renderFiles() {
-    if (loading) return <p className="text-text-black/70">Ładowanie…</p>;
-    if (files.length === 0) return <p className="text-text-black/70">Brak wgranych plików.</p>;
+    if (loading) return <p className="text-ink-muted">Ładowanie…</p>;
+    if (error) return <p role="alert" className="field-error">{error}</p>;
+    if (files.length === 0) return <p className="text-ink-muted">Brak wgranych plików.</p>;
 
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

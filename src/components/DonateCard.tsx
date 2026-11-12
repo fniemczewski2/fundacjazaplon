@@ -1,4 +1,9 @@
 import { useId, useState } from 'react';
+import { postJson } from '../lib/api';
+import { trackEvent } from '../lib/analytics';
+import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
+import Field from './ui/Field';
+import Turnstile from './Turnstile';
 import { useContactInfo } from '../hooks/useAppData';
 import { getErrorMessage } from '../lib/utils/errors';
 import { FiCopy, FiCheck } from 'react-icons/fi';
@@ -12,7 +17,8 @@ const AMOUNTS = [20, 50, 100] as const;
 
 export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
   const { data } = useContactInfo();
-  const [copied, setCopied] = useState(false);
+  const { copiedKey, copy: copyText } = useCopyToClipboard();
+  const copied = copiedKey === 'account';
 
   const [step, setStep] = useState<1 | 2>(1);
   const [amount, setAmount] = useState<number>(50);
@@ -22,27 +28,18 @@ export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
   const [email, setEmail] = useState('');
   const [marketingConsent, setMarketingConsent] = useState(false);
 
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
   const [isStripeLoading, setIsStripeLoading] = useState(false);
   const [stripeError, setStripeError] = useState('');
 
-  const nameId = useId();
-  const emailId = useId();
   const consentId = useId();
   const frequencyLabelId = useId();
   const amountLabelId = useId();
 
   const acct = data?.account_number?.trim();
 
-  const copy = async () => {
-    if (!acct) return;
-    try {
-      await navigator.clipboard.writeText(acct);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
-      console.error('Nie udało się skopiować numeru konta', e);
-    }
-  };
+  const copy = () => (acct ? copyText('account', acct) : undefined);
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,23 +54,18 @@ export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
     setStripeError('');
 
     try {
-      const response = await fetch('/api/create-stripe-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, isRecurring, name, email, marketingConsent }),
-      });
+      const result = await postJson<{ url?: string }>(
+        '/api/create-stripe-session',
+        { amount, isRecurring, name, email, marketingConsent, captchaToken },
+        'Nie udało się połączyć z operatorem płatności.',
+      );
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Nie udało się połączyć z operatorem płatności.');
-      }
-
+      trackEvent('donate_start', { value: amount, recurring: isRecurring });
       if (result.url) globalThis.location.href = result.url;
     } catch (err) {
-      console.error(err);
       setStripeError(getErrorMessage(err, 'Nie udało się połączyć z operatorem płatności.'));
       setIsStripeLoading(false);
+      setCaptchaReset((n) => n + 1);
     }
   };
 
@@ -124,7 +116,7 @@ export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
                     aria-pressed={active}
                     onClick={() => setIsRecurring(option.value)}
                     className={`relative z-10 flex-1 rounded-full py-2.5 text-sm font-semibold transition-colors duration-300 ${
-                      active ? 'text-white' : 'text-ink hover:text-ember-ink'
+                      active ? 'text-on-brand' : 'text-ink hover:text-ember-ink'
                     }`}
                   >
                     {option.label}
@@ -176,35 +168,19 @@ export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
             </p>
 
             <div className="space-y-4">
-              <div>
-                <label htmlFor={nameId} className="field-label">
-                  Imię
-                </label>
-                <input
-                  id={nameId}
-                  type="text"
-                  required
-                  autoComplete="given-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="input-text"
-                />
-              </div>
+              <Field label="Imię">
+                {(a11y) => (
+                  <input {...a11y} type="text" required autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} className="input-text" />
+                )}
+              </Field>
 
-              <div>
-                <label htmlFor={emailId} className="field-label">
-                  Adres e-mail
-                </label>
-                <input
-                  id={emailId}
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-text"
-                />
-              </div>
+              <Field label="Adres e-mail">
+                {(a11y) => (
+                  <input {...a11y} type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-text" />
+                )}
+              </Field>
+
+              <Turnstile onToken={setCaptchaToken} resetKey={captchaReset} />
             </div>
 
             <button type="submit" disabled={isStripeLoading} className="btn btn-ember mt-6 w-full">

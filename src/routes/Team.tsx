@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { FaPhone, FaUser, FaEnvelope } from 'react-icons/fa6';
 import Seo from '../components/Seo';
 import Page from '../components/Page';
-import Loader from '../components/Loader';
 import Reveal from '../components/Reveal';
-import { listTeamPublic, type TeamMember } from '../lib/team';
+import { SkeletonList } from '../components/Skeleton';
+import { useTeam } from '../hooks/useAppData';
 import { useScrollToHash } from '../hooks/useScrollToHash';
 
 /** Buduje adres `tel:` - dokłada +48, gdy numer zapisano bez prefiksu kraju. */
@@ -16,26 +15,7 @@ function toTelHref(phone: string): string {
 }
 
 export default function Team() {
-  const [team, setTeam] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      // Musi być `listTeamPublic` (filtruje active=true), nie `listTeam` -
-      // ta druga jest dla panelu i pokazywałaby też osoby nieaktywne
-      // razem z ich telefonem i adresem e-mail.
-      const data = await listTeamPublic();
-      if (!alive) return;
-      setTeam(data);
-      setLoading(false);
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const { data: team = [], isPending: loading, error } = useTeam();
 
   // Płynne przewinięcie do wizytówki po wejściu z /w/[slug].
   useScrollToHash(!loading);
@@ -44,7 +24,7 @@ export default function Team() {
     <>
       <Seo
         title="Zespół | Fundacja „Zapłon”"
-        description="Poznaj zespół Fundacji „Zapłon” - osoby, które tworzą projekty społeczne, wspierają społeczność i budują kapitał społeczny."
+        description="Poznaj zespół Fundacji „Zapłon”: osoby, które tworzą projekty społeczne, wspierają społeczność i budują kapitał społeczny."
       />
 
       <Page
@@ -53,9 +33,15 @@ export default function Team() {
         lead="Osoby, które prowadzą projekty, oferują wsparcie i odpisują na Wasze wiadomości."
         illustration="zapalki"
       >
-        {loading && <Loader />}
+        {loading && <SkeletonList count={4} variant="row" label="Wczytywanie zespołu" />}
 
-        {!loading && team.length === 0 && (
+        {!loading && error && (
+          <p role="alert" className="field-error">
+            Nie udało się wczytać danych zespołu.
+          </p>
+        )}
+
+        {!loading && !error && team.length === 0 && (
           <p className="muted">Nie mamy jeszcze opublikowanych danych o zespole.</p>
         )}
 
@@ -71,8 +57,7 @@ export default function Team() {
                     {member.photo_url ? (
                       <img
                         src={`${member.photo_url}?width=176&height=176&resize=cover&quality=75`}
-                        alt=""
-                        aria-hidden="true"
+                        alt={`Zdjęcie: ${member.name}`}
                         width={88}
                         height={88}
                         className="size-22 shrink-0 rounded-full object-cover"

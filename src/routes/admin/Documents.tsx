@@ -1,8 +1,10 @@
 // src/routes/admin/Documents.tsx
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useAsyncData } from '../../hooks/useAsyncData';
 import {
   ALL_CATEGORIES,
   type DocCategory,
+  type DocumentFile,
   listDocuments,
   uploadDocument,
   deleteDocument,
@@ -15,27 +17,18 @@ import Loader from '../../components/Loader';
 
 export default function AdminDocuments() {
   const [category, setCategory] = useState<DocCategory>('statut');
-  const [files, setFiles] = useState<Array<{ name: string; path: string; url: string }>>([]);
-  const [loading, setLoading] = useState(true);
+  const fetchFiles = useCallback(() => listDocuments(category), [category]);
+  const { data: files, loading, reload } = useAsyncData(fetchFiles, [] as DocumentFile[], 'Nie udało się wczytać plików.');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const confirm = useConfirm();
-
-  const refresh = async (cat: DocCategory) => {
-    setLoading(true);
-    const data = await listDocuments(cat);
-    setFiles(data);
-    setLoading(false);
-  };
-
-  useEffect(() => { refresh(category); }, [category]);
 
   const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     setBusy(true); setMsg(null);
     try {
       await uploadDocument(category, file);
-      await refresh(category);
+      await reload();
       setMsg('Plik przesłany.');
     } catch (err) {
       const message =
@@ -57,7 +50,7 @@ export default function AdminDocuments() {
     setBusy(true); setMsg(null);
     try {
       await deleteDocument(path);
-      await refresh(category);
+      await reload();
       setMsg('Plik usunięty.');
     } catch (err) {
       setMsg(getErrorMessage(err, 'Błąd usuwania.'));
@@ -69,7 +62,7 @@ export default function AdminDocuments() {
   const renderFileList = () => {
     if (loading) return <Loader />;
     if (files.length === 0) {
-      return <div className="text-text-black/70 text-sm">Brak plików w tej kategorii.</div>;
+      return <div className="text-ink-muted text-sm">Brak plików w tej kategorii.</div>;
     }
     return (
       <ul className="divide-y border rounded-xl">
@@ -81,7 +74,7 @@ export default function AdminDocuments() {
             <button
               type="button"
               onClick={() => onDelete(f.path)}
-              className="px-3 py-2 rounded-xl border hover:bg-gray-50"
+              className="btn btn-secondary"
               disabled={busy}
             >
               <FiTrash2 />
@@ -114,7 +107,7 @@ export default function AdminDocuments() {
             accept=".pdf,.doc,.docx,.odt,.txt" disabled={busy} />
         </label>
 
-        {msg && <span className="text-sm text-text-black/70">{msg}</span>}
+        {msg && <span className="text-sm text-ink-muted">{msg}</span>}
       </div>
 
       {renderFileList()}

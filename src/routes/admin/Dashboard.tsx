@@ -33,7 +33,7 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <aside className="border-r p-4 space-y-4">
         <div className="space-y-1">
-          <div className="text-sm text-text-black/70">Zalogowany jako</div>
+          <div className="text-sm text-ink-muted">Zalogowany jako</div>
           <div className="font-medium break-all">{email ?? '-'}</div>
         </div>
 
@@ -53,14 +53,14 @@ export default function AdminDashboard() {
           <SectionLabel>Pliki</SectionLabel>
           <NavItem to="/admin/media">Media</NavItem>
           <NavItem to="/admin/dokumenty">Dokumenty</NavItem>
-          <NavItem to="/admin/materialy">Materiały do pobrania</NavItem>
+          <NavItem to="/admin/strony/materials">Materiały do pobrania</NavItem>
         </nav>
 
         <div className="pt-4">
           <button
             type="button"
             onClick={signOutAdmin}
-            className="w-full rounded-xl border px-3 py-2 hover:bg-gray-50"
+            className="btn btn-secondary w-full"
           >
             Wyloguj
           </button>
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
       <main className="p-6 space-y-6">
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Panel administracyjny</h1>
-          <div className="text-sm text-text-black/70">
+          <div className="text-sm text-ink-muted">
             {loading && <Loader />}
           </div>
         </header>
@@ -80,7 +80,7 @@ export default function AdminDashboard() {
           <KpiCard label="Szkice aktualności" value={counts.newsDrafts} to="/admin/aktualnosci" />
           <KpiCard label="Członkowie zespołu" value={counts.teamCount} to="/admin/zespol" />
           <div className="border rounded-2xl p-4">
-            <div className="text-sm text-text-black/70">Szybkie akcje</div>
+            <div className="text-sm text-ink-muted">Szybkie akcje</div>
             <div className="mt-3 grid gap-2">
               <QuickAction to="/admin/aktualnosci/new">Nowa aktualność</QuickAction>
             </div>
@@ -113,17 +113,17 @@ export default function AdminDashboard() {
 
 /* --- Helper UI components --- */
 function NiceDate({ iso }: Readonly<{ iso: string | null }>) {
-  if (!iso) return <span className="text-text-black/70">brak danych</span>;
+  if (!iso) return <span className="text-ink-muted">brak danych</span>;
   return <span>{new Date(iso).toLocaleString()}</span>;
 }
 
 function SectionLabel({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <div className="text-xs uppercase tracking-wide text-text-black/70">{children}</div>;
+  return <div className="text-xs uppercase tracking-wide text-ink-muted">{children}</div>;
 }
 
 function NavItem({ to, children }: Readonly<{ to: string; children: React.ReactNode }>) {
   return (
-    <Link to={to} className="block w-full px-3 py-2 rounded-xl text-black hover:bg-gray-50 border border-transparent hover:border-gray-200">
+    <Link to={to} className="block w-full px-3 py-2 rounded-xl text-ink hover:bg-surface-cool border border-transparent hover:border-line">
       {children}
     </Link>
   );
@@ -132,16 +132,16 @@ function NavItem({ to, children }: Readonly<{ to: string; children: React.ReactN
 function KpiCard({ label, value, to }: Readonly<{ label: string; value: number | string; to?: string }>) {
   const content = (
     <div className="border rounded-2xl p-4">
-      <div className="text-sm text-text-black/70">{label}</div>
+      <div className="text-sm text-ink-muted">{label}</div>
       <div className="mt-2 text-3xl font-semibold">{value}</div>
     </div>
   );
-  return to ? <Link to={to} className="block hover:shadow-xs transition-shadow">{content}</Link> : content;
+  return to ? <Link to={to} className="block hover:border-line-strong">{content}</Link> : content;
 }
 
 function QuickAction({ to, children }: Readonly<{ to: string; children: React.ReactNode }>) {
   return (
-    <Link to={to} className="inline-flex items-center justify-center rounded-xl px-3 py-2 border hover:bg-gray-50">
+    <Link to={to} className="inline-flex items-center justify-center btn btn-secondary">
       {children}
     </Link>
   );
@@ -152,9 +152,9 @@ function PageCard({ title, updatedAt, to }: Readonly<{ title: string; updatedAt:
     <div className="border rounded-2xl p-4 flex items-start justify-between">
       <div>
         <div className="font-medium">{title}</div>
-        <div className="text-sm text-text-black/70">Ostatnia aktualizacja: {updatedAt}</div>
+        <div className="text-sm text-ink-muted">Ostatnia aktualizacja: {updatedAt}</div>
       </div>
-      <Link to={to} className="px-3 py-2 rounded-xl border hover:bg-gray-50">Edytuj</Link>
+      <Link to={to} className="btn btn-secondary">Edytuj</Link>
     </div>
   );
 }
@@ -163,8 +163,8 @@ function ShortcutCard({ title, description, to, cta }: Readonly<{ title: string;
   return (
     <div className="border rounded-2xl p-5">
       <div className="text-lg font-medium">{title}</div>
-      <p className="text-sm text-text-black/70 mt-1">{description}</p>
-      <Link to={to} className="inline-block mt-3 px-3 py-2 rounded-xl border hover:bg-gray-50">{cta}</Link>
+      <p className="text-sm text-ink-muted mt-1">{description}</p>
+      <Link to={to} className="inline-block mt-3 btn btn-secondary">{cta}</Link>
     </div>
   );
 }

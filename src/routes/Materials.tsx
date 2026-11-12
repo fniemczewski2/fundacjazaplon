@@ -1,55 +1,30 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, { useState } from 'react';
 import { FaDownload } from 'react-icons/fa6';
-import { supabase } from '../lib/supabase';
+import { postJson } from '../lib/api';
+import { trackEvent } from '../lib/analytics';
 import { getErrorMessage } from '../lib/utils/errors';
+import type { Material } from '../lib/materials';
+import { useMaterials } from '../hooks/useAppData';
 import Seo from '../components/Seo';
 import Page from '../components/Page';
-import Loader from '../components/Loader';
 import Modal from '../components/Modal';
 import Reveal from '../components/Reveal';
 import PrivacyPolicyLink from '../components/PrivacyPolicyLink';
 import Illustration from '../components/Illustration';
-
-interface Material {
-  id: string;
-  title: string;
-  description: string;
-  format: string;
-  cover_image: string;
-  file_url: string;
-}
+import Field from '../components/ui/Field';
+import Turnstile from '../components/Turnstile';
+import { SkeletonList } from '../components/Skeleton';
 
 export default function Materials() {
-  const [materials, setMaterials] = useState<Material[]>([]);
-  const [loadingList, setLoadingList] = useState(true);
+  const { data: materials = [], isPending: loadingList, error: listError } = useMaterials();
   const [selected, setSelected] = useState<Material | null>(null);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-
-  const nameId = useId();
-  const emailId = useId();
-
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      const { data } = await supabase
-        .from('materials')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (!alive) return;
-      if (data) setMaterials(data);
-      setLoadingList(false);
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   const openFor = (mat: Material) => {
     setSelected(mat);
@@ -65,32 +40,19 @@ export default function Materials() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/subscribe-newsletter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          file_url: selected.file_url,
-          file_title: selected.title,
-        }),
-      });
-
-      const contentType = response.headers.get('content-type') ?? '';
-      const data: { error?: string } | null = contentType.includes('application/json')
-        ? await response.json()
-        : null;
-
-      if (!response.ok) {
-        throw new Error(data?.error || 'Nie udało się wysłać pliku. Spróbuj ponownie.');
-      }
-
+      await postJson(
+        '/api/subscribe-newsletter',
+        { name, email, file_url: selected.file_url, file_title: selected.title, captchaToken },
+        'Nie udało się wysłać pliku. Spróbuj ponownie.',
+      );
+      trackEvent('material_download', { material: selected.title });
       setStatus('success');
       setEmail('');
     } catch (err) {
-      console.error(err);
       setStatus('error');
       setErrorMessage(getErrorMessage(err));
+    } finally {
+      setCaptchaReset((n) => n + 1);
     }
   };
 
@@ -98,7 +60,7 @@ export default function Materials() {
     <>
       <Seo
         title="Materiały | Fundacja „Zapłon”"
-        description="Pobierz bezpłatne materiały edukacyjne Fundacji „Zapłon” - poradniki dla osób działających społecznie."
+        description="Pobierz bezpłatne materiały edukacyjne Fundacji „Zapłon”: poradniki dla osób działających społecznie."
       />
 
       <Page
@@ -107,9 +69,15 @@ export default function Materials() {
         lead="Poradniki i szablony, które przydają się na starcie działania społecznego. Za darmo."
         illustration="skrzynka"
       >
-        {loadingList && <Loader />}
+        {loadingList && <SkeletonList count={3} label="Wczytywanie materiałów" />}
 
-        {!loadingList && materials.length === 0 && (
+        {!loadingList && listError && (
+          <p role="alert" className="field-error">
+            Nie udało się wczytać materiałów.
+          </p>
+        )}
+
+        {!loadingList && !listError && materials.length === 0 && (
           <p className="muted">Nie mamy jeszcze opublikowanych materiałów. Zajrzyj wkrótce.</p>
         )}
 
@@ -190,35 +158,19 @@ export default function Materials() {
               newslettera.
             </p>
 
-            <div>
-              <label htmlFor={nameId} className="field-label">
-                Imię
-              </label>
-              <input
-                id={nameId}
-                type="text"
-                required
-                autoComplete="given-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="input-text"
-              />
-            </div>
+            <Field label="Imię">
+              {(a11y) => (
+                <input {...a11y} type="text" required autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} className="input-text" />
+              )}
+            </Field>
 
-            <div>
-              <label htmlFor={emailId} className="field-label">
-                Adres e-mail
-              </label>
-              <input
-                id={emailId}
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-text"
-              />
-            </div>
+            <Field label="Adres e-mail">
+              {(a11y) => (
+                <input {...a11y} type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-text" />
+              )}
+            </Field>
+
+            <Turnstile onToken={setCaptchaToken} resetKey={captchaReset} />
 
             {status === 'error' && (
               <p role="alert" className="field-error">

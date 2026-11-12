@@ -40,10 +40,10 @@ async function getGraphToken(tenant: string, clientId: string, secret: string): 
   return cachedToken.value;
 }
 
-export type GraphMail = { to: string; subject: string; html: string };
+export type GraphMail = { to: string; subject: string; html: string; replyTo?: string };
 
 /** Rzuca wyjątek z czytelnym komunikatem, gdy konfiguracja jest niepełna albo Graph odrzuci żądanie. */
-export async function sendGraphMail({ to, subject, html }: GraphMail): Promise<void> {
+export async function sendGraphMail({ to, subject, html, replyTo: replyToOverride }: GraphMail): Promise<void> {
   const tenant = process.env.MS_TENANT_ID;
   const clientId = process.env.MS_CLIENT_ID;
   const secret = process.env.MS_CLIENT_SECRET;
@@ -53,7 +53,7 @@ export async function sendGraphMail({ to, subject, html }: GraphMail): Promise<v
   }
 
   const graph = process.env.MS_GRAPH_HOST || 'https://graph.microsoft.com';
-  const replyTo = process.env.MAIL_REPLY_TO;
+  const replyTo = replyToOverride ?? process.env.MAIL_REPLY_TO;
 
   const payload = {
     message: {

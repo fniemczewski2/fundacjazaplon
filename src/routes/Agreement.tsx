@@ -4,6 +4,7 @@ import Seo from '../components/Seo';
 import Page from '../components/Page';
 import PrivacyPolicyLink from '../components/PrivacyPolicyLink';
 import Field from '../components/ui/Field';
+import Turnstile from '../components/Turnstile';
 import { getErrorMessage } from '../lib/utils/errors';
 import {
   KIND_LABEL,
@@ -32,6 +33,8 @@ export default function Agreement() {
   const [errors, setErrors] = useState<ApplicationErrors>({});
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [serverError, setServerError] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
 
   const set = <K extends keyof ApplicationInput>(key: K, value: ApplicationInput[K]) =>
@@ -57,11 +60,13 @@ export default function Agreement() {
     setStatus('loading');
     setServerError('');
     try {
-      await submitApplication(form, trap);
+      await submitApplication(form, trap, captchaToken);
       setStatus('success');
     } catch (err) {
       setStatus('error');
       setServerError(getErrorMessage(err, 'Nie udało się wysłać zgłoszenia. Spróbuj ponownie.'));
+    } finally {
+      setCaptchaReset((n) => n + 1);
     }
   };
 
@@ -70,6 +75,10 @@ export default function Agreement() {
       <Seo
         title="Dołącz do zespołu | Fundacja „Zapłon”"
         description="Zgłoszenie do współpracy z Fundacją „Zapłon” jako wolontariusz lub zleceniobiorca."
+        breadcrumbs={[
+          { name: 'Strona główna', path: '/' },
+          { name: 'Współpraca', path: '/wspolpraca' },
+        ]}
       />
 
       <Page
@@ -192,6 +201,8 @@ export default function Agreement() {
               <label htmlFor="agreement-website">Nie wypełniaj tego pola</label>
               <input id="agreement-website" type="text" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} />
             </div>
+
+            <Turnstile onToken={setCaptchaToken} resetKey={captchaReset} />
 
             {status === 'error' && <p role="alert" className="field-error">{serverError}</p>}
 

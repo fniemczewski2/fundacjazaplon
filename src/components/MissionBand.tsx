@@ -33,7 +33,7 @@ export default function MissionBand() {
           {/* Skrót tekstu z tabeli `about_info`. Pełna wersja - razem z częścią
               o wizji - jest na podstronie „O nas”, która pobiera go z bazy. */}
           <p className="lead mt-6">
-            My - młode osoby - w odpowiedzi na otaczające nas kryzysy współczesnego świata
+            My, młode osoby, w odpowiedzi na otaczające nas kryzysy współczesnego świata
             tworzymy przestrzeń wspierającą osoby aktywistyczne, wolontariackie
             i&nbsp;działające społecznie. Odpowiadamy na realne potrzeby lokalnych
             społeczności, wypełniając luki, których system nie jest w&nbsp;stanie zaadresować.

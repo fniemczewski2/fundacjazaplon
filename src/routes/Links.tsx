@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useLocation } from 'wouter';
 import {
   FaInstagram,
@@ -10,8 +10,7 @@ import {
   FaDownload,
   FaArrowRight,
 } from 'react-icons/fa6';
-import { getSocialLinks, type SocialLinks } from '../lib/social';
-import { getJoinLink, type JoinUs } from '../lib/join';
+import { useJoinLink, useSocialLinks } from '../hooks/useAppData';
 import Seo from '../components/Seo';
 import Loader from '../components/Loader';
 import Modal from '../components/Modal';
@@ -36,34 +35,17 @@ const DEEP_LINK_PATHS = new Set(['/wplacam', '/newsletter', '/dolacz']);
 export default function Links() {
   const [pathname, setLocation] = useLocation();
 
-  const [socialLinks, setSocialLinks] = useState<SocialLinks | null>(null);
-  const [joinLink, setJoinLink] = useState<JoinUs | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeModal, setActiveModal] = useState<ModalKind>(null);
+  const { data: socialLinks, isPending: socialPending } = useSocialLinks();
+  const { data: joinLink, isPending: joinPending } = useJoinLink();
+  const loading = socialPending || joinPending;
 
-  useEffect(() => {
-    if (pathname === '/wplacam') setActiveModal('donate');
-    else if (pathname === '/newsletter') setActiveModal('newsletter');
-  }, [pathname]);
-
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      const [social, join] = await Promise.all([getSocialLinks(), getJoinLink()]);
-      if (!alive) return;
-      setSocialLinks(social);
-      setJoinLink(join);
-      setLoading(false);
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
+  // Okno otwarte kliknięciem ma pierwszeństwo; linki /wplacam i /newsletter otwierają je od razu po wejściu.
+  const [openedModal, setOpenedModal] = useState<ModalKind>(null);
+  const deepLinkModal: ModalKind = pathname === '/wplacam' ? 'donate' : pathname === '/newsletter' ? 'newsletter' : null;
+  const activeModal = openedModal ?? deepLinkModal;
 
   const closeModal = () => {
-    setActiveModal(null);
+    setOpenedModal(null);
     if (DEEP_LINK_PATHS.has(pathname)) setLocation('/links');
   };
 
@@ -88,13 +70,13 @@ export default function Links() {
     },
     {
       title: 'Wpłacam darowiznę',
-      onClick: () => setActiveModal('donate'),
+      onClick: () => setOpenedModal('donate'),
       icon: <FaHandHoldingHeart aria-hidden="true" className="text-xl" />,
       description: 'Wspieram wasze działania',
     },
     {
       title: 'Zapisuję się do\u00a0newslettera',
-      onClick: () => setActiveModal('newsletter'),
+      onClick: () => setOpenedModal('newsletter'),
       icon: <FaEnvelope aria-hidden="true" className="text-xl" />,
       description: 'Chcę być na bieżąco',
     },

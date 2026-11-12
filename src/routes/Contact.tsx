@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 import Seo from '../components/Seo';
 import Page from '../components/Page';
@@ -6,6 +5,7 @@ import Loader from '../components/Loader';
 import Reveal from '../components/Reveal';
 import ContactForm from '../components/ContactForm';
 import { useContactInfo } from '../hooks/useAppData';
+import { useCopyToClipboard } from '../hooks/useCopyToClipboard';
 
 const COPYABLE = [
   { key: 'krs', label: 'KRS' },
@@ -23,17 +23,7 @@ function toTelHref(phone: string): string {
 
 export default function Contact() {
   const { data, isLoading } = useContactInfo();
-  const [copied, setCopied] = useState<string | null>(null);
-
-  const copyToClipboard = async (key: string, value: string) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(key);
-      setTimeout(() => setCopied(null), 2000);
-    } catch (e) {
-      console.error('Nie udało się skopiować wartości', e);
-    }
-  };
+  const { copiedKey: copied, copy: copyToClipboard } = useCopyToClipboard();
 
   return (
     <>

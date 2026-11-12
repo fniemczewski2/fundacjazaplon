@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { useLocation, useParams } from 'wouter';
 import { FaDownload, FaArrowUpRightFromSquare } from 'react-icons/fa6';
 import Seo from '../components/Seo';
@@ -65,10 +65,20 @@ function Choice({ legend, value, onChange, yes = 'Tak', no = 'Nie' }: Readonly<{
 function StepHeading({ n, children }: Readonly<{ n: number; children: React.ReactNode }>) {
   return (
     <h2 className="font-heading mb-4 flex items-center gap-3 text-xl font-semibold">
-      <span aria-hidden="true" className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-sm text-white">{n}</span>
+      <span aria-hidden="true" className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-sm text-on-brand">{n}</span>
       {children}
     </h2>
   );
+}
+
+type LoadResult = { view: PublicView } | { error: string };
+
+async function loadView(token: string): Promise<LoadResult> {
+  try {
+    return { view: await publicGet(token) };
+  } catch (e) {
+    return { error: getErrorMessage(e, 'Nie udało się wczytać dokumentów.') };
+  }
 }
 
 export default function AgreementSign() {
@@ -84,18 +94,17 @@ export default function AgreementSign() {
   }, [params.token, navigate]);
 
   useEffect(() => {
-    const meta = document.createElement('meta');
-    meta.name = 'robots'; meta.content = 'noindex, nofollow';
+    // Adres z tokenem nie może wyciekać w nagłówku Referer. Wykluczenie z indeksu załatwia <Seo noindex>.
     const referrer = document.createElement('meta');
     referrer.name = 'referrer'; referrer.content = 'no-referrer';
-    document.head.append(meta, referrer);
-    return () => { meta.remove(); referrer.remove(); };
+    document.head.append(referrer);
+    return () => referrer.remove();
   }, []);
 
   const [view, setView] = useState<PublicView | null>(null);
   const [loading, setLoading] = useState(Boolean(token));
   const [loadError, setLoadError] = useState('');
-  const hydrated = useRef(false);
+  const [hydratedFrom, setHydratedFrom] = useState<PublicView | null>(null);
 
   const [form, setForm] = useState<FormState>(EMPTY);
   const [dirty, setDirty] = useState(false);
@@ -114,41 +123,46 @@ export default function AgreementSign() {
   const [previewKey, setPreviewKey] = useState(0);
   const [previewError, setPreviewError] = useState('');
 
-  const reload = useCallback(async () => {
-    try {
-      setView(await publicGet(token));
+  const applyLoad = useCallback((result: LoadResult) => {
+    if ('view' in result) {
+      setView(result.view);
       setLoadError('');
-    } catch (e) {
-      setLoadError(getErrorMessage(e, 'Nie udało się wczytać dokumentów.'));
-    } finally {
-      setLoading(false);
+    } else {
+      setLoadError(result.error);
     }
-  }, [token]);
+    setLoading(false);
+  }, []);
+
+  const reload = useCallback(async () => applyLoad(await loadView(token)), [token, applyLoad]);
 
   useEffect(() => {
-    if (token) reload();
-  }, [token, reload]);
+    if (!token) return;
+    let alive = true;
+    loadView(token).then((result) => alive && applyLoad(result));
+    return () => {
+      alive = false;
+    };
+  }, [token, applyLoad]);
 
-  // Wypełnienie formularza zapisanymi wcześniej odpowiedziami - tylko raz.
-  useEffect(() => {
-    if (!view || hydrated.current) return;
-    hydrated.current = true;
+  // Wypełnienie formularza zapisanymi wcześniej odpowiedziami: tylko raz, po pierwszym wczytaniu widoku.
+  if (view && !hydratedFrom) {
+    setHydratedFrom(view);
     setForm({
       infoAck: view.consentsSaved, marketing: tri(view.marketingConsent), image: tri(view.consentImage),
       decl: view.declarations ?? { participation: false, rules: false, health: false },
       rspts: view.consentRspts === true, krkDate: view.krkIssueDate ?? '', krkFile: null,
       statement: statementStateFrom(view.statement),
     });
-  }, [view]);
+  }
 
   useEffect(() => {
     if (!view) return;
     let url: string | null = null;
     let cancelled = false;
-    setPreviewError('');
     publicPreview(token)
       .then((blob) => {
         if (cancelled) return;
+        setPreviewError('');
         url = URL.createObjectURL(blob);
         setPreviewUrl(url);
       })
@@ -249,7 +263,7 @@ export default function AgreementSign() {
 
   const terms = useMemo(() => {
     if (!view) return [];
-    const period = view.endDate ? `${fmtDate(view.startDate)} - ${fmtDate(view.endDate)}` : `od ${fmtDate(view.startDate)}, do czasu rozwiązania`;
+    const period = view.endDate ? `od ${fmtDate(view.startDate)} do ${fmtDate(view.endDate)}` : `od ${fmtDate(view.startDate)}, do czasu rozwiązania`;
     return [
       ['Rodzaj', minor ? `${KIND_LABEL[view.kind]} osoby małoletniej: ${who}` : KIND_LABEL[view.kind]],
       ...(view.contractNumber ? [['Numer umowy', view.contractNumber]] : []),
@@ -265,7 +279,7 @@ export default function AgreementSign() {
     <div className="space-y-3 lg:sticky lg:top-24 lg:self-start">
       {previewUrl ? (
         <>
-          <iframe title="Podgląd dokumentów" src={previewUrl} className="hidden h-[75vh] w-full rounded-2xl border bg-white lg:block" />
+          <iframe title="Podgląd dokumentów" src={previewUrl} className="hidden h-[75vh] w-full rounded-2xl border bg-surface-raised lg:block" />
           <div className="flex flex-wrap gap-2">
             <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
               Otwórz dokumenty <FaArrowUpRightFromSquare aria-hidden="true" className="size-3.5" />
@@ -285,7 +299,7 @@ export default function AgreementSign() {
 
   return (
     <>
-      <Seo title="Dokumenty do podpisu | Fundacja „Zapłon”" description="Dokumenty do podpisania." />
+      <Seo title="Dokumenty do podpisu | Fundacja „Zapłon”" description="Dokumenty do podpisania." noindex />
 
       <Page
         eyebrow="Współpraca"
@@ -400,7 +414,7 @@ export default function AgreementSign() {
                                 setSaveError('');
                                 patch({ krkFile: file });
                               }}
-                              className="input-text cursor-pointer file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-brand file:px-4 file:py-1.5 file:text-sm file:font-semibold file:text-white"
+                              className="input-text cursor-pointer file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-brand file:px-4 file:py-1.5 file:text-sm file:font-semibold file:text-on-brand"
                             />
                           )}
                         </Field>

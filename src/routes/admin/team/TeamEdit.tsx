@@ -170,7 +170,7 @@ export default function TeamEdit() {
             type="tel"
             value={m.phone ?? ''}
             onChange={(e) => setM((s) => ({ ...s, phone: e.target.value }))}
-            className="w-full p-2 border border-gray-200 dark:border-gray-600 rounded focus:ring-3 focus:ring-blue-200"
+            className="input-plain"
             placeholder="Nr telefonu: +48 123 456 789"
           />
 
@@ -178,7 +178,7 @@ export default function TeamEdit() {
             type="email"
             value={m.email ?? ''}
             onChange={(e) => setM((s) => ({ ...s, email: e.target.value }))}
-            className="w-full p-2 border border-gray-200 dark:border-gray-600 rounded focus:ring-3 focus:ring-blue-200"
+            className="input-plain"
             placeholder="Adres e-mail: jan.kowalski@zaplon.org.pl"
           />
 
@@ -186,7 +186,7 @@ export default function TeamEdit() {
             type="text"
             value={m.slug ?? ''}
             onChange={(e) => setM((s) => ({ ...s, slug: toSafeSlug(e.target.value) }))}
-            className="w-full p-2 border border-gray-200 dark:border-gray-600 rounded focus:ring-3 focus:ring-blue-200"
+            className="input-plain"
             placeholder="slug (np. jan-kowalski)"
             required
           />
@@ -210,16 +210,16 @@ export default function TeamEdit() {
         </div>
 
         <div className="space-y-2">
-          <div className="aspect-square rounded-xl border bg-gray-50 overflow-hidden flex items-center justify-center">
+          <div className="aspect-square rounded-xl border bg-surface-cool overflow-hidden flex items-center justify-center">
             {previewUrl ? (
               <img src={previewUrl} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="text-sm text-gray-500 p-4 text-center">Brak zdjęcia</div>
+              <div className="text-sm text-ink-muted p-4 text-center">Brak zdjęcia</div>
             )}
           </div>
 
           <label className="block">
-            <span className="text-sm text-gray-500">Zdjęcie (JPG/PNG)</span>
+            <span className="text-sm text-ink-muted">Zdjęcie (JPG/PNG)</span>
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp,image/gif"
@@ -235,12 +235,12 @@ export default function TeamEdit() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className={`px-3 py-2 rounded-xl text-white ${saving ? 'bg-gray-400' : 'bg-black'}`}
+          className="btn btn-primary"
         >
           {saving ? 'Zapisywanie…' : 'Zapisz'}
         </button>
         {!isNew && (
-          <button type="button" onClick={handleDelete} className="px-3 py-2 rounded-xl border hover:bg-red-50 hover:text-red-600 transition-colors">
+          <button type="button" onClick={handleDelete} className="btn btn-secondary text-danger">
             Usuń
           </button>
         )}

@@ -1,19 +1,21 @@
 import type { ServerResponse } from 'node:http';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { serviceClient, supabaseEnv } from './_lib/auth.js';
+import { requireCaptcha } from './_lib/captcha.js';
+import { OTP_COOLDOWN_MS, OTP_MAX_ATTEMPTS, OTP_TTL_MS } from './_lib/config.js';
 import { sendGraphMail } from './_lib/graph.js';
-import { clientIp, sendJson, sendPdf, shorten, type ApiRequest } from './_lib/http.js';
+import { bodyOf, clientIp, sendJson, sendPdf, shorten, type ApiRequest, type JsonObject } from './_lib/http.js';
+import { encryptPii } from './_lib/pii.js';
+import { rateLimited } from './_lib/rateLimit.js';
+import { logSecurityEvent } from './_lib/securityEvents.js';
 import { buildPackage, contentHash, templatesApproved, TEMPLATE_VERSION, type AgreementRow } from './_lib/agreements/documents.js';
 import { otpMail } from './_lib/agreements/emails.js';
 import { hashOtp, isTokenShape, newOtp, safeEqualHex, sha256Hex } from './_lib/agreements/security.js';
-import { downloadPdf, loadFoundation, logEvent, recipientOf, uploadPdf, type FullRow } from './_lib/agreements/store.js';
+import { downloadPdf, loadFoundation, logEvent, recipientOf, uploadPdf, withPlainPesel, type FullRow } from './_lib/agreements/store.js';
 import {
   decodeKrkFile, validateApplication, validateDeclarations, validateKrkDate, validateStatement,
 } from './_lib/agreements/validate.js';
 
-const OTP_TTL_MS = 10 * 60_000;
-const OTP_COOLDOWN_MS = 60_000;
-const OTP_MAX_ATTEMPTS = 5;
 const LINK_ERROR = 'Link jest nieprawidłowy lub wygasł. Poproś fundację o nowy.';
 
 const maskEmail = (email: string) => {
@@ -66,12 +68,12 @@ async function loadByToken(db: SupabaseClient, token: string): Promise<FullRow |
   const row = data as FullRow | null;
   if (!row || !row.token_expires_at || new Date(row.token_expires_at).getTime() < Date.now()) return null;
   if (!['approved', 'signed', 'completed'].includes(row.status)) return null;
-  return row;
+  return withPlainPesel(row);
 }
 
 // --- zgłoszenie ------------------------------------------------------------------------------------
 
-async function submit(db: SupabaseClient, body: any, res: ServerResponse) {
+async function submit(db: SupabaseClient, body: JsonObject, res: ServerResponse) {
   // Pole-pułapka: człowiek go nie widzi. Botowi udajemy sukces.
   if (typeof body.website === 'string' && body.website) return sendJson(res, 200, { ok: true });
 
@@ -82,7 +84,7 @@ async function submit(db: SupabaseClient, body: any, res: ServerResponse) {
   const id = crypto.randomUUID();
   const { error } = await db.from('agreements').insert({
     id, kind: a.kind, first_name: a.firstName, last_name: a.lastName, email: a.email, phone: a.phone,
-    pesel: a.pesel, birth_date: a.birthDate, is_minor: a.isMinor,
+    pesel: encryptPii(a.pesel), birth_date: a.birthDate, is_minor: a.isMinor,
     street: a.street, house_number: a.houseNumber, postal_code: a.postalCode, city: a.city, note: a.note,
     ...(a.guardian
       ? {
@@ -99,7 +101,7 @@ async function submit(db: SupabaseClient, body: any, res: ServerResponse) {
 
 // --- zgody, KRK ------------------------------------------------------------------------------------
 
-async function save(db: SupabaseClient, row: FullRow, body: any, res: ServerResponse) {
+async function save(db: SupabaseClient, row: FullRow, body: JsonObject, res: ServerResponse) {
   if (row.status !== 'approved') return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
 
   if (typeof body.marketingConsent !== 'boolean') return sendJson(res, 400, { error: 'Wskaż, czy wyrażasz zgodę na informowanie o działaniach fundacji (zgoda jest dobrowolna).' });
@@ -195,7 +197,7 @@ async function sendOtp(db: SupabaseClient, row: FullRow, res: ServerResponse) {
   return sendJson(res, 200, { ok: true });
 }
 
-async function sign(db: SupabaseClient, row: FullRow, body: any, req: ApiRequest, res: ServerResponse) {
+async function sign(db: SupabaseClient, row: FullRow, body: JsonObject, req: ApiRequest, res: ServerResponse) {
   if (row.status !== 'approved') return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
   if (!row.consents_saved_at) return sendJson(res, 409, { error: 'Najpierw zapisz zgody i oświadczenia.' });
   if (body.accept !== true) return sendJson(res, 400, { error: 'Potwierdź, że zapoznałeś/aś się z dokumentami i je podpisujesz.' });
@@ -206,15 +208,18 @@ async function sign(db: SupabaseClient, row: FullRow, body: any, req: ApiRequest
   if (!row.otp_hash || !row.otp_expires_at || new Date(row.otp_expires_at).getTime() < Date.now()) {
     return sendJson(res, 400, { error: 'Kod wygasł albo nie został zamówiony. Poproś o nowy kod.' });
   }
-  if (row.otp_attempts >= OTP_MAX_ATTEMPTS) {
+
+  // Próba jest zużywana atomowo PRZED porównaniem kodu: równoległe żądania nie przekroczą limitu.
+  const { data: attempt, error: attemptError } = await db.rpc('claim_otp_attempt', { p_id: row.id, p_max: OTP_MAX_ATTEMPTS });
+  if (attemptError) throw attemptError;
+  if (typeof attempt !== 'number') {
+    await logSecurityEvent(db, req, 'otp_exhausted', { agreementId: row.id });
     return sendJson(res, 429, { error: 'Zbyt wiele błędnych prób. Poproś o nowy kod.' });
   }
 
   if (!safeEqualHex(hashOtp(row.id, code), row.otp_hash)) {
-    await db.from('agreements').update({ otp_attempts: row.otp_attempts + 1 }).eq('id', row.id);
     await logEvent(db, row.id, 'osoba podpisująca', 'otp_failed');
-    const left = OTP_MAX_ATTEMPTS - row.otp_attempts - 1;
-    return sendJson(res, 400, { error: `Nieprawidłowy kod. Pozostało prób: ${Math.max(left, 0)}.` });
+    return sendJson(res, 400, { error: `Nieprawidłowy kod. Pozostało prób: ${Math.max(OTP_MAX_ATTEMPTS - attempt, 0)}.` });
   }
 
   if (row.minors_checks_required && (!row.krk_file_path || !row.consent_rspts)) {
@@ -257,18 +262,25 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
     return sendJson(res, 500, { error: 'Błąd konfiguracji serwera.' });
   }
   const db = serviceClient(env);
-  const body = req.body ?? {};
+  const body = bodyOf(req);
 
   try {
-    if (body.action === 'submit') return await submit(db, body, res);
+    if (body.action === 'submit') {
+      if (await rateLimited(req, res, 'agreementSubmit', db)) return;
+      if (!(await requireCaptcha(req, res, body.captchaToken, db))) return;
+      return await submit(db, body, res);
+    }
 
-    if (!['get', 'preview', 'save', 'otp', 'sign'].includes(body.action)) {
+    if (typeof body.action !== 'string' || !['get', 'preview', 'save', 'otp', 'sign'].includes(body.action)) {
       return sendJson(res, 400, { error: 'Nieprawidłowa akcja.' });
     }
-    if (!isTokenShape(body.token)) return sendJson(res, 404, { error: LINK_ERROR });
+    if (await rateLimited(req, res, body.action === 'otp' || body.action === 'sign' ? 'agreementSign' : 'agreementAccess', db)) return;
 
-    const row = await loadByToken(db, body.token);
-    if (!row) return sendJson(res, 404, { error: LINK_ERROR });
+    const row = isTokenShape(body.token) ? await loadByToken(db, body.token) : null;
+    if (!row) {
+      await logSecurityEvent(db, req, 'invalid_token', { action: body.action });
+      return sendJson(res, 404, { error: LINK_ERROR });
+    }
 
     switch (body.action) {
       case 'get':

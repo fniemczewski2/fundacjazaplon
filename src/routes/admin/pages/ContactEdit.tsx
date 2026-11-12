@@ -31,7 +31,7 @@ type InputFieldProps = { label: string; value: string; onChange: (v: string) => 
 function InputField({ label, value, onChange, type = 'text' }: Readonly<InputFieldProps>) {
   return (
     <label className="block">
-      <div className="text-sm text-text-black/70 mb-1">{label}</div>
+      <div className="text-sm text-ink-muted mb-1">{label}</div>
       <input
         type={type}
         className="border p-2 rounded w-full"
@@ -96,12 +96,12 @@ export default function ContactEdit() {
     <div className="p-6 space-y-4 max-w-3xl">
       <h1 className="text-2xl font-semibold">Kontakt</h1>
 
-      {err && <div className="text-sm text-brand dark:text-accent-orange">{err}</div>}
-      {ok && <div className="text-sm text-brand dark:text-accent-orange">{ok}</div>}
+      {err && <div className="text-sm text-danger">{err}</div>}
+      {ok && <div className="text-sm text-danger">{ok}</div>}
 
       <div className="grid gap-4">
         <label className="block">
-          <div className="text-sm text-text-black/70 mb-1">Adres</div>
+          <div className="text-sm text-ink-muted mb-1">Adres</div>
           <textarea
             className="border p-2 rounded w-full"
             rows={3}
@@ -124,7 +124,7 @@ export default function ContactEdit() {
         type="button"
         onClick={save}
         disabled={saving}
-        className={`px-3 py-2 rounded-xl text-white ${saving ? 'bg-gray-400' : 'bg-black'}`}
+        className="btn btn-primary"
       >
         {saving ? 'Zapisywanie…' : 'Zapisz'}
       </button>

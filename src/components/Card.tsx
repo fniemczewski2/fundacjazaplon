@@ -17,11 +17,7 @@ const TONE: Record<NonNullable<Props['tone']>, string> = {
   cool: 'panel-cool',
 };
 
-/**
- * Poprzednia wersja wymuszała `items-center`, przez co formularze i listy
- * wewnątrz kart zwężały się do szerokości najdłuższego wiersza. Teraz
- * wyśrodkowanie jest świadomym wyborem (`center`), a nie domyślnym.
- */
+/** Karta treści. Wyśrodkowanie zawartości włącza się jawnie (`center`), żeby formularze i listy zajmowały pełną szerokość. */
 export default function Card({
   children,
   className = '',

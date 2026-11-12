@@ -37,7 +37,7 @@ export default function Field({ label, error, hint, children }: Readonly<FieldPr
         </p>
       )}
       {error && (
-        <p id={errorId} className="field-error mt-1">
+        <p id={errorId} role="alert" className="field-error mt-1">
           {error}
         </p>
       )}

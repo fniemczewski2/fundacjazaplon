@@ -44,7 +44,8 @@ export default function Reveal({
 }: Readonly<Props>) {
   const reduced = usePrefersReducedMotion();
   const ref = React.useRef<HTMLElement | null>(null);
-  const [visible, setVisible] = React.useState(false);
+  // Starsze przeglądarki bez IntersectionObserver: pokaż od razu.
+  const [visible, setVisible] = React.useState(() => typeof IntersectionObserver === 'undefined');
 
   React.useEffect(() => {
     if (reduced) return;
@@ -52,11 +53,7 @@ export default function Reveal({
     const el = ref.current;
     if (!el) return;
 
-    // Starsze przeglądarki bez IntersectionObserver: pokaż od razu.
-    if (typeof IntersectionObserver === 'undefined') {
-      setVisible(true);
-      return;
-    }
+    if (typeof IntersectionObserver === 'undefined') return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {

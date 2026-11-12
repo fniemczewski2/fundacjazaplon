@@ -47,8 +47,7 @@ export default function IgnitionScale({ className = '' }: Readonly<{ className?:
             className="h-[3px] w-full origin-left rounded-full"
             style={{
               marginTop: '-1px',
-              background:
-                'linear-gradient(90deg, var(--color-ember) 0%, #ff8a3d 55%, var(--color-ember-ink) 100%)',
+              background: 'var(--color-ember)',
               animation: reduced
                 ? undefined
                 : 'ignite-line 2200ms var(--ease-out-soft) 250ms both',

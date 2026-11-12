@@ -1,7 +1,9 @@
 import type { ServerResponse } from 'node:http';
 import { authenticateAdmin } from './_lib/auth.js';
 import { escapeHtml as esc, sendGraphMail } from './_lib/graph.js';
-import { sendJson, shorten, type ApiRequest } from './_lib/http.js';
+import { NOTE_MAX, siteUrl } from './_lib/config.js';
+import { asString, bodyOf, sendJson, shorten, type ApiRequest } from './_lib/http.js';
+import { UUID_RE } from '../shared/validation.js';
 
 type Action = 'approve' | 'reject' | 'resend';
 type DecidedStatus = 'accepted' | 'rejected';
@@ -12,9 +14,6 @@ export type MailRow = {
   amount_grosze: number;
 };
 
-const SITE_URL = process.env.PUBLIC_SITE_URL || 'https://zaplon.org.pl';
-const NOTE_MAX = 1000;
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ACTIONS: readonly Action[] = ['approve', 'reject', 'resend'];
 
 const formatPln = (grosze: number) =>
@@ -24,16 +23,17 @@ const formatPln = (grosze: number) =>
 export function buildMail(row: MailRow, status: DecidedStatus, note: string | null) {
   const approved = status === 'accepted';
   const amount = formatPln(row.amount_grosze);
-  const subject = `Rozliczenie faktury - ${approved ? 'zatwierdzone' : 'odrzucone'}`;
+  const subject = `Rozliczenie faktury: ${approved ? 'zatwierdzone' : 'odrzucone'}`;
   const noteLabel = approved ? 'Uwagi' : 'Powód odrzucenia';
 
+  const site = siteUrl();
   const html = [
     '<p>Dzień dobry,</p>',
     `<p>${approved ? 'Twoje rozliczenie zostało <strong>zatwierdzone</strong>.' : 'Twoje rozliczenie zostało <strong>odrzucone</strong>.'}</p>`,
     `<p>Cel wydatku: ${esc(row.purpose)}<br>Kwota: ${esc(amount)}${note ? `<br>${noteLabel}: ${esc(note)}` : ''}</p>`,
     approved
       ? '<p>Zwrot zrealizujemy na rachunek wskazany w formularzu.</p>'
-      : `<p>Możesz złożyć nowe rozliczenie z poprawionymi danymi: <a href="${esc(SITE_URL)}/rozliczenia">${esc(SITE_URL)}/rozliczenia</a></p>`,
+      : `<p>Możesz złożyć nowe rozliczenie z poprawionymi danymi: <a href="${esc(site)}/rozliczenia">${esc(site)}/rozliczenia</a></p>`,
     '<p>Fundacja „Zapłon”</p>',
   ].join('\n');
 
@@ -59,12 +59,12 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
   const { db, adminEmail } = auth;
 
   // 2. Walidacja danych wejściowych.
-  const { id, action, note } = req.body ?? {};
+  const { id, action, note } = bodyOf(req);
   if (typeof id !== 'string' || !UUID_RE.test(id)) return sendJson(res, 400, { error: 'Nieprawidłowy identyfikator.' });
   if (typeof action !== 'string' || !ACTIONS.includes(action as Action)) {
     return sendJson(res, 400, { error: 'Nieprawidłowa akcja.' });
   }
-  const cleanNote = typeof note === 'string' ? note.trim() : '';
+  const cleanNote = asString(note, NOTE_MAX + 1);
   if (cleanNote.length > NOTE_MAX) return sendJson(res, 400, { error: `Notatka może mieć maksymalnie ${NOTE_MAX} znaków.` });
   if (action === 'reject' && cleanNote.length < 3) {
     return sendJson(res, 400, { error: 'Podaj powód odrzucenia (min. 3 znaki).' });

@@ -1,34 +1,16 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
-import { listPublishedPosts, type Post } from '../lib/post';
 import { FaArrowRight } from 'react-icons/fa6';
-import Loader from './Loader';
 import Reveal from './Reveal';
+import { SkeletonList } from './Skeleton';
+import { usePublishedPosts } from '../hooks/useAppData';
 
 const MAX_POSTS = 3;
 
 export default function RecentPosts() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      try {
-        const published = await listPublishedPosts();
-        if (alive) setPosts(published.slice(0, MAX_POSTS));
-      } catch {
-        // Sekcja jest opcjonalna - przy błędzie po prostu jej nie pokazujemy.
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const { data, isPending } = usePublishedPosts();
+  const loading = isPending;
+  // Sekcja jest opcjonalna: przy błędzie (data === undefined) po prostu jej nie pokazujemy.
+  const posts = (data ?? []).slice(0, MAX_POSTS);
 
   if (!loading && posts.length === 0) return null;
 
@@ -55,7 +37,9 @@ export default function RecentPosts() {
       </Reveal>
 
       {loading ? (
-        <Loader />
+        <div className="mt-10">
+          <SkeletonList count={MAX_POSTS} label="Wczytywanie aktualności" />
+        </div>
       ) : (
         <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post, i) => (

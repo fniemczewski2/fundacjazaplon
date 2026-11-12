@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { getLatestSingleton } from './singleton';
+import { logger } from './logger';
 
 export type AboutInfo = {
   id: string;
@@ -25,7 +26,10 @@ export async function getPillars(): Promise<Pillar[]> {
     .from('about_pillars')
     .select('*')
     .order('order_index', { ascending: true });
-  if (error) { console.warn('[getPillars] error:', error); return []; }
+  if (error) {
+    logger.warn('getPillars', error);
+    return [];
+  }
   return (data as Pillar[]) ?? [];
 }
 

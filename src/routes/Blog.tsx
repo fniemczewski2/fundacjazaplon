@@ -1,41 +1,25 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import Seo from '../components/Seo';
 import Page from '../components/Page';
-import Loader from '../components/Loader';
 import Reveal from '../components/Reveal';
-import { listPublishedPosts, type Post } from '../lib/post';
+import { SkeletonList } from '../components/Skeleton';
+import { usePublishedPosts } from '../hooks/useAppData';
 import { getErrorMessage } from '../lib/utils/errors';
 
 export default function Blog() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      try {
-        const data = await listPublishedPosts();
-        if (alive) setPosts(data);
-      } catch (e) {
-        if (alive) setErr(getErrorMessage(e, 'Nie udało się wczytać wpisów.'));
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const { data: posts = [], isPending, error } = usePublishedPosts();
+  const err = error ? getErrorMessage(error, 'Nie udało się wczytać wpisów.') : null;
+  const loading = isPending;
 
   return (
     <>
       <Seo
         title="Aktualności | Fundacja „Zapłon”"
         description="Najnowsze aktualności, wydarzenia i projekty Fundacji „Zapłon”. Bądź na bieżąco z naszymi działaniami społecznymi."
+        breadcrumbs={[
+          { name: 'Strona główna', path: '/' },
+          { name: 'Aktualności', path: '/aktualnosci' },
+        ]}
       />
 
       <Page
@@ -44,7 +28,7 @@ export default function Blog() {
         lead="Relacje z działań, zapowiedzi wydarzeń i to, co udało się dzięki wsparciu."
         illustration="megafon"
       >
-        {loading && <Loader />}
+        {loading && <SkeletonList count={6} label="Wczytywanie aktualności" />}
 
         {!loading && err && (
           <p role="alert" className="field-error">

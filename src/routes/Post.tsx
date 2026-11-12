@@ -1,52 +1,33 @@
-import { useEffect, useState } from 'react';
 import { useParams, Link } from 'wouter';
 import ReactMarkdown from 'react-markdown';
 import { FaArrowLeft } from 'react-icons/fa6';
 import Seo from '../components/Seo';
 import ArticleSchema from '../components/ArticleSchema';
-import Loader from '../components/Loader';
-import { getPostBySlug, type Post } from '../lib/post';
+import { SkeletonList } from '../components/Skeleton';
+import { usePost } from '../hooks/useAppData';
+import { SITE_URL } from '../lib/config';
 import { getErrorMessage } from '../lib/utils/errors';
 
 export default function Post() {
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
+  const { data: post, isPending, error } = usePost(slug);
 
-  useEffect(() => {
-    if (!slug) return;
-    let alive = true;
+  if (isPending) {
+    return (
+      <div className="container-prose py-12 md:py-16">
+        <SkeletonList variant="article" label="Wczytywanie wpisu" />
+      </div>
+    );
+  }
 
-    (async () => {
-      try {
-        setLoading(true);
-        setErr(null);
-
-        const data = await getPostBySlug(slug);
-        if (!alive) return;
-
-        if (!data) setErr('Nie znaleźliśmy tego wpisu.');
-        else setPost(data);
-      } catch (e) {
-        if (alive) setErr(getErrorMessage(e, 'Nie udało się wczytać wpisu.'));
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [slug]);
-
-  if (loading) return <Loader />;
-
-  if (err || !post) {
+  if (error || !post) {
     return (
       <div className="container-prose py-20 text-center">
+        <Seo title="Nie znaleziono wpisu | Fundacja „Zapłon”" noindex />
         <h1 className="section-title">Nie znaleźliśmy tego wpisu</h1>
-        <p className="lead mt-4">{err ?? 'Adres mógł się zmienić albo wpis został usunięty.'}</p>
+        <p className="lead mt-4">
+          {error ? getErrorMessage(error, 'Nie udało się wczytać wpisu.') : 'Adres mógł się zmienić albo wpis został usunięty.'}
+        </p>
         <Link to="/aktualnosci" className="btn btn-primary mt-8">
           <FaArrowLeft aria-hidden="true" />
           Wróć do aktualności
@@ -56,7 +37,7 @@ export default function Post() {
   }
 
   const { title, excerpt, body_md, cover_url, published_at } = post;
-  const url = globalThis.window === undefined ? undefined : globalThis.location.href;
+  const url = `${SITE_URL}/aktualnosci/${post.slug}`;
 
   return (
     <>
@@ -64,6 +45,12 @@ export default function Post() {
         title={`${title} | Fundacja „Zapłon”`}
         description={excerpt ?? 'Aktualność Fundacji „Zapłon”.'}
         image={cover_url ?? undefined}
+        type="article"
+        breadcrumbs={[
+          { name: 'Strona główna', path: '/' },
+          { name: 'Aktualności', path: '/aktualnosci' },
+          { name: title, path: `/aktualnosci/${post.slug}` },
+        ]}
       />
 
       <ArticleSchema
@@ -102,17 +89,12 @@ export default function Post() {
         {cover_url && (
           <img
             src={`${cover_url}?width=1200&quality=80`}
-            alt=""
-            aria-hidden="true"
+            alt={title}
             className="mt-8 aspect-video w-full rounded-2xl object-cover"
             loading="lazy"
           />
         )}
 
-        {/* Style Markdown pochodzą z klasy `.prose` zdefiniowanej w index.css.
-            Wcześniej każdy element miał tu własny zestaw klas z twardo
-            wpisanymi kolorami `text-gray-700`, które w ciemnym motywie
-            spadały poniżej progu kontrastu. */}
         <div className="prose mt-10 max-w-none">
           <ReactMarkdown>{body_md}</ReactMarkdown>
         </div>

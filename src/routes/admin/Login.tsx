@@ -1,7 +1,11 @@
 import { useState } from 'react';
-import { supabase } from '../../lib/supabase';
 import { useLocation } from 'wouter';
+import { supabase } from '../../lib/supabase';
 import { getErrorMessage } from '../../lib/utils/errors';
+import Field from '../../components/ui/Field';
+import AuthCard from './AuthCard';
+
+const INVALID_CREDENTIALS = 'Nieprawidłowy adres e-mail lub hasło.';
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
@@ -11,19 +15,15 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
 
   const [forgotMode, setForgotMode] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotMsg, setForgotMsg] = useState<string | null>(null);
-  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState<{ text: string; isError: boolean } | null>(null);
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const signIn = async () => {
     setErr(null);
     setLoading(true);
-
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        setErr(error.message);
+        setErr(error.status === 400 ? INVALID_CREDENTIALS : error.message);
         return;
       }
       setLocation('/admin');
@@ -34,141 +34,105 @@ export default function AdminLogin() {
     }
   };
 
-  const sendResetEmail = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const sendResetEmail = async () => {
     setForgotMsg(null);
-    setErr(null);
-    setForgotLoading(true);
-
+    setLoading(true);
     try {
-      if (!forgotEmail) {
-        setForgotMsg('Podaj email');
-        return;
-      }
-
-      const redirectTo = `${globalThis.location.origin}/reset-password`;
-
-      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-        redirectTo,
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${globalThis.location.origin}/reset-password`,
       });
-
-      if (error) {
-        setForgotMsg(error.message ?? 'Wystąpił błąd.');
-        return;
-      }
-
-      setForgotMsg('Jeżeli konto istnieje, email został wysłany.');
+      // Ta sama odpowiedź niezależnie od istnienia konta: nie ujawniamy, które adresy są zarejestrowane.
+      if (error) setForgotMsg({ text: error.message, isError: true });
+      else setForgotMsg({ text: 'Jeżeli konto istnieje, wysłaliśmy wiadomość z linkiem do zmiany hasła.', isError: false });
     } catch (error) {
-      setForgotMsg(getErrorMessage(error, 'Wystąpił błąd.'));
+      setForgotMsg({ text: getErrorMessage(error, 'Wystąpił błąd.'), isError: true });
     } finally {
-      setForgotLoading(false);
+      setLoading(false);
     }
   };
 
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    void (forgotMode ? sendResetEmail() : signIn());
+  };
+
   return (
-    <div className="min-h-screen grid place-items-center p-6 bg-gray-50">
-      <form onSubmit={forgotMode ? sendResetEmail : onSubmit} className="w-full max-w-sm space-y-4 bg-white p-6 rounded-2xl shadow">
-        <h1 className="text-2xl font-semibold">{forgotMode ? 'Reset password' : 'Admin Login'}</h1>
+    <AuthCard
+      title={forgotMode ? 'Reset hasła' : 'Logowanie'}
+      heading={forgotMode ? 'Reset hasła' : 'Logowanie do panelu'}
+      onSubmit={onSubmit}
+    >
+      <Field label="Adres e-mail">
+        {(a11y) => (
+          <input
+            {...a11y}
+            className="input-plain w-full"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        )}
+      </Field>
 
-        {forgotMode ? (
-          <>
-            <label className="block">
-              <span className="sr-only">Email</span>
+      {forgotMode ? (
+        <>
+          {forgotMsg && (
+            <p className={forgotMsg.isError ? 'field-error' : 'text-sm text-ink'} role={forgotMsg.isError ? 'alert' : 'status'}>
+              {forgotMsg.text}
+            </p>
+          )}
+
+          <div className="flex gap-2">
+            <button type="submit" className="btn btn-primary flex-1" disabled={loading}>
+              {loading ? 'Wysyłanie…' : 'Wyślij link'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => {
+                setForgotMode(false);
+                setForgotMsg(null);
+              }}
+            >
+              Powrót
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <Field label="Hasło" error={err ?? undefined}>
+            {(a11y) => (
               <input
-                className="w-full border p-2 rounded"
-                placeholder="Email"
-                type="email"
-                autoComplete="email"
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                required
-              />
-            </label>
-
-            {forgotMsg && (
-              <p className="text-sm text-gray-700" role="status" aria-live="polite">{forgotMsg}</p>
-            )}
-
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="flex-1 py-2 rounded-2xl bg-black text-white disabled:opacity-50"
-                disabled={forgotLoading}
-              >
-                {forgotLoading ? 'Sending…' : 'Send reset email'}
-              </button>
-
-              <button
-                type="button"
-                className="py-2 px-4 rounded-2xl border"
-                onClick={() => {
-                  setForgotMode(false);
-                  setForgotMsg(null);
-                }}
-              >
-                Powrót
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <label className="block">
-              <span className="sr-only">Email</span>
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </label>
-
-            <label className="block">
-              <span className="sr-only">Hasło</span>
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Password"
+                {...a11y}
+                className="input-plain w-full"
                 type="password"
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-            </label>
-
-            {err && (
-              <p className="text-brand dark:text-accent-orange text-sm" role="alert" aria-live="assertive">
-                {err}
-              </p>
             )}
+          </Field>
 
-            <div className="flex items-center justify-between">
-              <button
-                type="submit"
-                className="py-2 rounded-2xl bg-black text-white disabled:opacity-50 w-2/3"
-                disabled={loading}
-              >
-                {loading ? 'Signing in…' : 'Sign in'}
-              </button>
-
-              <button
-                type="button"
-                className="text-sm underline ml-2"
-                onClick={() => {
-                  setForgotMode(true);
-                  setForgotEmail(email || '');
-                }}
-              >
-                Nie pamiętasz hasła?
-              </button>
-            </div>
-          </>
-        )}
-      </form>
-
-      <div className="sr-only" aria-live="polite" />
-    </div>
+          <div className="flex items-center justify-between gap-3">
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Logowanie…' : 'Zaloguj'}
+            </button>
+            <button
+              type="button"
+              className="link-quiet text-sm underline"
+              onClick={() => {
+                setForgotMode(true);
+                setErr(null);
+              }}
+            >
+              Nie pamiętasz hasła?
+            </button>
+          </div>
+        </>
+      )}
+    </AuthCard>
   );
 }

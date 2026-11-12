@@ -1,7 +1,7 @@
 // src/routes/admin/Agreements.tsx
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
-import { FiCheck, FiCircle, FiCopy } from 'react-icons/fi';
+import { FiCheck, FiCircle } from 'react-icons/fi';
 import { FaArrowLeft, FaArrowUpRightFromSquare } from 'react-icons/fa6';
 import Loader from '../../components/Loader';
 import Modal from '../../components/Modal';
@@ -14,6 +14,9 @@ import {
   KIND_LABEL, adminAction, adminPreview, formatPln, getKrkUrl, listAgreements, listEvents, parseAmountToGrosze,
   type AdminAction, type AdminResult, type AgreementEvent, type AgreementRow, type AgreementStatus, type TermsInput,
 } from '../../lib/agreements';
+import CopyButton from '../../components/ui/CopyButton';
+import PeselReveal from '../../components/ui/PeselReveal';
+import { useAsyncData } from '../../hooks/useAsyncData';
 
 type Filter = AgreementStatus | 'all';
 const FILTERS: ReadonlyArray<{ key: Filter; label: string }> = [
@@ -57,20 +60,6 @@ const readReps = (): Reps => {
   try { return { ...empty, ...(JSON.parse(localStorage.getItem(REP_KEY) ?? '{}') as Partial<Reps>) }; } catch { return empty; }
 };
 
-function CopyButton({ value, label }: Readonly<{ value: string; label: string }>) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 2000); }
-    catch (e) { console.error('Nie udało się skopiować wartości', e); }
-  };
-  return (
-    <button type="button" onClick={copy} aria-label={copied ? `Skopiowano: ${label}` : `Skopiuj: ${label}`}
-      className="inline-flex size-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-surface-cool">
-      {copied ? <FiCheck aria-hidden="true" className="size-4 text-success" /> : <FiCopy aria-hidden="true" className="size-4" />}
-    </button>
-  );
-}
-
 function Step({ done, children }: Readonly<{ done: boolean; children: React.ReactNode }>) {
   return (
     <li className={`flex items-center gap-2 ${done ? '' : 'muted'}`}>
@@ -85,9 +74,6 @@ export default function AdminAgreements() {
   const toast = useToast();
   const confirm = useConfirm();
 
-  const [rows, setRows] = useState<AgreementRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('submitted');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [me, setMe] = useState('');
@@ -102,12 +88,7 @@ export default function AdminAgreements() {
   const [note, setNote] = useState('');
   const [terms, setTerms] = useState<TermsForm | null>(null);
 
-  const refresh = useCallback(async () => {
-    try { setLoading(true); setErr(null); setRows(await listAgreements()); }
-    catch (e) { setErr(getErrorMessage(e, 'Błąd pobierania danych.')); }
-    finally { setLoading(false); }
-  }, []);
-  useEffect(() => { refresh(); }, [refresh]);
+  const { data: rows, loading, error: err, reload: refresh } = useAsyncData(listAgreements, [] as AgreementRow[], 'Błąd pobierania danych.');
 
   const counts = useMemo(() => {
     const c: Record<Filter, number> = { submitted: 0, approved: 0, signed: 0, completed: 0, rejected: 0, all: rows.length };
@@ -265,9 +246,9 @@ export default function AdminAgreements() {
               return (
                 <button key={f.key} type="button" aria-pressed={active} onClick={() => setFilter(f.key)}
                   className={`inline-flex min-h-11 items-center gap-2 rounded-full border-2 px-3 text-sm font-semibold transition-colors sm:px-4 ${
-                    active ? 'border-brand bg-brand text-white' : 'border-line-strong text-ink hover:border-brand-ink hover:text-brand-ink'}`}>
+                    active ? 'border-brand bg-brand text-on-brand' : 'border-line-strong text-ink hover:border-brand-ink hover:text-brand-ink'}`}>
                   {f.label}
-                  <span className={`rounded-full px-2 py-0.5 text-xs tabular-nums ${active ? 'bg-white/20' : 'bg-surface-cool'}`}>{counts[f.key]}</span>
+                  <span className={`rounded-full px-2 py-0.5 text-xs tabular-nums ${active ? 'bg-on-brand/20' : 'bg-surface-cool'}`}>{counts[f.key]}</span>
                 </button>
               );
             })}
@@ -314,7 +295,7 @@ export default function AdminAgreements() {
                       <div>
                         <dt className={LABEL}>PESEL i adres</dt>
                         <dd className="mt-1 flex flex-wrap items-center gap-x-3 text-sm">
-                          <span className="inline-flex items-center gap-1 font-mono">{r.pesel}<CopyButton value={r.pesel} label={`PESEL, ${name}`} /></span>
+                          <PeselReveal agreementId={r.id} label={name} />
                           <span className="break-words">{r.street} {r.house_number}, {r.postal_code} {r.city}</span>
                         </dd>
                       </div>

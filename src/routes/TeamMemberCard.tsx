@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
 import Loader from '../components/Loader';
+import Seo from '../components/Seo';
 
 export default function WizytowkaRedirect() {
   const { slug } = useParams<{ slug?: string }>();
@@ -14,5 +15,10 @@ export default function WizytowkaRedirect() {
     }
   }, [slug, setLocation]);
 
-  return <Loader />;
+  return (
+    <>
+      <Seo title="Zespół" noindex />
+      <Loader />
+    </>
+  );
 }

@@ -22,17 +22,8 @@ const FOCUSABLE = [
 ].join(',');
 
 /**
- * Okno modalne spełniające wzorzec ARIA „dialog (modal)”.
- *
- * Poprzednie okna w projekcie (pobieranie materiałów, linki) były zwykłymi
- * `div`-ami: bez roli, bez zamykania Escape'em, bez pułapki fokusu i bez
- * powrotu fokusu do przycisku, który je otworzył. Osoba nawigująca
- * klawiaturą albo czytnikiem ekranu wypadała z okna po pierwszym Tabie
- * i trafiała w treść pod spodem.
- *
- * Tutaj: rola `dialog` + `aria-modal`, Escape zamyka, Tab krąży wewnątrz,
- * tło jest zablokowane przed przewijaniem, a po zamknięciu fokus wraca
- * dokładnie tam, skąd przyszedł.
+ * Okno modalne zgodne ze wzorcem ARIA „dialog (modal)”: rola `dialog` + `aria-modal`, Escape zamyka,
+ * Tab krąży wewnątrz okna, tło nie przewija się, a po zamknięciu fokus wraca na element, który okno otworzył.
  */
 export default function Modal({
   open,
@@ -45,6 +36,13 @@ export default function Modal({
   const panelRef = React.useRef<HTMLDivElement>(null);
   const returnFocusRef = React.useRef<HTMLElement | null>(null);
   const titleId = React.useId();
+
+  // `onClose` często jest funkcją tworzoną przy każdym renderze rodzica. Trzymamy ją w ref, żeby zmiana jej
+  // tożsamości nie uruchamiała efektu od nowa (kradzież fokusu przy każdym naciśnięciu klawisza w formularzu).
+  const onCloseRef = React.useRef(onClose);
+  React.useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -63,7 +61,7 @@ export default function Modal({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -98,7 +96,7 @@ export default function Modal({
       document.body.style.overflow = previousOverflow;
       returnFocusRef.current?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -109,7 +107,7 @@ export default function Modal({
       <div
         aria-hidden="true"
         onClick={onClose}
-        className="animate-fade-in absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="animate-fade-in absolute inset-0 bg-scrim"
       />
 
       <div

@@ -58,12 +58,8 @@ export default function PostEdit() {
     })();
   }, [id, isNew]);
 
-  useEffect(() => {
-    if (!isNew) return;
-    if (!m.slug && m.title) {
-      setM((s) => ({ ...s, slug: slugify(m.title) }));
-    }
-  }, [m.title, m.slug, isNew]);
+  // Przy nowym wpisie pusty slug jest podpowiadany z tytułu (bez efektu: wartość wyliczana w renderze).
+  const effectiveSlug = m.slug || (isNew ? slugify(m.title) : '');
 
   const previewUrl = useMemo(() => {
     if (file) return URL.createObjectURL(file);
@@ -81,7 +77,7 @@ export default function PostEdit() {
       showToast('Podaj tytuł.', 'error');
       return;
     }
-    if (!m.slug.trim()) {
+    if (!effectiveSlug.trim()) {
       showToast('Podaj slug.', 'error');
       return;
     }
@@ -91,6 +87,7 @@ export default function PostEdit() {
 
       const payload: PostCreate = {
         ...m,
+        slug: effectiveSlug,
         published_at: publish ? new Date().toISOString() : m.published_at,
       };
 
@@ -151,7 +148,7 @@ export default function PostEdit() {
       <input
         className="border p-2 rounded w-full"
         placeholder="Slug (bez /)"
-        value={m.slug}
+        value={effectiveSlug}
         onChange={(e) => setM((s) => ({ ...s, slug: e.target.value }))}
       />
 
@@ -173,19 +170,19 @@ export default function PostEdit() {
 
       <div className="grid md:grid-cols-3 gap-4 items-start">
         <div className="space-y-2">
-          <div className="text-sm text-text-black/70">Okładka</div>
-          <div className="aspect-video rounded-xl border bg-gray-50 overflow-hidden flex items-center justify-center">
+          <div className="text-sm text-ink-muted">Okładka</div>
+          <div className="aspect-video rounded-xl border bg-surface-cool overflow-hidden flex items-center justify-center">
             {previewUrl ? (
               <img src={previewUrl} alt="" className="w-full h-full object-cover" />
             ) : (
-              <div className="text-sm text-text-black/70 p-4 text-center">Brak okładki</div>
+              <div className="text-sm text-ink-muted p-4 text-center">Brak okładki</div>
             )}
           </div>
         </div>
 
         <div className="space-y-2 md:col-span-2">
           <label className="block">
-            <span className="text-sm text-text-black/70">Wgraj plik (JPG/PNG)</span>
+            <span className="text-sm text-ink-muted">Wgraj plik (JPG/PNG)</span>
             <input
               type="file"
               accept="image/*"
@@ -216,7 +213,7 @@ export default function PostEdit() {
           type="button"
           onClick={() => save(true)}
           disabled={saving}
-          className="px-3 py-2 rounded-xl bg-black text-white"
+          className="btn btn-primary"
         >
           {saving ? 'Zapisywanie…' : 'Opublikuj'}
         </button>

@@ -1,12 +1,15 @@
+import { EMAIL_RE, MAX_EMAIL_LENGTH, isValidPlIban, normalizeIban } from '../../../shared/validation.js';
+
 export type AgreementKind = 'volunteer' | 'mandate';
 
 export const MAX_KRK_BYTES = 2 * 1024 * 1024;
-const EMAIL_RE = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 type Result<T> = { data: T } | { error: string };
 const fail = (error: string) => ({ error });
 
+type Obj = Record<string, unknown>;
+const obj = (value: unknown): Obj => (value !== null && typeof value === 'object' ? (value as Obj) : {});
 const str = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 const isIsoDate = (value: string) => DATE_RE.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
 const lenIn = (value: string, min: number, max: number) => value.length >= min && value.length <= max;
@@ -54,22 +57,6 @@ export const minVolunteerAge = () => {
   return Number.isInteger(v) && v >= 0 && v < 18 ? v : 13;
 };
 
-// --- numer konta -----------------------------------------------------------------------------------
-
-export const normalizeIban = (value: string) => {
-  const s = value.replaceAll(/[\s-]/g, '').toUpperCase();
-  return /^\d{26}$/.test(s) ? `PL${s}` : s;
-};
-
-export function isValidPlIban(iban: string): boolean {
-  if (!/^PL\d{26}$/.test(iban)) return false;
-  const rearranged = iban.slice(4) + iban.slice(0, 4);
-  const digits = rearranged.replaceAll(/[A-Z]/g, (c) => String((c.codePointAt(0) ?? 0) - 55));
-  let rem = 0;
-  for (const ch of digits) rem = (rem * 10 + Number(ch)) % 97;
-  return rem === 1;
-}
-
 // --- zgłoszenie ------------------------------------------------------------------------------------
 
 export type Guardian = {
@@ -97,8 +84,9 @@ export type Application = {
   guardian: Guardian | null;
 };
 
-export function validateApplication(body: any, today = new Date()): Result<Application> {
-  const kind = body?.kind;
+export function validateApplication(input: unknown, today = new Date()): Result<Application> {
+  const body = obj(input);
+  const kind = body.kind;
   if (kind !== 'volunteer' && kind !== 'mandate') return fail('Wybierz rodzaj współpracy.');
 
   const firstName = str(body.firstName);
@@ -107,7 +95,7 @@ export function validateApplication(body: any, today = new Date()): Result<Appli
   if (!lenIn(lastName, 1, 100)) return fail('Podaj nazwisko (maks. 100 znaków).');
 
   const email = str(body.email).toLowerCase();
-  if (!EMAIL_RE.test(email) || email.length > 254) return fail('Podaj poprawny adres e-mail.');
+  if (!EMAIL_RE.test(email) || email.length > MAX_EMAIL_LENGTH) return fail('Podaj poprawny adres e-mail.');
 
   const phone = str(body.phone).replaceAll(/[^\d+ ]/g, '');
   if (phone && !lenIn(phone, 5, 30)) return fail('Podaj poprawny numer telefonu.');
@@ -124,13 +112,13 @@ export function validateApplication(body: any, today = new Date()): Result<Appli
     if (kind === 'mandate') return fail('Umowa zlecenie jest dostępna wyłącznie dla osób pełnoletnich.');
     if (age < minVolunteerAge()) return fail(`Wolontariuszem może być osoba, która ukończyła ${minVolunteerAge()} lat. W sprawie młodszej osoby napisz do fundacji.`);
 
-    const g = body.guardian ?? {};
+    const g = obj(body.guardian);
     const gFirst = str(g.firstName);
     const gLast = str(g.lastName);
     const gEmail = str(g.email).toLowerCase();
     const gPhone = str(g.phone).replaceAll(/[^\d+ ]/g, '');
     if (!lenIn(gFirst, 1, 100) || !lenIn(gLast, 1, 100)) return fail('Podaj imię i nazwisko rodzica lub opiekuna prawnego.');
-    if (!EMAIL_RE.test(gEmail) || gEmail.length > 254) return fail('Podaj poprawny adres e-mail rodzica lub opiekuna prawnego.');
+    if (!EMAIL_RE.test(gEmail) || gEmail.length > MAX_EMAIL_LENGTH) return fail('Podaj poprawny adres e-mail rodzica lub opiekuna prawnego.');
     if (!lenIn(gPhone, 5, 30)) return fail('Podaj numer telefonu rodzica lub opiekuna prawnego.');
     if (g.relation !== 'rodzic' && g.relation !== 'opiekun prawny') return fail('Wskaż, czy zgodę składa rodzic, czy opiekun prawny.');
     guardian = { firstName: gFirst, lastName: gLast, email: gEmail, phone: gPhone, relation: g.relation };
@@ -174,11 +162,12 @@ export type Terms = {
   healthInsuranceDays: number | null;
 };
 
-const intIn = (value: unknown, min: number, max: number) =>
+const intIn = (value: unknown, min: number, max: number): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max;
 
-export function validateTerms(kind: AgreementKind, isMinor: boolean, body: any): Result<Terms> {
-  const conclusionPlace = str(body?.conclusionPlace);
+export function validateTerms(kind: AgreementKind, isMinor: boolean, input: unknown): Result<Terms> {
+  const body = obj(input);
+  const conclusionPlace = str(body.conclusionPlace);
   if (!lenIn(conclusionPlace, 2, 100)) return fail('Podaj miejscowość zawarcia umowy.');
 
   const scope = str(body.scope);
@@ -210,7 +199,7 @@ export function validateTerms(kind: AgreementKind, isMinor: boolean, body: any):
     if (!intIn(body.costsDays, 1, 90)) return fail('Termin przedłożenia rachunku (§ 5 ust. 3): liczba dni od 1 do 90.');
     if (!intIn(body.healthInsuranceDays, 0, 90)) return fail('Termin zapewnienia ubezpieczenia zdrowotnego (§ 7): liczba dni od 0 do 90.');
     return {
-      data: { ...base, contractNumber: null, rateGrosze: null, costsDescription, costsDays: body.costsDays as number, healthInsuranceDays: body.healthInsuranceDays as number },
+      data: { ...base, contractNumber: null, rateGrosze: null, costsDescription, costsDays: body.costsDays, healthInsuranceDays: body.healthInsuranceDays },
     };
   }
 
@@ -223,7 +212,7 @@ export function validateTerms(kind: AgreementKind, isMinor: boolean, body: any):
   if (Number.isFinite(min) && min > 0 && body.rateGrosze < min) {
     return fail(`Stawka godzinowa jest niższa od ustawionego minimum (${(min / 100).toFixed(2).replace('.', ',')} zł).`);
   }
-  return { data: { ...base, contractNumber, rateGrosze: body.rateGrosze as number, costsDescription: null, costsDays: null, healthInsuranceDays: null } };
+  return { data: { ...base, contractNumber, rateGrosze: body.rateGrosze, costsDescription: null, costsDays: null, healthInsuranceDays: null } };
 }
 
 // --- zgody i oświadczenia użytkownika --------------------------------------------------------------
@@ -246,9 +235,18 @@ export type ContractorStatement = {
 
 const bool = (v: unknown): v is boolean => typeof v === 'boolean';
 
-export function validateStatement(body: any): Result<ContractorStatement> {
+/** Zwraca `value`, jeśli należy do `allowed`, w przeciwnym razie pusty ciąg. */
+const pick = <T extends string>(value: unknown, allowed: readonly T[]): T | '' => allowed.find((a) => a === value) ?? '';
+
+const FLAGS = [
+  'employed', 'leave', 'otherContract', 'otherTitle', 'pensioner', 'disability', 'student', 'unemployed', 'otherInsurance',
+  'voluntarySickness', 'voluntaryPension', 'pitExemption', 'taxResidency', 'authorCostsExceeded',
+] as const;
+
+export function validateStatement(input: unknown): Result<ContractorStatement> {
+  const body = obj(input);
   const text = (key: string, min: number, max: number, label: string): string | { error: string } => {
-    const v = str(body?.[key]);
+    const v = str(body[key]);
     return lenIn(v, min, max) ? v : { error: `${label}: ${min}-${max} znaków.` };
   };
   const textFields = {
@@ -258,12 +256,11 @@ export function validateStatement(body: any): Result<ContractorStatement> {
   for (const v of Object.values(textFields)) if (typeof v !== 'string') return fail(v.error);
   const t = textFields as Record<keyof typeof textFields, string>;
 
-  const iban = normalizeIban(str(body?.iban));
+  const iban = normalizeIban(str(body.iban));
   if (!isValidPlIban(iban)) return fail('Podaj poprawny polski numer konta (26 cyfr).');
 
-  const flags = ['employed', 'leave', 'otherContract', 'otherTitle', 'pensioner', 'disability', 'student', 'unemployed', 'otherInsurance',
-    'voluntarySickness', 'voluntaryPension', 'pitExemption', 'taxResidency', 'authorCostsExceeded'] as const;
-  for (const key of flags) if (!bool(body?.[key])) return fail('Odpowiedz na wszystkie punkty oświadczenia.');
+  for (const key of FLAGS) if (!bool(body[key])) return fail('Odpowiedz na wszystkie punkty oświadczenia.');
+  const f = body as Record<(typeof FLAGS)[number], boolean>;
 
   const period = (on: boolean, fromKey: string, toKey: string, label: string): Result<[string, string]> => {
     if (!on) return { data: ['', ''] };
@@ -273,24 +270,28 @@ export function validateStatement(body: any): Result<ContractorStatement> {
     return { data: [from, to] };
   };
 
-  const employed = period(body.employed, 'employedFrom', 'employedTo', 'Zatrudnienie (pkt 1)'); if ('error' in employed) return employed;
-  if (body.employed && body.employedSalary !== 'min' && body.employedSalary !== 'below') return fail('Zatrudnienie (pkt 1): wskaż wysokość wynagrodzenia.');
+  const employed = period(f.employed, 'employedFrom', 'employedTo', 'Zatrudnienie (pkt 1)'); if ('error' in employed) return employed;
+  const employedSalary = pick(body.employedSalary, ['min', 'below'] as const);
+  if (f.employed && !employedSalary) return fail('Zatrudnienie (pkt 1): wskaż wysokość wynagrodzenia.');
 
-  const leave = period(body.leave, 'leaveFrom', 'leaveTo', 'Urlop (pkt 2)'); if ('error' in leave) return leave;
-  if (body.leave && !['unpaid', 'parental', 'maternity'].includes(body.leaveType)) return fail('Urlop (pkt 2): wskaż rodzaj urlopu.');
+  const leave = period(f.leave, 'leaveFrom', 'leaveTo', 'Urlop (pkt 2)'); if ('error' in leave) return leave;
+  const leaveType = pick(body.leaveType, ['unpaid', 'parental', 'maternity'] as const);
+  if (f.leave && !leaveType) return fail('Urlop (pkt 2): wskaż rodzaj urlopu.');
 
-  const other = period(body.otherContract, 'otherContractFrom', 'otherContractTo', 'Inna umowa (pkt 3)'); if ('error' in other) return other;
-  if (body.otherContract && !bool(body.otherContractExceeds)) return fail('Inna umowa (pkt 3): wskaż, czy wynagrodzenie przekracza minimalne.');
+  const other = period(f.otherContract, 'otherContractFrom', 'otherContractTo', 'Inna umowa (pkt 3)'); if ('error' in other) return other;
+  const otherContractExceeds = bool(body.otherContractExceeds) ? body.otherContractExceeds : null;
+  if (f.otherContract && otherContractExceeds === null) return fail('Inna umowa (pkt 3): wskaż, czy wynagrodzenie przekracza minimalne.');
 
   const otherTitleText = str(body.otherTitleText);
-  if (body.otherTitle && !lenIn(otherTitleText, 2, 150)) return fail('Pkt 4: podaj tytuł do ubezpieczenia.');
+  if (f.otherTitle && !lenIn(otherTitleText, 2, 150)) return fail('Pkt 4: podaj tytuł do ubezpieczenia.');
   const pensionDecision = str(body.pensionDecision);
-  if (body.pensioner && !lenIn(pensionDecision, 2, 100)) return fail('Pkt 5: podaj numer decyzji ZUS i datę jej przyznania.');
+  if (f.pensioner && !lenIn(pensionDecision, 2, 100)) return fail('Pkt 5: podaj numer decyzji ZUS i datę jej przyznania.');
 
-  const disability = period(body.disability, 'disabilityFrom', 'disabilityTo', 'Niepełnosprawność (pkt 6)'); if ('error' in disability) return disability;
-  if (body.disability && !['lekki', 'umiarkowany', 'znaczny'].includes(body.disabilityDegree)) return fail('Pkt 6: wskaż stopień niepełnosprawności.');
+  const disability = period(f.disability, 'disabilityFrom', 'disabilityTo', 'Niepełnosprawność (pkt 6)'); if ('error' in disability) return disability;
+  const disabilityDegree = pick(body.disabilityDegree, ['lekki', 'umiarkowany', 'znaczny'] as const);
+  if (f.disability && !disabilityDegree) return fail('Pkt 6: wskaż stopień niepełnosprawności.');
 
-  const residency = period(body.taxResidency, 'taxResidencyFrom', 'taxResidencyTo', 'Certyfikat rezydencji (pkt 11)'); if ('error' in residency) return residency;
+  const residency = period(f.taxResidency, 'taxResidencyFrom', 'taxResidencyTo', 'Certyfikat rezydencji (pkt 11)'); if ('error' in residency) return residency;
 
   const authorCostsApplied = str(body.authorCostsApplied);
   if (!lenIn(authorCostsApplied, 1, 30)) return fail('Pkt 12: podaj kwotę dotychczas zastosowanych kosztów autorskich (np. 0,00).');
@@ -299,24 +300,24 @@ export function validateStatement(body: any): Result<ContractorStatement> {
   return {
     data: {
       ...t, iban,
-      employed: body.employed, employedFrom: employed.data[0], employedTo: employed.data[1], employedSalary: body.employed ? body.employedSalary : '',
-      leave: body.leave, leaveType: body.leave ? body.leaveType : '', leaveFrom: leave.data[0], leaveTo: leave.data[1],
-      otherContract: body.otherContract, otherContractFrom: other.data[0], otherContractTo: other.data[1], otherContractExceeds: body.otherContract ? body.otherContractExceeds : null,
-      otherTitle: body.otherTitle, otherTitleText: body.otherTitle ? otherTitleText : '',
-      pensioner: body.pensioner, pensionDecision: body.pensioner ? pensionDecision : '',
-      disability: body.disability, disabilityDegree: body.disability ? body.disabilityDegree : '', disabilityFrom: disability.data[0], disabilityTo: disability.data[1],
-      student: body.student, unemployed: body.unemployed, otherInsurance: body.otherInsurance,
-      voluntarySickness: body.voluntarySickness, voluntaryPension: body.voluntaryPension, pitExemption: body.pitExemption,
-      taxResidency: body.taxResidency, taxResidencyFrom: residency.data[0], taxResidencyTo: residency.data[1],
-      authorCostsExceeded: body.authorCostsExceeded, authorCostsApplied,
+      employed: f.employed, employedFrom: employed.data[0], employedTo: employed.data[1], employedSalary: f.employed ? employedSalary : '',
+      leave: f.leave, leaveType: f.leave ? leaveType : '', leaveFrom: leave.data[0], leaveTo: leave.data[1],
+      otherContract: f.otherContract, otherContractFrom: other.data[0], otherContractTo: other.data[1], otherContractExceeds: f.otherContract ? otherContractExceeds : null,
+      otherTitle: f.otherTitle, otherTitleText: f.otherTitle ? otherTitleText : '',
+      pensioner: f.pensioner, pensionDecision: f.pensioner ? pensionDecision : '',
+      disability: f.disability, disabilityDegree: f.disability ? disabilityDegree : '', disabilityFrom: disability.data[0], disabilityTo: disability.data[1],
+      student: f.student, unemployed: f.unemployed, otherInsurance: f.otherInsurance,
+      voluntarySickness: f.voluntarySickness, voluntaryPension: f.voluntaryPension, pitExemption: f.pitExemption,
+      taxResidency: f.taxResidency, taxResidencyFrom: residency.data[0], taxResidencyTo: residency.data[1],
+      authorCostsExceeded: f.authorCostsExceeded, authorCostsApplied,
     },
   };
 }
 
 /** Oświadczenia z „Zgody wolontariackiej”: wszystkie trzy są warunkiem udziału. */
-export function validateDeclarations(body: any): Result<{ participation: true; rules: true; health: true }> {
-  const d = body?.declarations;
-  if (d?.participation !== true || d?.rules !== true || d?.health !== true) {
+export function validateDeclarations(input: unknown): Result<{ participation: true; rules: true; health: true }> {
+  const d = obj(obj(input).declarations);
+  if (d.participation !== true || d.rules !== true || d.health !== true) {
     return fail('Zaznacz wszystkie oświadczenia: zgodę na udział, zapoznanie z regulaminem oraz brak przeciwwskazań zdrowotnych.');
   }
   return { data: { participation: true, rules: true, health: true } };

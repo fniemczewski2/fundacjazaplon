@@ -1,12 +1,19 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
 import Seo from '../components/Seo';
 import Page from '../components/Page';
 import PrivacyPolicyLink from '../components/PrivacyPolicyLink';
 import Field from '../components/ui/Field';
+import Turnstile from '../components/Turnstile';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
+import { useSettlementQueue } from '../hooks/useSettlementQueue';
+import { trackEvent } from '../lib/analytics';
+import { enqueueSettlement, queuedToInput, removeQueuedSettlement } from '../lib/settlementQueue';
+import { TURNSTILE_SITE_KEY } from '../lib/config';
 import { getErrorMessage } from '../lib/utils/errors';
 import {
   formatIban,
+  isOfflineError,
   looksLikePdf,
   submitSettlement,
   validateSettlement,
@@ -28,21 +35,17 @@ export default function Settlement() {
   const [trap, setTrap] = useState(''); // honeypot - człowiek go nie widzi
 
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'queued' | 'error'>('idle');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
+  const [sendingQueued, setSendingQueued] = useState(false);
+  const online = useOnlineStatus();
+  const queue = useSettlementQueue();
   const [serverError, setServerError] = useState('');
 
   const formRef = useRef<HTMLFormElement>(null);
   const kindLabelId = useId();
   const trapId = useId();
-
-  // Formularz wewnętrzny - nie ma być w wynikach wyszukiwania.
-  useEffect(() => {
-    const meta = document.createElement('meta');
-    meta.name = 'robots';
-    meta.content = 'noindex, nofollow';
-    document.head.appendChild(meta);
-    return () => meta.remove();
-  }, []);
 
   const focusFirstInvalid = () =>
     requestAnimationFrame(() =>
@@ -89,12 +92,56 @@ export default function Settlement() {
 
     setStatus('loading');
     setServerError('');
+
+    if (!online) {
+      await saveOffline(input);
+      return;
+    }
+
     try {
-      await submitSettlement(input);
+      await submitSettlement(input, captchaToken);
+      trackEvent('settlement_submit');
       setStatus('success');
     } catch (err) {
+      if (isOfflineError(err)) {
+        await saveOffline(input);
+        return;
+      }
       setStatus('error');
       setServerError(getErrorMessage(err, 'Nie udało się wysłać rozliczenia. Spróbuj ponownie.'));
+    } finally {
+      setCaptchaReset((n) => n + 1);
+    }
+  };
+
+  /** Bez sieci zapisujemy wypełniony formularz (z plikiem) w IndexedDB; wysyłka po powrocie połączenia. */
+  const saveOffline = async (input: Parameters<typeof enqueueSettlement>[0]) => {
+    try {
+      await enqueueSettlement(input);
+      await queue.refresh();
+      setStatus('queued');
+    } catch (err) {
+      setStatus('error');
+      setServerError(getErrorMessage(err, 'Brak połączenia z siecią i nie udało się zapisać formularza w przeglądarce.'));
+    }
+  };
+
+  /** Wysyła najstarsze rozliczenie z kolejki (każde wymaga osobnego potwierdzenia captcha). */
+  const sendQueued = async () => {
+    const [next] = queue.items;
+    if (!next || sendingQueued) return;
+    setSendingQueued(true);
+    setServerError('');
+    try {
+      await submitSettlement(queuedToInput(next), captchaToken);
+      await removeQueuedSettlement(next.id);
+      await queue.refresh();
+      trackEvent('settlement_submit');
+    } catch (err) {
+      setServerError(getErrorMessage(err, 'Nie udało się wysłać zapisanego rozliczenia.'));
+    } finally {
+      setSendingQueued(false);
+      setCaptchaReset((n) => n + 1);
     }
   };
 
@@ -103,6 +150,7 @@ export default function Settlement() {
       <Seo
         title="Rozliczenie faktury | Fundacja „Zapłon”"
         description="Formularz rozliczenia wydatku dla osób współpracujących z Fundacją „Zapłon”."
+        noindex
       />
 
       <Page
@@ -112,6 +160,33 @@ export default function Settlement() {
         illustration="koperta"
         width="prose"
       >
+        {queue.items.length > 0 && (
+          <section aria-label="Rozliczenia czekające na wysłanie" className="card mb-6 p-5 panel-warm">
+            <p className="font-medium">
+              Rozliczenia zapisane w przeglądarce, czekające na wysłanie: {queue.items.length}.
+            </p>
+            <p className="field-hint mt-1">
+              {online
+                ? 'Połączenie wróciło. Potwierdź, że nie jesteś robotem (poniżej w formularzu), i wyślij.'
+                : 'Wyślemy je, gdy wróci połączenie z siecią.'}
+            </p>
+            <button
+              type="button"
+              onClick={sendQueued}
+              disabled={!online || sendingQueued || (Boolean(TURNSTILE_SITE_KEY) && !captchaToken)}
+              className="btn btn-primary mt-4"
+            >
+              {sendingQueued ? 'Wysyłamy…' : 'Wyślij teraz'}
+            </button>
+          </section>
+        )}
+
+        {status === 'queued' && (
+          <output className="card mb-6 block p-5 panel-warm">
+            Brak połączenia. Rozliczenie zapisaliśmy w tej przeglądarce i możesz je wysłać, gdy wróci sieć.
+          </output>
+        )}
+
         {status === 'success' ? (
           <output className="card block p-6 text-center md:p-8">
             <p className="font-heading text-2xl font-semibold">Rozliczenie wysłane</p>
@@ -253,7 +328,7 @@ export default function Settlement() {
                       setErrors((s) => ({ ...s, invoice: undefined }));
                     }}
                     className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition-colors ${
-                      kind === opt.value ? 'bg-brand text-white' : 'text-ink hover:text-ember-ink'
+                      kind === opt.value ? 'bg-brand text-on-brand' : 'text-ink hover:text-ember-ink'
                     }`}
                   >
                     {opt.label}
@@ -273,7 +348,7 @@ export default function Settlement() {
                       type="file"
                       accept="application/pdf,.pdf"
                       onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                      className="input-text cursor-pointer file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-brand file:px-4 file:py-1.5 file:text-sm file:font-semibold file:text-white"
+                      className="input-text cursor-pointer file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-brand file:px-4 file:py-1.5 file:text-sm file:font-semibold file:text-on-brand"
                     />
                   )}
                 </Field>
@@ -310,6 +385,8 @@ export default function Settlement() {
                 onChange={(e) => setTrap(e.target.value)}
               />
             </div>
+
+            <Turnstile onToken={setCaptchaToken} resetKey={captchaReset} />
 
             {status === 'error' && (
               <p role="alert" className="field-error">

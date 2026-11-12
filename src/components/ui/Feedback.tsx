@@ -1,4 +1,6 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { FaXmark } from 'react-icons/fa6';
+import Modal from '../Modal';
 
 type ToastType = 'success' | 'error' | 'info';
 type ToastItem = { id: number; type: ToastType; text: string };
@@ -16,88 +18,105 @@ type FeedbackContextValue = {
 
 const FeedbackContext = createContext<FeedbackContextValue | null>(null);
 
+const TOAST_DURATION_MS = 6000;
+
 const TOAST_BG: Record<ToastType, string> = {
-  error: 'bg-red-600',
-  success: 'bg-emerald-600',
-  info: 'bg-brand',
+  error: 'bg-danger text-ink-inverse',
+  success: 'bg-success text-ink-inverse',
+  info: 'bg-brand text-on-brand',
 };
+
+/** Pojedynczy komunikat. Zegar zamknięcia staje, gdy wskaźnik albo fokus jest na komunikacie (WCAG 2.2.1). */
+function Toast({ item, onDismiss }: Readonly<{ item: ToastItem; onDismiss: (id: number) => void }>) {
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const timer = setTimeout(() => onDismiss(item.id), TOAST_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [paused, item.id, onDismiss]);
+
+  return (
+    <div
+      className={`flex items-start gap-3 rounded-xl px-4 py-3 text-sm font-medium ${TOAST_BG[item.type]}`}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <p className="min-w-0 flex-1">{item.text}</p>
+      <button
+        type="button"
+        onClick={() => onDismiss(item.id)}
+        className="-m-1 inline-flex size-8 shrink-0 items-center justify-center rounded-full hover:bg-ink-inverse/15"
+      >
+        <FaXmark aria-hidden="true" />
+        <span className="sr-only">Zamknij komunikat</span>
+      </button>
+    </div>
+  );
+}
 
 export function FeedbackProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
   const nextId = useRef(0);
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (confirmState) confirmButtonRef.current?.focus();
-  }, [confirmState]);
+  const pendingConfirm = useRef<ConfirmState | null>(null);
 
   const showToast = useCallback((text: string, type: ToastType = 'info') => {
     const id = nextId.current++;
     setToasts((prev) => [...prev, { id, type, text }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 5000);
+  }, []);
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const confirm = useCallback((message: string, options: ConfirmOptions = {}) => {
     return new Promise<boolean>((resolve) => {
-      setConfirmState({ message, resolve, ...options });
+      const next: ConfirmState = { message, resolve, ...options };
+      pendingConfirm.current = next;
+      setConfirmState(next);
     });
   }, []);
 
-  const resolveConfirm = (value: boolean) => {
-    confirmState?.resolve(value);
+  const resolveConfirm = useCallback((value: boolean) => {
+    pendingConfirm.current?.resolve(value);
+    pendingConfirm.current = null;
     setConfirmState(null);
-  };
+  }, []);
 
-  const contextValue = React.useMemo(() => ({ showToast, confirm }), [showToast, confirm]);
+  const closeConfirm = useCallback(() => resolveConfirm(false), [resolveConfirm]);
+
+  const contextValue = useMemo(() => ({ showToast, confirm }), [showToast, confirm]);
 
   return (
     <FeedbackContext.Provider value={contextValue}>
       {children}
 
-      <div
-        className="fixed bottom-4 right-4 z-[200] flex flex-col gap-2 max-w-sm w-[calc(100%-2rem)]"
+      {/* Jeden region live dla wszystkich komunikatów: czytnik zapowiada każdy nowy wpis dokładnie raz. */}
+      <section
+        aria-label="Powiadomienia"
         aria-live="polite"
+        aria-relevant="additions"
+        className="fixed right-4 bottom-4 z-[200] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2"
       >
-        {toasts.map((t) => {
-          const className = `rounded-xl px-4 py-3 shadow-lg text-sm font-medium text-white ${TOAST_BG[t.type]}`;
-          return t.type === 'error' ? (
-            <div key={t.id} role="alert" className={className}>
-              {t.text}
-            </div>
-          ) : (
-            <output key={t.id} className={`block ${className}`}>
-              {t.text}
-            </output>
-          );
-        })}
-      </div>
+        {toasts.map((t) => (
+          <Toast key={t.id} item={t} onDismiss={dismissToast} />
+        ))}
+      </section>
 
-      {confirmState && (
-        <div className="fixed inset-0 z-[300] bg-black/50 flex items-center justify-center p-4">
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="confirm-title"
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6"
-          >
-            <h2 id="confirm-title" className="text-lg font-semibold mb-2 text-text-black dark:text-white">
-              {confirmState.title ?? 'Potwierdź akcję'}
-            </h2>
-            <p className="text-sm text-text-black/80 dark:text-gray-300 mb-6">{confirmState.message}</p>
-            <div className="flex justify-end gap-2">
-              <button type="button" className="btn btn-secondary" onClick={() => resolveConfirm(false)}>
-                {confirmState.cancelLabel ?? 'Anuluj'}
-              </button>
-              <button type="button" className="btn btn-primary" onClick={() => resolveConfirm(true)} ref={confirmButtonRef}>
-                {confirmState.confirmLabel ?? 'Potwierdź'}
-              </button>
-            </div>
-          </div>
+      <Modal open={confirmState !== null} onClose={closeConfirm} title={confirmState?.title ?? 'Potwierdź akcję'}>
+        <p className="text-sm text-ink-muted">{confirmState?.message}</p>
+        <div className="mt-6 flex justify-end gap-2">
+          <button type="button" className="btn btn-secondary" onClick={() => resolveConfirm(false)}>
+            {confirmState?.cancelLabel ?? 'Anuluj'}
+          </button>
+          <button type="button" className="btn btn-primary" onClick={() => resolveConfirm(true)}>
+            {confirmState?.confirmLabel ?? 'Potwierdź'}
+          </button>
         </div>
-      )}
+      </Modal>
     </FeedbackContext.Provider>
   );
 }

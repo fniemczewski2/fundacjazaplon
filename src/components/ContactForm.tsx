@@ -1,90 +1,104 @@
-import { useEffect, useId, useState } from 'react';
+import { useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
+import Field from './ui/Field';
+import Turnstile from './Turnstile';
+import PrivacyPolicyLink from './PrivacyPolicyLink';
+import { postJson } from '../lib/api';
+import { getErrorMessage } from '../lib/utils/errors';
+
+type Status = 'idle' | 'loading' | 'success' | 'error';
 
 export default function ContactForm() {
-  const [sent, setSent] = useState(false);
-  const [origin, setOrigin] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [honeypot, setHoneypot] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
+  const [status, setStatus] = useState<Status>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const nameId = useId();
-  const emailId = useId();
-  const messageId = useId();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+    setErrorMessage('');
 
-  useEffect(() => {
-    setOrigin(globalThis.location.origin);
-    const params = new URLSearchParams(globalThis.location.search);
-    if (params.get('sent') === '1') setSent(true);
-  }, []);
+    try {
+      await postJson('/api/contact', { name, email, message, website: honeypot, captchaToken }, 'Nie udało się wysłać wiadomości. Spróbuj ponownie.');
+      setStatus('success');
+      setName('');
+      setEmail('');
+      setMessage('');
+    } catch (error) {
+      setStatus('error');
+      setErrorMessage(getErrorMessage(error));
+    } finally {
+      setCaptchaReset((n) => n + 1);
+    }
+  };
 
   return (
     <div className="card p-6 md:p-8">
       <h2 className="font-heading text-2xl font-semibold">Napisz do nas</h2>
       <p className="lead mt-2 text-base">Odpisujemy zwykle w ciągu kilku dni roboczych.</p>
 
-      {sent && (
+      {status === 'success' && (
         <output className="mt-5 block rounded-xl border p-4 text-sm panel-warm">
           Dziękujemy! Twoja wiadomość została wysłana.
         </output>
       )}
 
-      <form
-        action="https://formsubmit.co/biuro@zaplon.org.pl"
-        method="POST"
-        className="mt-6 space-y-5"
-      >
-        <input type="hidden" name="_captcha" value="true" />
-        <input type="hidden" name="_next" value={`${origin}/kontakt?sent=1`} />
-        <input type="hidden" name="_subject" value="Nowa wiadomość z formularza kontaktowego" />
-
+      <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label htmlFor={nameId} className="field-label">
-              Imię i nazwisko
-            </label>
-            <input
-              id={nameId}
-              name="name"
-              type="text"
-              required
-              autoComplete="name"
-              placeholder="Jan Kowalski"
-              className="input-text"
-            />
-          </div>
+          <Field label="Imię i nazwisko">
+            {(a11y) => (
+              <input {...a11y} type="text" required maxLength={200} autoComplete="name" placeholder="Jan Kowalski" value={name} onChange={(e) => setName(e.target.value)} className="input-text" />
+            )}
+          </Field>
 
-          <div>
-            <label htmlFor={emailId} className="field-label">
-              Adres e-mail
-            </label>
-            <input
-              id={emailId}
-              name="email"
-              type="email"
-              required
-              autoComplete="email"
-              placeholder="jan.kowalski@example.com"
-              className="input-text"
-            />
-          </div>
+          <Field label="Adres e-mail">
+            {(a11y) => (
+              <input {...a11y} type="email" required autoComplete="email" placeholder="jan.kowalski@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="input-text" />
+            )}
+          </Field>
         </div>
 
-        <div>
-          <label htmlFor={messageId} className="field-label">
-            Wiadomość
+        <Field label="Wiadomość">
+          {(a11y) => (
+            <textarea {...a11y} rows={6} required minLength={5} maxLength={5000} placeholder="W czym możemy pomóc?" value={message} onChange={(e) => setMessage(e.target.value)} className="input-textarea" />
+          )}
+        </Field>
+
+        {/* Pole-pułapka dla botów: ukryte przed osobami i czytnikami ekranu. */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+          <label>
+            Nie wypełniaj tego pola
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
           </label>
-          <textarea
-            id={messageId}
-            name="message"
-            rows={6}
-            required
-            placeholder="W czym możemy pomóc?"
-            className="input-textarea"
-          />
         </div>
 
-        <button type="submit" className="btn btn-primary">
-          Wyślij wiadomość
-          <FaPaperPlane aria-hidden="true" />
+        <Turnstile onToken={setCaptchaToken} resetKey={captchaReset} />
+
+        {status === 'error' && (
+          <p role="alert" className="field-error">
+            {errorMessage}
+          </p>
+        )}
+
+        <button type="submit" disabled={status === 'loading'} className="btn btn-primary">
+          {status === 'loading' ? (
+            'Wysyłamy…'
+          ) : (
+            <>
+              Wyślij wiadomość
+              <FaPaperPlane aria-hidden="true" />
+            </>
+          )}
         </button>
+
+        <p className="field-hint">
+          Wysyłając wiadomość, akceptujesz zasady z <PrivacyPolicyLink black />.
+        </p>
       </form>
     </div>
   );

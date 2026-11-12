@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { logger } from './logger';
 
 export async function getLatestSingleton<T>(table: string): Promise<T | null> {
   const { data, error } = await supabase
@@ -9,7 +10,7 @@ export async function getLatestSingleton<T>(table: string): Promise<T | null> {
     .maybeSingle();
 
   if (error) {
-    console.warn(`[getLatestSingleton:${table}] error:`, error);
+    logger.warn(`getLatestSingleton:${table}`, error);
     return null;
   }
   return (data as T) ?? null;

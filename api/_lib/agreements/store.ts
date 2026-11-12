@@ -1,11 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { decryptPii } from '../pii.js';
 import { foundationFromContact, type AgreementRow, type Foundation } from './documents.js';
 
 export const BUCKET = 'agreements';
-export const SITE_URL = () => (process.env.PUBLIC_SITE_URL || 'https://zaplon.org.pl').replace(/\/+$/, '');
-export const DAY_MS = 86_400_000;
-
-export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export type AgreementStatus = 'submitted' | 'approved' | 'rejected' | 'signed' | 'completed';
 
 export async function logEvent(
   db: SupabaseClient, agreementId: string, actor: string, event: string, details?: Record<string, unknown>,
@@ -36,7 +34,27 @@ export async function removeFile(db: SupabaseClient, path: string) {
   if (error) throw error;
 }
 
-export type FullRow = AgreementRow & Record<string, any>;
+/** Wiersz tabeli `agreements` w całości. Kolumna `pesel` jest po odczycie z bazy zaszyfrowana, patrz `withPlainPesel`. */
+export type FullRow = AgreementRow & {
+  status: AgreementStatus;
+  guardian_email: string | null;
+  rep_email: string | null;
+  rep2_email: string | null;
+  token_expires_at: string | null;
+  otp_hash: string | null;
+  otp_expires_at: string | null;
+  otp_attempts: number;
+  otp_sent_at: string | null;
+  consents_saved_at: string | null;
+  krk_file_path: string | null;
+  krk_verified_at: string | null;
+  rspts_verified_at: string | null;
+  signed_file_path: string | null;
+  content_sha256: string | null;
+};
+
+/** Zwraca kopię wiersza z odszyfrowanym numerem PESEL (do dokumentów PDF i podglądu administratora). */
+export const withPlainPesel = (row: FullRow): FullRow => ({ ...row, pesel: decryptPii(row.pesel) });
 
 /** Wiadomości (zaproszenie, kod, dokumenty) idą do osoby, która podpisuje: dla małoletniego to rodzic / opiekun prawny. */
 export const recipientOf = (row: FullRow): string => (row.is_minor ? String(row.guardian_email) : row.email);

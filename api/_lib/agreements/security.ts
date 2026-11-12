@@ -26,3 +26,26 @@ export function safeEqualHex(a: string, b: string): boolean {
   const right = Buffer.from(b, 'hex');
   return left.length === right.length && timingSafeEqual(left, right);
 }
+
+/** Skrót adresu IP do kluczy limitów i dziennika zdarzeń: surowy adres nie trafia do bazy. */
+export const hashIp = (ip: string) => createHmac('sha256', otpKey()).update(`ip:${ip}`).digest('hex').slice(0, 32);
+
+// Bilet wydawany po weryfikacji captcha i honorowany przy zapisie rozliczenia (id.rodzaj.wygaśnięcie.podpis).
+const ticketMac = (payload: string) => createHmac('sha256', otpKey()).update(`ticket:${payload}`).digest('base64url');
+
+export function newTicket(id: string, kind: string, ttlMs: number): string {
+  const payload = `${id}.${kind}.${Date.now() + ttlMs}`;
+  return `${payload}.${ticketMac(payload)}`;
+}
+
+export function readTicket(ticket: unknown): { id: string; kind: string } | null {
+  if (typeof ticket !== 'string') return null;
+  const parts = ticket.split('.');
+  if (parts.length !== 4) return null;
+  const [id = '', kind = '', exp = '', mac = ''] = parts;
+  const expected = Buffer.from(ticketMac(`${id}.${kind}.${exp}`));
+  const given = Buffer.from(mac);
+  if (expected.length !== given.length || !timingSafeEqual(expected, given)) return null;
+  if (!(Number(exp) > Date.now())) return null;
+  return { id, kind };
+}

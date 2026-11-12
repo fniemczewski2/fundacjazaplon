@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /rozliczenia
 Disallow: /umowa
+Disallow: /reset-password
+Disallow: /api/
 
 Sitemap: https://zaplon.org.pl/sitemap.xml

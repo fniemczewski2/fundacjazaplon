@@ -2,6 +2,8 @@
 import type { FileObject } from '@supabase/storage-js';
 import { supabase } from './supabase';
 import { toSafeFileName } from './utils/text';
+import { ALLOWED_DOCUMENT_TYPES, DOCUMENTS_BUCKET, MAX_DOCUMENT_SIZE_MB } from './config';
+import { logger } from './logger';
 
 export type DocCategory =
   | 'statut'
@@ -28,13 +30,16 @@ export type DocumentFile = {
 
 export async function listDocuments(prefix: DocCategory): Promise<DocumentFile[]> {
   const { data, error } = await supabase.storage
-    .from('documents')
+    .from(DOCUMENTS_BUCKET)
     .list(prefix, { limit: 1000, sortBy: { column: 'name', order: 'asc' } });
-  if (error || !data) return [];
+  if (error || !data) {
+    if (error) logger.warn('listDocuments', error.message);
+    return [];
+  }
 
   return data.map((f: FileObject) => {
     const path = `${prefix}/${f.name}`;
-    const { data: pub } = supabase.storage.from('documents').getPublicUrl(path);
+    const { data: pub } = supabase.storage.from(DOCUMENTS_BUCKET).getPublicUrl(path);
     return {
       name: f.name,
       path,
@@ -46,15 +51,6 @@ export async function listDocuments(prefix: DocCategory): Promise<DocumentFile[]
     };
   });
 }
-
-export const ALLOWED_DOCUMENT_TYPES = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.oasis.opendocument.text',
-  'text/plain',
-] as const;
-export const MAX_DOCUMENT_SIZE_MB = 20;
 
 export class DocumentValidationError extends Error {}
 
@@ -72,7 +68,7 @@ export async function uploadDocument(prefix: DocCategory, file: File): Promise<s
   const safeName = toSafeFileName(file.name);
   const path = `${prefix}/${safeName}`;
 
-  const { error } = await supabase.storage.from('documents').upload(path, file, {
+  const { error } = await supabase.storage.from(DOCUMENTS_BUCKET).upload(path, file, {
     upsert: true,
     contentType: file.type || 'application/octet-stream',
     cacheControl: '3600',
@@ -82,6 +78,6 @@ export async function uploadDocument(prefix: DocCategory, file: File): Promise<s
 }
 
 export async function deleteDocument(path: string): Promise<void> {
-  const { error } = await supabase.storage.from('documents').remove([path]);
+  const { error } = await supabase.storage.from(DOCUMENTS_BUCKET).remove([path]);
   if (error) throw error;
 }

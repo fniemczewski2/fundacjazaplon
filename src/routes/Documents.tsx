@@ -1,43 +1,12 @@
-import { useEffect, useState } from 'react';
 import { FaDownload } from 'react-icons/fa6';
 import Seo from '../components/Seo';
 import Page from '../components/Page';
-import Loader from '../components/Loader';
 import Reveal from '../components/Reveal';
-import { ALL_CATEGORIES, type DocCategory, listDocuments } from '../lib/documents';
-
-type Group = {
-  key: DocCategory;
-  label: string;
-  items: Array<{ name: string; url: string }>;
-};
+import { SkeletonList } from '../components/Skeleton';
+import { useDocumentGroups } from '../hooks/useAppData';
 
 export default function Documents() {
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      const res = await Promise.all(
-        ALL_CATEGORIES.map(async (c) => ({
-          key: c.key,
-          label: c.label,
-          items: (await listDocuments(c.key)).map((i) => ({ name: i.name, url: i.url })),
-        })),
-      );
-
-      if (!alive) return;
-      setGroups(res);
-      setLoading(false);
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
-
+  const { data: groups = [], isPending: loading, error } = useDocumentGroups();
   const nonEmpty = groups.filter((g) => g.items.length > 0);
 
   return (
@@ -50,13 +19,19 @@ export default function Documents() {
       <Page
         eyebrow="Jawność"
         title="Dokumenty"
-        lead="Statut, uchwały i sprawozdania. Wszystko, czego można od nas oczekiwać - w jednym miejscu."
+        lead="Statut, uchwały i sprawozdania. Wszystko, czego można od nas oczekiwać, w jednym miejscu."
         illustration="fabryka"
         width="prose"
       >
-        {loading && <Loader />}
+        {loading && <SkeletonList count={3} variant="row" label="Wczytywanie dokumentów" />}
 
-        {!loading && nonEmpty.length === 0 && (
+        {!loading && error && (
+          <p role="alert" className="field-error">
+            Nie udało się wczytać dokumentów.
+          </p>
+        )}
+
+        {!loading && !error && nonEmpty.length === 0 && (
           <p className="muted">Nie opublikowaliśmy jeszcze żadnych dokumentów.</p>
         )}
 
@@ -72,9 +47,9 @@ export default function Documents() {
                   {g.items.map((item) => (
                     <li
                       key={item.url}
-                      className="flex flex-nowrap items-center justify-end gap-3 py-3"
+                      className="flex flex-nowrap items-center justify-between gap-3 py-3"
                     >
-
+                      <span className="min-w-0 break-words">{item.name}</span>
                       <a
                         href={item.url}
                         target="_blank"
@@ -83,7 +58,7 @@ export default function Documents() {
                       >
                         Pobierz
                         <FaDownload aria-hidden="true" />
-                        <span className="sr-only">: (item.name)</span>
+                        <span className="sr-only">: {item.name}</span>
                       </a>
                     </li>
                   ))}

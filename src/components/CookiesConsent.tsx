@@ -1,76 +1,48 @@
-// src/components/CookiesConsent.tsx
-import { useState, useEffect } from 'react';
-import PrivacyPolicyLink from './PrivacyPolicyLink';
+import { useEffect, useState } from 'react';
+import { Link } from 'wouter';
+import { applyConsent, readConsent, setConsent } from '../lib/analytics';
+import { CONSENT_REOPEN_EVENT } from '../lib/config';
 
-type ConsentValue = 'accepted' | 'rejected';
-
-function updateAnalyticsConsent(granted: boolean) {
-  if (typeof globalThis.gtag === 'function') {
-    globalThis.gtag('consent', 'update', {
-      analytics_storage: granted ? 'granted' : 'denied',
-    });
-  }
-}
-
-const CookieConsent = () => {
-  const [isVisible, setIsVisible] = useState(false);
+/** Baner zgody na analitykę. Do czasu wyboru (i po odmowie) żadne dane nie trafiają do Google. */
+export default function CookieConsent() {
+  const [isVisible, setIsVisible] = useState(() => readConsent() === null);
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookieConsent') as ConsentValue | null;
-    if (!consent) {
-      setIsVisible(true);
-    } else {
-      // Niezależnie od wcześniejszego wyboru, odtwarzamy go po każdym wejściu -
-      // domyślny stan z index.html to zawsze "denied", więc bez tego kroku
-      // wcześniej zaakceptowana zgoda "gubiłaby się" przy każdym odświeżeniu.
-      updateAnalyticsConsent(consent === 'accepted');
-    }
+    applyConsent(readConsent());
+
+    const reopen = () => setIsVisible(true);
+    window.addEventListener(CONSENT_REOPEN_EVENT, reopen);
+    return () => window.removeEventListener(CONSENT_REOPEN_EVENT, reopen);
   }, []);
 
-  const handleAccept = () => {
-    localStorage.setItem('cookieConsent', 'accepted' satisfies ConsentValue);
+  const choose = (value: 'accepted' | 'rejected') => {
+    setConsent(value);
     setIsVisible(false);
-    updateAnalyticsConsent(true);
-  };
-
-  const handleReject = () => {
-    localStorage.setItem('cookieConsent', 'rejected' satisfies ConsentValue);
-    setIsVisible(false);
-    // Wcześniej odrzucenie zgody tylko chowało baner, nic nie cofając - GA
-    // i tak już zaczynał śledzić dzięki bezwarunkowemu gtag.js. Teraz jawnie
-    // potwierdzamy odmowę w Consent Mode (choć domyślny stan i tak jest "denied").
-    updateAnalyticsConsent(false);
   };
 
   if (!isVisible) return null;
 
   return (
-    // Etykieta na <section> sprawia, że baner jest wykrywalny jako osobny
-    // obszar strony. Wcześniej był anonimowym `div`-em na końcu DOM.
     <section
       aria-label="Zgoda na pliki cookie"
-      className="fixed bottom-0 left-0 z-[9999] flex w-full flex-col items-center justify-between gap-4 border-t bg-surface-raised px-6 py-4 font-sans text-ink shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.35)] md:flex-row"
+      className="fixed bottom-0 left-0 z-[9999] flex w-full flex-col items-center justify-between gap-4 border-t-2 border-line bg-surface-raised px-6 py-4 font-sans text-ink md:flex-row"
     >
-      <div className="max-w-3xl text-center text-sm md:text-left">
-        <p className="m-0 leading-relaxed">
-          <strong>Szanujemy Twoją prywatność.</strong> Nasza strona używa plików
-          cookie (ciasteczek) w celach statystycznych (Google Analytics) oraz do
-          prawidłowego działania serwisu. Zgodnie z polskim prawem i RODO, prosimy
-          o Twoją zgodę. Możesz zarządzać swoimi preferencjami lub dowiedzieć się
-          więcej w naszej{' '}
-          <PrivacyPolicyLink black />.
-        </p>
-      </div>
-      <div className="flex gap-3 shrink-0">
-        <button type="button" onClick={handleAccept} className="btn btn-primary inline-flex">
+      <p className="m-0 max-w-3xl text-center text-sm leading-relaxed md:text-left">
+        <strong>Szanujemy Twoją prywatność.</strong> Używamy plików cookie do statystyk (Google Analytics), ale
+        tylko za Twoją zgodą. Wybór możesz zmienić w każdej chwili w stopce strony. Szczegóły:{' '}
+        <Link href="/polityka-prywatnosci" className="link-accent">
+          Polityka prywatności
+        </Link>
+        .
+      </p>
+      <div className="flex shrink-0 gap-3">
+        <button type="button" onClick={() => choose('accepted')} className="btn btn-primary inline-flex">
           Akceptuję
         </button>
-        <button type="button" onClick={handleReject} className="btn btn-secondary inline-flex">
+        <button type="button" onClick={() => choose('rejected')} className="btn btn-secondary inline-flex">
           Odrzucam
         </button>
       </div>
     </section>
   );
-};
-
-export default CookieConsent;
+}

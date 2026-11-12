@@ -42,7 +42,7 @@ export default function ThemeSwitcher() {
       aria-pressed={isDark}
       aria-label="Tryb ciemny"
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className="btn btn-ghost px-3 text-xl text-white"
+      className="btn btn-ghost px-3 text-xl text-on-brand"
     >
       {isDark ? <FaSun aria-hidden="true" /> : <FaMoon aria-hidden="true" />}
     </button>

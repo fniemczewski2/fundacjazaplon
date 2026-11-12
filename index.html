@@ -1,39 +1,14 @@
 <!doctype html>
 <html lang="pl" data-theme="light">
   <head>
-    <!-- Motyw ustawiany PRZED pierwszym malowaniem strony, żeby uniknąć błysku złego motywu (FOUC) -->
-    <script>
-      (function () {
-        try {
-          var saved = localStorage.getItem('theme');
-          var theme = saved || (globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-          document.documentElement.dataset.theme = theme;
-          if (theme === 'dark') document.documentElement.classList.add('dark');
-        } catch {}
-      })();
-    </script>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R3X89NGC74"></script>
-    <script>
-      globalThis.dataLayer = globalThis.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('consent', 'default', {
-        analytics_storage: 'denied',
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-      });
-      gtag('js', new Date());
-      gtag('config', 'G-R3X89NGC74', { send_page_view: false });
-    </script>
-
     <meta charset="UTF-8" />
+    <script src="/theme-init.js"></script>
     <meta name="theme-color" content="#194770" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0e1a26" media="(prefers-color-scheme: dark)" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Podstawowe SEO -->
-    <title>Fundacja „Zapłon” – wspieramy aktywność społeczną</title>
+    <title>Fundacja „Zapłon”: wspieramy aktywność społeczną</title>
     <meta
       name="description"
       content="Fundacja „Zapłon” wspiera aktywność społeczną, buduje kapitał społeczny i zaufanie do organizacji pozarządowych. Dołącz do naszych działań."
@@ -44,14 +19,18 @@
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Fundacja „Zapłon” – wspieramy aktywność społeczną" />
+    <meta property="og:title" content="Fundacja „Zapłon”: wspieramy aktywność społeczną" />
     <meta property="og:description" content="Dołącz do naszych działań. Wspieramy aktywność społeczną i organizacje pozarządowe." />
     <meta property="og:image" content="https://zaplon.org.pl/images/hero.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Fundacja „Zapłon”" />
+    <meta property="og:locale" content="pl_PL" />
     <meta property="og:url" content="https://zaplon.org.pl/" />
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Fundacja „Zapłon” – wspieramy aktywność społeczną" />
+    <meta name="twitter:title" content="Fundacja „Zapłon”: wspieramy aktywność społeczną" />
     <meta name="twitter:description" content="Wspieramy aktywność społeczną i organizacje pozarządowe." />
     <meta name="twitter:image" content="https://zaplon.org.pl/images/hero.jpg" />
 
@@ -89,11 +68,23 @@
         ]
       }
     </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Fundacja „Zapłon”",
+        "url": "https://zaplon.org.pl/",
+        "inLanguage": "pl-PL",
+        "publisher": { "@type": "NGO", "name": "Fundacja Zapłon" }
+      }
+    </script>
     <link rel="preload" href="/fonts/Signika.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/WorkSans.woff2" as="font" type="font/woff2" crossorigin />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!-- Ikony -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
   </head>
 

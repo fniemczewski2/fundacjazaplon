@@ -1,7 +1,6 @@
 // src/routes/admin/Settlements.tsx
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
-import { FiCheck, FiCopy } from 'react-icons/fi';
 import { FaArrowLeft, FaArrowUpRightFromSquare } from 'react-icons/fa6';
 import Loader from '../../components/Loader';
 import Modal from '../../components/Modal';
@@ -17,6 +16,8 @@ import {
   type SettlementRow,
   type SettlementStatus,
 } from '../../lib/settlementsAdmin';
+import CopyButton from '../../components/ui/CopyButton';
+import { useAsyncData } from '../../hooks/useAsyncData';
 
 type Filter = 'new' | 'accepted' | 'rejected' | 'all';
 
@@ -46,41 +47,9 @@ const LABEL = 'muted text-xs tracking-wide uppercase';
 
 type Dialog = { row: SettlementRow; action: 'approve' | 'reject' };
 
-function CopyButton({ value, label }: Readonly<{ value: string; label: string }>) {
-  const [copied, setCopied] = useState(false);
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
-      console.error('Nie udało się skopiować wartości', e);
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={copy}
-      className="inline-flex size-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-surface-cool"
-      aria-label={copied ? `Skopiowano: ${label}` : `Skopiuj: ${label}`}
-    >
-      {copied ? (
-        <FiCheck aria-hidden="true" className="size-4 text-success" />
-      ) : (
-        <FiCopy aria-hidden="true" className="size-4" />
-      )}
-    </button>
-  );
-}
-
 export default function AdminSettlements() {
   const toast = useToast();
 
-  const [rows, setRows] = useState<SettlementRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('new');
 
   const [dialog, setDialog] = useState<Dialog | null>(null);
@@ -90,21 +59,7 @@ export default function AdminSettlements() {
   const busyRef = useRef(false);
   const [resendingId, setResendingId] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true);
-      setErr(null);
-      setRows(await listSettlements());
-    } catch (e) {
-      setErr(getErrorMessage(e, 'Błąd pobierania danych.'));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const { data: rows, loading, error: err, reload: refresh } = useAsyncData(listSettlements, [] as SettlementRow[], 'Błąd pobierania danych.');
 
   const counts = useMemo(
     () => ({
@@ -234,14 +189,14 @@ export default function AdminSettlements() {
                   onClick={() => setFilter(f.key)}
                   className={`inline-flex min-h-11 items-center gap-2 rounded-full border-2 px-3 text-sm sm:px-4 font-semibold transition-colors ${
                     active
-                      ? 'border-brand bg-brand text-white'
+                      ? 'border-brand bg-brand text-on-brand'
                       : 'border-line-strong text-ink hover:border-brand-ink hover:text-brand-ink'
                   }`}
                 >
                   {f.label}
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs tabular-nums ${
-                      active ? 'bg-white/20' : 'bg-surface-cool'
+                      active ? 'bg-on-brand/20' : 'bg-surface-cool'
                     }`}
                   >
                     {counts[f.key]}

@@ -7,7 +7,7 @@ const shell = (body: string) => `${body}\n<p>Fundacja „Zapłon”</p>`;
 
 export function invitationMail(link: string, expiresAt: Date, needsKrk: boolean, minorName?: string) {
   return {
-    subject: 'Dokumenty do podpisania - Fundacja „Zapłon”',
+    subject: 'Dokumenty do podpisania | Fundacja „Zapłon”',
     html: shell(
       [
         '<p>Dzień dobry,</p>',
@@ -25,7 +25,7 @@ export function invitationMail(link: string, expiresAt: Date, needsKrk: boolean,
 
 export function otpMail(code: string) {
   return {
-    subject: 'Kod do podpisania dokumentów - Fundacja „Zapłon”',
+    subject: 'Kod do podpisania dokumentów | Fundacja „Zapłon”',
     html: shell(
       [
         '<p>Dzień dobry,</p>',
@@ -38,7 +38,7 @@ export function otpMail(code: string) {
 
 export function completedMail(link: string, expiresAt: Date) {
   return {
-    subject: 'Dokumenty podpisane - Fundacja „Zapłon”',
+    subject: 'Dokumenty podpisane | Fundacja „Zapłon”',
     html: shell(
       [
         '<p>Dzień dobry,</p>',
@@ -52,7 +52,7 @@ export function completedMail(link: string, expiresAt: Date) {
 
 export function rejectedMail(note: string | null) {
   return {
-    subject: 'Twoje zgłoszenie - Fundacja „Zapłon”',
+    subject: 'Twoje zgłoszenie | Fundacja „Zapłon”',
     html: shell(
       [
         '<p>Dzień dobry,</p>',

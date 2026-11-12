@@ -2,20 +2,19 @@ import type { ServerResponse } from 'node:http';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { authenticateAdmin } from './_lib/auth.js';
 import { sendGraphMail } from './_lib/graph.js';
-import { sendJson, sendPdf, shorten, type ApiRequest } from './_lib/http.js';
+import { FINAL_LINK_DAYS, INVITE_DAYS, DAY_MS, NOTE_MAX, siteUrl } from './_lib/config.js';
+import { asString, bodyOf, sendJson, sendPdf, shorten, type ApiRequest, type JsonObject } from './_lib/http.js';
 import { buildPackage, contentHash, templatesApproved, type AgreementRow } from './_lib/agreements/documents.js';
 import { completedMail, invitationMail, rejectedMail } from './_lib/agreements/emails.js';
 import { newToken, sha256Hex } from './_lib/agreements/security.js';
 import {
-  DAY_MS, downloadPdf, loadFoundation, logEvent, recipientOf, removeFile, SITE_URL, UUID_RE, uploadPdf, type FullRow,
+  downloadPdf, loadFoundation, logEvent, recipientOf, removeFile, uploadPdf, withPlainPesel, type FullRow,
 } from './_lib/agreements/store.js';
+import { UUID_RE } from '../shared/validation.js';
 import { validateTerms } from './_lib/agreements/validate.js';
 
-const ACTIONS = ['approve', 'reject', 'resend-link', 'verify-krk', 'verify-rspts', 'delete-krk', 'cosign', 'preview'] as const;
+const ACTIONS = ['approve', 'reject', 'resend-link', 'verify-krk', 'verify-rspts', 'delete-krk', 'cosign', 'preview', 'reveal-pesel'] as const;
 type Action = (typeof ACTIONS)[number];
-
-const INVITE_DAYS = 14;
-const FINAL_LINK_DAYS = 30;
 
 type Mail = { subject: string; html: string };
 
@@ -39,10 +38,10 @@ async function issueToken(db: SupabaseClient, id: string, days: number) {
   const expiresAt = new Date(Date.now() + days * DAY_MS);
   const { error } = await db.from('agreements').update({ token_hash: hash, token_expires_at: expiresAt.toISOString() }).eq('id', id);
   if (error) throw error;
-  return { link: `${SITE_URL()}/umowa/${token}`, expiresAt };
+  return { link: `${siteUrl()}/umowa/${token}`, expiresAt };
 }
 
-async function approve(db: SupabaseClient, row: FullRow, body: any, adminEmail: string, res: ServerResponse) {
+async function approve(db: SupabaseClient, row: FullRow, body: JsonObject, adminEmail: string, res: ServerResponse) {
   if (row.status !== 'submitted') return sendJson(res, 409, { error: `Zgłoszenie ma już status: ${row.status}.` });
 
   const terms = validateTerms(row.kind, row.is_minor, body.terms);
@@ -69,17 +68,17 @@ async function approve(db: SupabaseClient, row: FullRow, body: any, adminEmail: 
 
   await logEvent(db, row.id, adminEmail, 'approved', { minorsChecksRequired: t.minorsChecksRequired, minor: row.is_minor });
 
-  const link = `${SITE_URL()}/umowa/${token}`;
+  const link = `${siteUrl()}/umowa/${token}`;
   const minorName = row.is_minor ? `${row.first_name} ${row.last_name}` : undefined;
   const result = await notify(db, row, invitationMail(link, expiresAt, t.minorsChecksRequired, minorName), link);
   return sendJson(res, 200, { ok: true, ...result });
 }
 
-async function reject(db: SupabaseClient, row: FullRow, body: any, adminEmail: string, res: ServerResponse) {
+async function reject(db: SupabaseClient, row: FullRow, body: JsonObject, adminEmail: string, res: ServerResponse) {
   if (!['submitted', 'approved'].includes(row.status)) return sendJson(res, 409, { error: `Zgłoszenie ma już status: ${row.status}.` });
 
-  const note = typeof body.note === 'string' ? body.note.trim() : '';
-  if (note.length > 1000) return sendJson(res, 400, { error: 'Notatka może mieć maksymalnie 1000 znaków.' });
+  const note = asString(body.note, NOTE_MAX + 1);
+  if (note.length > NOTE_MAX) return sendJson(res, 400, { error: `Notatka może mieć maksymalnie ${NOTE_MAX} znaków.` });
 
   const now = new Date().toISOString();
   const { data, error } = await db
@@ -157,7 +156,7 @@ async function cosign(db: SupabaseClient, row: FullRow, adminEmail: string, res:
   if (!slot) {
     return sendJson(res, 403, { error: 'Twoje konto nie jest przypisane do żadnej z osób reprezentujących fundację w tej umowie.' });
   }
-  if (row[`cosign${slot}_at`]) return sendJson(res, 409, { error: 'Podpisałeś/aś już te dokumenty. Czekamy na drugą osobę.' });
+  if (slot === 1 ? row.cosign1_at : row.cosign2_at) return sendJson(res, 409, { error: 'Podpisałeś/aś już te dokumenty. Czekamy na drugą osobę.' });
 
   const foundation = await loadFoundation(db);
   // Treść nie mogła się zmienić po podpisie wnioskodawcy - skrót zapisany przy jego podpisie musi się zgadzać.
@@ -177,14 +176,14 @@ async function cosign(db: SupabaseClient, row: FullRow, adminEmail: string, res:
   // Podpisały obie osoby? Ten, kto zapisał drugi podpis, kończy proces (atomowo - tylko jeden wygra).
   const { data: fresh, error: freshError } = await db.from('agreements').select('*').eq('id', row.id).maybeSingle();
   if (freshError) throw freshError;
-  const current = fresh as FullRow;
+  const current = withPlainPesel(fresh as FullRow);
   if (!current.cosign1_at || !current.cosign2_at) {
     const other = slot === 1 ? current.rep2_name : current.rep_name;
     return sendJson(res, 200, { ok: true, completed: false, waitingFor: other });
   }
 
   const completedAt = [current.cosign1_at, current.cosign2_at].sort().at(-1) as string;
-  const pdf = await buildPackage({ ...current, countersigned_at: completedAt } as AgreementRow, foundation, current.content_sha256);
+  const pdf = await buildPackage({ ...current, countersigned_at: completedAt } as AgreementRow, foundation, current.content_sha256 ?? contentHash(current, foundation));
   const path = `final/${row.id}.pdf`;
   await uploadPdf(db, path, pdf);
 
@@ -202,8 +201,13 @@ async function cosign(db: SupabaseClient, row: FullRow, adminEmail: string, res:
 
   await logEvent(db, row.id, adminEmail, 'completed', { templatesApproved: templatesApproved() });
 
-  const link = `${SITE_URL()}/umowa/${token}`;
+  const link = `${siteUrl()}/umowa/${token}`;
   return sendJson(res, 200, { ok: true, completed: true, ...(await notify(db, current, completedMail(link, expiresAt), link)) });
+}
+
+async function revealPesel(row: FullRow, db: SupabaseClient, adminEmail: string, res: ServerResponse) {
+  await logEvent(db, row.id, adminEmail, 'pesel_revealed');
+  return sendJson(res, 200, { ok: true, pesel: row.pesel });
 }
 
 async function preview(db: SupabaseClient, row: FullRow, res: ServerResponse) {
@@ -223,7 +227,7 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
   if (!auth) return;
   const { db, adminEmail } = auth;
 
-  const body = req.body ?? {};
+  const body = bodyOf(req);
   if (typeof body.id !== 'string' || !UUID_RE.test(body.id)) return sendJson(res, 400, { error: 'Nieprawidłowy identyfikator.' });
   if (typeof body.action !== 'string' || !ACTIONS.includes(body.action as Action)) return sendJson(res, 400, { error: 'Nieprawidłowa akcja.' });
 
@@ -231,7 +235,7 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
     const { data, error } = await db.from('agreements').select('*').eq('id', body.id).maybeSingle();
     if (error) throw error;
     if (!data) return sendJson(res, 404, { error: 'Nie znaleziono zgłoszenia.' });
-    const row = data as FullRow;
+    const row = withPlainPesel(data as FullRow);
 
     switch (body.action as Action) {
       case 'approve': return await approve(db, row, body, adminEmail, res);
@@ -241,6 +245,7 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
       case 'verify-rspts': return await setVerification(db, row, 'rspts', adminEmail, res);
       case 'delete-krk': return await deleteKrk(db, row, adminEmail, res);
       case 'cosign': return await cosign(db, row, adminEmail, res);
+      case 'reveal-pesel': return await revealPesel(row, db, adminEmail, res);
       default: return await preview(db, row, res);
     }
   } catch (err) {

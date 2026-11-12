@@ -1,9 +1,8 @@
 // src/routes/admin/posts/PostsList.tsx
-import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { listPosts, type Post } from '../../../lib/post';
-import { getErrorMessage } from '../../../lib/utils/errors';
 import Loader from '../../../components/Loader';
+import { useAsyncData } from '../../../hooks/useAsyncData';
 
 type PostStatus = 'draft' | 'scheduled' | 'published';
 
@@ -13,26 +12,7 @@ function getPostStatus(publishedAt: number | null, now: number): PostStatus {
 }
 
 export default function PostsList() {
-  const [rows, setRows] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
-
-  const refresh = async () => {
-    try {
-      setLoading(true);
-      setErr(null);
-      const data = await listPosts();
-      setRows(data);
-    } catch (e) {
-      setErr(getErrorMessage(e, 'Błąd pobierania danych.'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
+  const { data: rows, loading, error: err, reload: refresh } = useAsyncData(listPosts, [] as Post[], 'Błąd pobierania danych.');
 
   return (
     <div className="p-6">
@@ -40,7 +20,7 @@ export default function PostsList() {
         <h1 className="text-2xl font-semibold">Aktualności</h1>
         <div className="flex gap-2">
           <button type="button" onClick={refresh} className="px-3 py-2 rounded-xl border">Odśwież</button>
-          <Link to="/admin/aktualnosci/new" className="px-3 py-2 rounded-xl bg-black text-white">
+          <Link to="/admin/aktualnosci/new" className="btn btn-primary">
             Nowy wpis
           </Link>
         </div>
@@ -52,8 +32,8 @@ export default function PostsList() {
 
   function renderPosts() {
     if (loading) return <Loader />;
-    if (err) return <div className="text-sm text-brand dark:text-accent-orange">{err}</div>;
-    if (rows.length === 0) return <div className="text-sm text-text-black/70">Brak wpisów.</div>;
+    if (err) return <div className="text-sm text-danger">{err}</div>;
+    if (rows.length === 0) return <div className="text-sm text-ink-muted">Brak wpisów.</div>;
 
     return (
         <ul className="space-y-2">
@@ -63,25 +43,25 @@ export default function PostsList() {
             const status = getPostStatus(publishedAt, now);
             const statusLabel = { draft: 'szkic', scheduled: 'zaplanowany', published: 'opublikowany' }[status];
             const statusClass = {
-              draft: 'bg-base-100 text-text-black/70',
-              scheduled: 'bg-amber-100 text-amber-700',
-              published: 'bg-green-100 text-green-600',
+              draft: 'bg-surface-cool text-ink-muted',
+              scheduled: 'bg-warning/15 text-warning',
+              published: 'bg-success/15 text-success',
             }[status];
             const updated = r.updated_at ? new Date(r.updated_at).toLocaleString() : '';
             return (
               <li key={r.id} className="p-3 border rounded-xl flex items-center justify-between">
                 <div className="min-w-0">
                   <div className="font-medium truncate">{r.title}</div>
-                  <div className="text-sm text-text-black/70 truncate">
+                  <div className="text-sm text-ink-muted truncate">
                     <span className={`inline-flex items-center gap-2`}>
                       <span className={`px-2 py-0.5 rounded-full text-xs ${statusClass}`}>
                         {statusLabel}
                       </span>
-                      <span className="text-text-black/70">•</span>
+                      <span className="text-ink-muted">•</span>
                       <span>/aktualnosci/{r.slug}</span>
                       {updated && (
                         <>
-                          <span className="text-text-black/70">•</span>
+                          <span className="text-ink-muted">•</span>
                           <span>zmieniono: {updated}</span>
                         </>
                       )}

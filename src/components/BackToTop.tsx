@@ -32,9 +32,8 @@ export default function BackToTop() {
       }}
       className={[
         'fixed right-4 bottom-4 z-40 inline-flex size-12 items-center justify-center',
-        'rounded-full border bg-surface-raised text-ink shadow-lg transition-all duration-300',
-        'hover:-translate-y-1',
-        visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0',
+        'rounded-full border bg-surface-raised text-ink transition-opacity duration-300',
+        visible ? 'opacity-100' : 'pointer-events-none opacity-0',
       ].join(' ')}
     >
       <FaArrowUp aria-hidden="true" />

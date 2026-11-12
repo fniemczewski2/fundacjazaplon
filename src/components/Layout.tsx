@@ -3,19 +3,10 @@ import Footer from './Footer';
 import BackToTop from './BackToTop';
 
 /**
- * Rama wszystkich stron publicznych.
- *
- * Dwie zmiany względem poprzedniej wersji, obie z powodów dostępności:
- *
- * • Jest tu dokładnie jeden landmark `<main>`. Wcześniej Layout renderował
- *   `<main>`, a widoki Home i Team dokładały własny - zagnieżdżone landmarki
- *   mylą nawigację czytników ekranu.
- * • Na starcie stoi „Przejdź do treści”. Bez niego osoba korzystająca
- *   z klawiatury musi przetabować całe menu na każdej podstronie.
- *
- * `<main>` nie ma już własnego kontenera ani paddingu - dzięki temu strona
- * główna może puścić sekcje na pełną szerokość. Podstrony opakowują treść
- * w komponent `<Page>`.
+ * Rama wszystkich stron publicznych. Ma jeden landmark `<main>` (widoki nie dokładają własnego)
+ * oraz link „Przejdź do treści” na początku, żeby osoby korzystające z klawiatury nie przechodziły przez całe menu.
+ * `<main>` nie ma kontenera ani paddingu, dzięki czemu strona główna może puszczać sekcje na pełną szerokość;
+ * podstrony opakowują treść w komponent `<Page>`.
  */
 export default function Layout({ children }: Readonly<{ children?: React.ReactNode }>) {
   return (

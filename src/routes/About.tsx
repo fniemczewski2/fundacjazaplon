@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import Seo from '../components/Seo';
 import Page from '../components/Page';
 import Card from '../components/Card';
-import Loader from '../components/Loader';
 import Reveal from '../components/Reveal';
-import { getAbout, getPillars, type AboutInfo, type Pillar } from '../lib/about';
+import { Skeleton } from '../components/Skeleton';
+import { useAbout } from '../hooks/useAppData';
 
 /** Rozpoznaje zapis „(wkrótce)” używany w `about_pillars.body_md`. */
 function isComingSoon(body: string | null): boolean {
@@ -13,25 +12,9 @@ function isComingSoon(body: string | null): boolean {
 }
 
 export default function About() {
-  const [about, setAbout] = useState<AboutInfo | null>(null);
-  const [pillars, setPillars] = useState<Pillar[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      const [a, p] = await Promise.all([getAbout(), getPillars()]);
-      if (!alive) return;
-      setAbout(a);
-      setPillars(p);
-      setLoading(false);
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const { data, isPending: loading } = useAbout();
+  const about = data?.about ?? null;
+  const pillars = data?.pillars ?? [];
 
   const descriptionBlocks = about?.description_md
     ? about.description_md
@@ -53,7 +36,14 @@ export default function About() {
         lead="Skąd się wzięliśmy, dla kogo działamy i na czym opiera się nasza praca."
         illustration="ognisko"
       >
-        {loading && <Loader />}
+        {loading && (
+          <output className="mx-auto block max-w-3xl space-y-3" aria-label="Wczytywanie treści">
+            <Skeleton className="h-6 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-11/12" />
+            <Skeleton className="h-4 w-4/5" />
+          </output>
+        )}
 
         {!loading && descriptionBlocks.length > 0 && (
           <Reveal>

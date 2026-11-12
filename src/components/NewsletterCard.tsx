@@ -1,17 +1,20 @@
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa6';
 import PrivacyPolicyLink from './PrivacyPolicyLink';
 import Illustration from './Illustration';
+import Field from './ui/Field';
+import Turnstile from './Turnstile';
+import { postJson } from '../lib/api';
+import { trackEvent } from '../lib/analytics';
 import { getErrorMessage } from '../lib/utils/errors';
 
 export default function NewsletterCard() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-
-  const nameId = useId();
-  const emailId = useId();
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,27 +22,16 @@ export default function NewsletterCard() {
     setErrorMessage('');
 
     try {
-      const res = await fetch('/api/subscribe-newsletter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email }),
-      });
-
-      // Endpoint bywa odpowiada pustym ciałem przy błędzie - parsujemy
-      // dopiero po sprawdzeniu nagłówka, żeby nie wywrócić się na JSON.parse.
-      const contentType = res.headers.get('content-type') ?? '';
-      const data = contentType.includes('application/json') ? await res.json() : null;
-
-      if (!res.ok) {
-        throw new Error(data?.error || `Serwer odpowiedział błędem (${res.status}).`);
-      }
-
+      await postJson('/api/subscribe-newsletter', { name, email, captchaToken }, 'Nie udało się zapisać na newsletter. Spróbuj ponownie.');
+      trackEvent('newsletter_signup');
       setStatus('success');
       setName('');
       setEmail('');
     } catch (error) {
       setStatus('error');
       setErrorMessage(getErrorMessage(error));
+    } finally {
+      setCaptchaReset((n) => n + 1);
     }
   };
 
@@ -61,40 +53,26 @@ export default function NewsletterCard() {
 
         {status === 'success' ? (
           <output className="mt-8 block rounded-2xl border p-5 font-medium panel-warm">
-            Dziękujemy! Sprawdź skrzynkę - wysłaliśmy wiadomość potwierdzającą.
+            Dziękujemy! Sprawdź skrzynkę, wysłaliśmy wiadomość potwierdzającą.
           </output>
         ) : (
           <form onSubmit={handleSubscribe} className="mt-8 space-y-4 text-left">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor={nameId} className="field-label">
-                  Imię
-                </label>
-                <input
-                  id={nameId}
-                  type="text"
-                  required
-                  autoComplete="given-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="input-text"
-                />
-              </div>
+              <Field label="Imię">
+                {(a11y) => (
+                  <input {...a11y} type="text" required autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} className="input-text" />
+                )}
+              </Field>
 
-              <div>
-                <label htmlFor={emailId} className="field-label">
-                  Adres e-mail
-                </label>
-                <input
-                  id={emailId}
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-text"
-                />
-              </div>
+              <Field label="Adres e-mail">
+                {(a11y) => (
+                  <input {...a11y} type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-text" />
+                )}
+              </Field>
+            </div>
+
+            <div className="flex justify-center">
+              <Turnstile onToken={setCaptchaToken} resetKey={captchaReset} />
             </div>
 
             <div className="flex justify-center pt-1">

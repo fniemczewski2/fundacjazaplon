@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
+import { supabase } from '../../lib/supabase';
+import { logger } from '../../lib/logger';
+import { MIN_PASSWORD_LENGTH } from '../../lib/config';
 import { getErrorMessage } from '../../lib/utils/errors';
+import Field from '../../components/ui/Field';
+import AuthCard from './AuthCard';
+
+const REDIRECT_DELAY_MS = 1200;
 
 export default function ResetPasswordPage() {
   const [, setLocation] = useLocation();
@@ -10,54 +16,40 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [readyToUpdate, setReadyToUpdate] = useState(false);
+  const redirectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setMessage(null);
-    setError(null);
+    const allowUpdate = () => {
+      setReadyToUpdate(true);
+      setMessage('Wprowadź nowe hasło.');
+    };
 
-    async function handlePossibleCode() {
+    (async () => {
       try {
-        const url = new URL(globalThis.location.href);
-        const code = url.searchParams.get('code');
-
+        const code = new URL(globalThis.location.href).searchParams.get('code');
         if (code) {
-          // Exchange the code for a session (PKCE flow)
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) {
-            console.warn('exchangeCodeForSession error', error);
-            // don't return here - we still try to listen for onAuthStateChange below
-          } else {
-            // If exchange succeeded, we should have a valid session and can allow update
-            setReadyToUpdate(true);
-            setMessage('Wprowadź nowe hasło');
-            return;
-          }
+          // Przepływ PKCE: kod z linku zamieniamy na sesję.
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (!exchangeError) return allowUpdate();
+          logger.warn('reset-password', 'exchangeCodeForSession', exchangeError.message);
         }
 
-        // If no code or exchange failed, check current session
-        const session = await supabase.auth.getSession();
-        if (session?.data?.session) {
-          // If a session exists (Supabase may create one automatically when clicking the reset link), allow update
-          setReadyToUpdate(true);
-          setMessage('Wprowadź nowe hasło');
-        }
+        // Bez kodu (albo przy błędzie wymiany) sprawdzamy, czy Supabase nie utworzył już sesji z linku.
+        const { data } = await supabase.auth.getSession();
+        if (data.session) allowUpdate();
       } catch (err) {
-        console.error(err);
+        logger.error('reset-password', err);
       }
-    }
+    })();
 
-    handlePossibleCode();
-
-    // Listen for PASSWORD_RECOVERY event (emitted when the user clicks the reset link)
+    // Zdarzenie PASSWORD_RECOVERY pojawia się po kliknięciu linku z wiadomości.
     const { data: listener } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setReadyToUpdate(true);
-        setMessage('Wprowadź nowe hasło');
-      }
+      if (event === 'PASSWORD_RECOVERY') allowUpdate();
     });
 
     return () => {
-      listener?.subscription?.unsubscribe();
+      listener.subscription.unsubscribe();
+      if (redirectTimer.current) clearTimeout(redirectTimer.current);
     };
   }, []);
 
@@ -67,25 +59,23 @@ export default function ResetPasswordPage() {
     setMessage(null);
 
     if (!readyToUpdate) {
-      setError('Coś poszło nie tak. Upewnij się, że link jest prawidłowy.');
+      setError('Link jest nieprawidłowy albo wygasł. Poproś o nowy na stronie logowania.');
       return;
     }
-
-    if (newPassword.length < 10) {
-      setError('Hasło powinno mieć min. 10 znaków.');
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      setError(`Hasło powinno mieć co najmniej ${MIN_PASSWORD_LENGTH} znaków.`);
       return;
     }
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) {
-        setError(error.message);
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+      if (updateError) {
+        setError(updateError.message);
         return;
       }
-
-      setMessage('Hasło zostało zaktualizowane. Przekierowanie do logowania...');
-      setTimeout(() => setLocation('/admin/login'), 1200);
+      setMessage('Hasło zostało zmienione. Przekierowanie do logowania…');
+      redirectTimer.current = setTimeout(() => setLocation('/admin/login'), REDIRECT_DELAY_MS);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -94,35 +84,27 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen grid place-items-center p-6 bg-gray-50">
-      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4 bg-white p-6 rounded-2xl shadow">
-        <h1 className="text-2xl font-semibold">Reset hasła</h1>
+    <AuthCard title="Reset hasła" heading="Ustaw nowe hasło" onSubmit={onSubmit}>
+      {message && <output className="block text-sm text-ink">{message}</output>}
 
-        {message && <output className="block text-sm text-gray-700">{message}</output>}
-        {error && <p className="text-sm text-brand dark:text-accent-orange" role="alert">{error}</p>}
-
-        <label className="block">
-          <span className="sr-only">Nowe hasło</span>
+      <Field label="Nowe hasło" hint={`Minimum ${MIN_PASSWORD_LENGTH} znaków.`} error={error ?? undefined}>
+        {(a11y) => (
           <input
-            className="w-full border p-2 rounded"
-            placeholder="Nowe hasło"
+            {...a11y}
+            className="input-plain w-full"
             type="password"
             autoComplete="new-password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
-            minLength={6}
+            minLength={MIN_PASSWORD_LENGTH}
           />
-        </label>
+        )}
+      </Field>
 
-        <button
-          type="submit"
-          className="w-full py-2 rounded-2xl bg-black text-white disabled:opacity-50"
-          disabled={loading}
-        >
-          {loading ? 'Ładowanie…' : 'Ustaw'}
-        </button>
-      </form>
-    </div>
+      <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+        {loading ? 'Zapisywanie…' : 'Ustaw hasło'}
+      </button>
+    </AuthCard>
   );
 }

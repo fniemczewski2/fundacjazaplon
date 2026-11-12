@@ -44,7 +44,7 @@ export default function JoinUsEdit() {
       )}
 
       <label className="block">
-        <span className="text-sm text-text-black/70">Link do ankiety</span>
+        <span className="text-sm text-ink-muted">Link do ankiety</span>
         <input
           className="border p-2 rounded w-full"
           type="url"
@@ -58,7 +58,7 @@ export default function JoinUsEdit() {
         type="button"
         onClick={save}
         disabled={saving}
-        className={`px-4 py-2 rounded-xl text-white ${saving ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+        className="btn btn-primary"
       >
         {saving ? 'Zapisywanie…' : 'Zapisz'}
       </button>

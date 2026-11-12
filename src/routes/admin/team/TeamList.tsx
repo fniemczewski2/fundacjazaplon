@@ -1,31 +1,11 @@
 // src/routes/admin/team/TeamList.tsx
-import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { listTeam, type TeamMember } from '../../../lib/team';
-import { getErrorMessage } from '../../../lib/utils/errors';
 import Loader from '../../../components/Loader';
+import { useAsyncData } from '../../../hooks/useAsyncData';
 
 export default function TeamList() {
-  const [rows, setRows] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
-
-  const refresh = async () => {
-    try {
-      setLoading(true);
-      setErr(null);
-      const data = await listTeam(); 
-      setRows(data);
-    } catch (e) {
-      setErr(getErrorMessage(e, 'Błąd pobierania danych.'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
+  const { data: rows, loading, error: err, reload: refresh } = useAsyncData(listTeam, [] as TeamMember[], 'Błąd pobierania danych.');
 
   return (
     <div className="p-6">
@@ -33,7 +13,7 @@ export default function TeamList() {
         <h1 className="text-2xl font-semibold">Zespół</h1>
         <div className="flex gap-2">
           <button type="button" onClick={refresh} className="px-3 py-2 rounded-xl border">Odśwież</button>
-          <Link to="/admin/zespol/new" className="px-3 py-2 rounded-xl bg-black text-white">Dodaj</Link>
+          <Link to="/admin/zespol/new" className="btn btn-primary">Dodaj</Link>
         </div>
       </div>
 
@@ -43,7 +23,7 @@ export default function TeamList() {
 
   function renderTeam() {
     if (loading) return <Loader />;
-    if (err) return <div className="text-sm text-brand dark:text-accent-orange">{err}</div>;
+    if (err) return <div className="text-sm text-danger">{err}</div>;
 
     return (
       <ul className="space-y-2">
@@ -51,7 +31,7 @@ export default function TeamList() {
           <li key={m.id} className="p-3 border rounded-xl flex items-center justify-between">
             <div>
               <div className="font-medium">{m.name}</div>
-              <div className="text-sm text-text-black/70">
+              <div className="text-sm text-ink-muted">
                 {m.role ?? ''} • #{m.order_index} • {m.active ? 'aktywny' : 'ukryty'}
               </div>
             </div>

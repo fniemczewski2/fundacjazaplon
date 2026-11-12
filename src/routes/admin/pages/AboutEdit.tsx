@@ -25,10 +25,7 @@ const PillarEditor = memo(function PillarEditor({
   const titleInputId = `pillar-title-${m.order_index}`;
   const bodyInputId = `pillar-body-${m.order_index}`;
 
-  // Wgrywanie obrazka przez uploadToMedia - ta sama, jedna funkcja co reszta
-  // aplikacji, więc walidacja typu/rozmiaru pliku i sanityzacja nazwy działają
-  // tu automatycznie (wcześniej ten formularz miał własną, osobną, niewalidującą
-  // kopię logiki uploadu - dokładnie ten sam problem co w panelu Media).
+  // Wgrywanie obrazka przez uploadToMedia: walidacja typu i rozmiaru oraz sanityzacja nazwy są wspólne dla całej aplikacji.
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -47,24 +44,24 @@ const PillarEditor = memo(function PillarEditor({
   };
 
   return (
-    <div className="border rounded-2xl p-4 bg-white dark:bg-gray-800">
-      <div className="text-sm text-text-black/70 dark:text-gray-300 font-bold mb-3">Filar {m.order_index}</div>
+    <div className="border rounded-2xl p-4 bg-surface-raised">
+      <div className="text-sm text-ink-muted font-bold mb-3">Filar {m.order_index}</div>
       
       {/* Sekcja Obrazka */}
       <div className="mb-4">
-        <label htmlFor={imageInputId} className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
+        <label htmlFor={imageInputId} className="text-xs text-ink-muted block mb-1">
           Obrazek / Ikona
         </label>
         <div className="flex gap-2 items-center">
           <input
             id={imageInputId}
             type="text"
-            className="border p-2 rounded flex-1 text-sm dark:bg-gray-700 dark:border-gray-600"
+            className="input-plain flex-1 text-sm"
             placeholder="URL obrazka..."
             value={m.image_url}
             onChange={(e) => onChange({ ...m, image_url: e.target.value })}
           />
-          <label className="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded cursor-pointer text-sm transition-colors">
+          <label className="btn btn-secondary cursor-pointer text-sm">
             {uploading ? 'Wgrywam...' : 'Wgraj'}
             <input
               type="file"
@@ -76,14 +73,14 @@ const PillarEditor = memo(function PillarEditor({
           </label>
         </div>
         {m.image_url && (
-          <img src={m.image_url} alt="Podgląd" className="h-16 w-auto mt-2 rounded object-contain bg-gray-50 dark:bg-gray-900 p-1" />
+          <img src={m.image_url} alt="Podgląd" className="h-16 w-auto mt-2 rounded object-contain bg-surface-cool  p-1" />
         )}
       </div>
 
       <label htmlFor={titleInputId} className="sr-only">Tytuł filaru {m.order_index}</label>
       <input
         id={titleInputId}
-        className="border p-2 rounded w-full mb-3 dark:bg-gray-700 dark:border-gray-600"
+        className="input-plain mb-3"
         placeholder={`Tytuł filaru ${m.order_index}`}
         value={m.title}
         onChange={(e) => onChange({ ...m, title: e.target.value })}
@@ -91,7 +88,7 @@ const PillarEditor = memo(function PillarEditor({
       <label htmlFor={bodyInputId} className="sr-only">Opis filaru {m.order_index} (Markdown)</label>
       <textarea
         id={bodyInputId}
-        className="border p-2 rounded w-full font-mono text-sm dark:bg-gray-700 dark:border-gray-600"
+        className="input-plain font-mono text-sm"
         rows={5}
         placeholder="Opis (Markdown)"
         value={m.body_md}
@@ -168,21 +165,21 @@ export default function AboutEdit() {
           type="button"
           onClick={save}
           disabled={saving}
-          className={`px-6 py-2 rounded-xl text-white font-medium transition-all ${saving ? 'bg-gray-400' : 'bg-brand hover:opacity-90'}`}
+          className="btn btn-primary"
         >
           {saving ? 'Zapisywanie…' : 'Zapisz zmiany'}
         </button>
       </div>
 
-      {err && <div className="p-4 bg-red-100 text-red-700 rounded-xl">{err}</div>}
-      {ok && <div className="p-4 bg-green-100 text-green-700 rounded-xl">{ok}</div>}
+      {err && <div className="p-4 bg-danger/10 text-danger rounded-xl">{err}</div>}
+      {ok && <div className="p-4 bg-success/10 text-success rounded-xl">{ok}</div>}
 
       <section className="grid gap-6 md:grid-cols-2">
         <div className="flex flex-col">
           <label htmlFor="about-description" className="text-sm font-semibold mb-2">Główny opis (Markdown)</label>
           <textarea
             id="about-description"
-            className="border p-4 rounded-xl w-full font-mono flex-1 min-h-[300px] dark:bg-gray-800 dark:border-gray-700"
+            className="input-plain font-mono flex-1 min-h-[300px]"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
@@ -191,7 +188,7 @@ export default function AboutEdit() {
           <span id="about-preview-label" className="text-sm font-semibold mb-2">Podgląd na żywo</span>
           <section
             aria-labelledby="about-preview-label"
-            className="prose max-w-none border rounded-xl p-6 flex-1 bg-white dark:bg-gray-800 dark:border-gray-700 overflow-y-auto max-h-[500px]"
+            className="prose max-w-none border rounded-xl p-6 flex-1 bg-surface-raised overflow-y-auto max-h-[500px]"
           >
             <ReactMarkdown>{description || '_Brak treści_'}</ReactMarkdown>
           </section>

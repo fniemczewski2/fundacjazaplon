@@ -1,8 +1,9 @@
 // src/lib/agreements.ts
 import { supabase } from './supabase';
-import { EMAIL_RE, formatIban, isValidPlIban, normalizeIban } from './settlements';
+import { postBlob, postJson } from './api';
+import { EMAIL_RE, formatIban, isValidPlIban, normalizeIban, parseAmountToGrosze } from '../../shared/validation';
 
-export { formatIban, isValidPlIban, normalizeIban };
+export { formatIban, isValidPlIban, normalizeIban, parseAmountToGrosze };
 
 export type AgreementKind = 'volunteer' | 'mandate';
 export type AgreementStatus = 'submitted' | 'approved' | 'rejected' | 'signed' | 'completed';
@@ -98,41 +99,12 @@ export function validateApplication(i: ApplicationInput): ApplicationErrors {
 
 // --- komunikacja z API ----------------------------------------------------------------------------
 
-async function parseError(response: Response): Promise<string> {
-  const type = response.headers.get('content-type') ?? '';
-  if (type.includes('application/json')) {
-    const data = (await response.json().catch(() => null)) as { error?: string } | null;
-    if (data?.error) return data.error;
-  }
-  return `Serwer odpowiedział błędem (${response.status}).`;
-}
-
-async function postJson<T>(url: string, payload: unknown, token?: string): Promise<T> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) throw new Error(await parseError(response));
-  return (await response.json()) as T;
-}
-
-async function postBlob(url: string, payload: unknown, token?: string): Promise<Blob> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) throw new Error(await parseError(response));
-  return response.blob();
-}
-
-export async function submitApplication(input: ApplicationInput, website: string): Promise<void> {
+export async function submitApplication(input: ApplicationInput, website: string, captchaToken: string | null): Promise<void> {
   const age = ageFromPesel(input.pesel);
   const { guardian, ...rest } = input;
   await postJson('/api/agreement-public', {
     action: 'submit', ...rest, pesel: input.pesel.replaceAll(/\s/g, ''), email: input.email.trim(),
-    ...(age !== null && age < 18 ? { guardian } : {}), website,
+    ...(age !== null && age < 18 ? { guardian } : {}), website, captchaToken,
   });
 }
 
@@ -295,9 +267,11 @@ export type AgreementRow = {
 export type AgreementEvent = { id: number; at: string; actor: string; event: string };
 
 export type AdminAction =
-  | 'approve' | 'reject' | 'resend-link' | 'verify-krk' | 'verify-rspts' | 'delete-krk' | 'cosign';
+  | 'approve' | 'reject' | 'resend-link' | 'verify-krk' | 'verify-rspts' | 'delete-krk' | 'cosign' | 'reveal-pesel';
 
-export type AdminResult = { emailSent?: boolean; emailError?: string; link?: string; completed?: boolean; waitingFor?: string };
+export type AdminResult = {
+  emailSent?: boolean; emailError?: string; link?: string; completed?: boolean; waitingFor?: string; pesel?: string;
+};
 
 export type TermsInput = {
   conclusionPlace: string;
@@ -320,14 +294,6 @@ export type TermsInput = {
 
 export const formatPln = (grosze: number) =>
   (grosze / 100).toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' });
-
-/** "1 234,56" -> 123456 (grosze); null przy błędnym formacie. */
-export function parseAmountToGrosze(value: string): number | null {
-  const s = value.replaceAll(/\s/g, '').replace(',', '.');
-  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
-  const [zl, gr = ''] = s.split('.');
-  return Number(zl) * 100 + Number(gr.padEnd(2, '0'));
-}
 
 export async function listAgreements(): Promise<AgreementRow[]> {
   const { data, error } = await supabase.from('agreements').select('*').order('created_at', { ascending: false }).limit(500);
@@ -355,9 +321,9 @@ async function adminToken(): Promise<string> {
 }
 
 export async function adminAction(id: string, action: AdminAction, extra: Record<string, unknown> = {}): Promise<AdminResult> {
-  return postJson<AdminResult>('/api/agreement-admin', { id, action, ...extra }, await adminToken());
+  return postJson<AdminResult>('/api/agreement-admin', { id, action, ...extra }, 'Nie udało się wykonać operacji.', await adminToken());
 }
 
 export async function adminPreview(id: string): Promise<Blob> {
-  return postBlob('/api/agreement-admin', { id, action: 'preview' }, await adminToken());
+  return postBlob('/api/agreement-admin', { id, action: 'preview' }, 'Nie udało się wczytać podglądu.', await adminToken());
 }

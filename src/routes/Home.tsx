@@ -22,12 +22,11 @@ export default function Home() {
   return (
     <>
       <Seo
-        title="Fundacja „Zapłon” - wspieramy aktywność społeczną"
+        title="Fundacja „Zapłon”: wspieramy aktywność społeczną"
         description="Fundacja „Zapłon” wspiera osoby angażujące się społecznie, buduje kapitał społeczny i wzmacnia organizacje pozarządowe. Dołącz do naszych działań."
       />
 
-      {/* Jeden H1 na stronę - jest nim nagłówek hero. Wcześniej strona miała
-          dwa: ukryty w sekcji i widoczny w komponencie Hero. */}
+      {/* Jeden H1 na stronę: nagłówek hero. */}
       <Hero
         eyebrow="Fundacja Zapłon"
         title="Zapalamy"
@@ -73,10 +72,7 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* Sekcje poniżej nie mają własnych `aria-labelledby` - nagłówek H2
-          jest w środku karty i sam pełni tę rolę. Wcześniej obok widocznego
-          tytułu stał drugi, ukryty, przez co spis nagłówków w czytniku
-          ekranu pokazywał każdą pozycję dwa razy. */}
+      {/* Sekcje poniżej nie mają własnych `aria-labelledby`: nagłówek H2 w środku karty sam pełni tę rolę. */}
       <section id="donate" className="section-gap container-max scroll-mt-28">
         <Reveal>
           <DonateCard />

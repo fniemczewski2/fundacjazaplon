@@ -44,7 +44,7 @@ const PILLARS: readonly Pillar[] = [
   {
     illustration: 'wsparcie-lokalowe',
     title: 'Lokalowe',
-    body: 'Tworzymy centrum aktywizmu klimatycznego i społecznego - przestrzeń do pracy, spotkań i rozwoju.',
+    body: 'Tworzymy centrum aktywizmu klimatycznego i społecznego: przestrzeń do pracy, spotkań i rozwoju.',
     soon: true,
   },
   {

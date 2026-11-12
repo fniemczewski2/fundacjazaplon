@@ -1,103 +1,113 @@
-import React from 'react';
+import { useEffect } from 'react';
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from '../lib/config';
+
+export type Breadcrumb = { name: string; path: string };
 
 type Props = {
   title?: string;
   description?: string;
+  /** Ścieżka (`/images/x.jpg`) albo pełny adres. Wymiary w og:image ustawiamy tylko dla obrazu domyślnego. */
   image?: string;
+  type?: 'website' | 'article';
+  /** Wyklucza stronę z indeksu wyszukiwarek (strony prywatne, panel, formularze z tokenem). */
+  noindex?: boolean;
+  breadcrumbs?: Breadcrumb[];
 };
 
-function ensureMetaByName(name: string): HTMLMetaElement {
-  let meta = document.querySelector<HTMLMetaElement>(
-    `meta[name="${name}"]`
-  );
+const BREADCRUMB_SCRIPT_ID = 'seo-breadcrumbs';
+
+function metaElement(attr: 'name' | 'property', key: string): HTMLMetaElement {
+  let meta = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
   if (!meta) {
     meta = document.createElement('meta');
-    meta.setAttribute('name', name);
+    meta.setAttribute(attr, key);
     document.head.appendChild(meta);
   }
   return meta;
 }
 
-function ensureMetaByProperty(property: string): HTMLMetaElement {
-  let meta = document.querySelector<HTMLMetaElement>(
-    `meta[property="${property}"]`
-  );
-  if (!meta) {
-    meta = document.createElement('meta');
-    meta.setAttribute('property', property);
-    document.head.appendChild(meta);
-  }
-  return meta;
-}
+const setMeta = (attr: 'name' | 'property', key: string, content: string) => metaElement(attr, key).setAttribute('content', content);
+const removeMeta = (attr: 'name' | 'property', key: string) => document.head.querySelector(`meta[${attr}="${key}"]`)?.remove();
 
-function ensureCanonicalLink(): HTMLLinkElement {
-  let link = document.querySelector<HTMLLinkElement>(
-    'link[rel="canonical"]'
-  );
+function setCanonical(href: string) {
+  let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (!link) {
     link = document.createElement('link');
-    link.setAttribute('rel', 'canonical');
+    link.rel = 'canonical';
     document.head.appendChild(link);
   }
-  return link;
+  link.href = href;
 }
 
-export default function Seo({ title, description, image }: Props) {
-  React.useEffect(() => {
-    const url =
-      globalThis.window === undefined ? undefined : globalThis.location.href;
+const absolute = (value: string) => (/^https?:\/\//i.test(value) ? value : `${SITE_URL}${value.startsWith('/') ? '' : '/'}${value}`);
 
-    // Title
+/**
+ * Meta tagi strony. Adres kanoniczny to adres serwisu + ścieżka, bez parametrów zapytania i fragmentu
+ * (parametry i tokeny nie powinny trafiać do indeksu ani do podglądów w mediach społecznościowych).
+ */
+export default function Seo({ title, description, image, type = 'website', noindex = false, breadcrumbs }: Readonly<Props>) {
+  const breadcrumbsKey = breadcrumbs ? JSON.stringify(breadcrumbs) : '';
+
+  useEffect(() => {
+    const url = `${SITE_URL}${globalThis.location.pathname}`;
+    const isDefaultImage = !image;
+    const imageUrl = absolute(image ?? DEFAULT_OG_IMAGE.path);
+
     if (title) {
       document.title = title;
-
-      const ogTitle = ensureMetaByProperty('og:title');
-      ogTitle.setAttribute('content', title);
-
-      const twitterTitle = ensureMetaByName('twitter:title');
-      twitterTitle.setAttribute('content', title);
+      setMeta('property', 'og:title', title);
+      setMeta('name', 'twitter:title', title);
     }
-
-    // Description
     if (description) {
-      const metaDesc = ensureMetaByName('description');
-      metaDesc.setAttribute('content', description);
-
-      const ogDesc = ensureMetaByProperty('og:description');
-      ogDesc.setAttribute('content', description);
-
-      const twitterDesc = ensureMetaByName('twitter:description');
-      twitterDesc.setAttribute('content', description);
+      setMeta('name', 'description', description);
+      setMeta('property', 'og:description', description);
+      setMeta('name', 'twitter:description', description);
     }
 
-    // Image
-    if (image) {
-      const ogImage = ensureMetaByProperty('og:image');
-      ogImage.setAttribute('content', image);
-
-      const twitterImage = ensureMetaByName('twitter:image');
-      twitterImage.setAttribute('content', image);
+    setMeta('property', 'og:image', imageUrl);
+    setMeta('name', 'twitter:image', imageUrl);
+    if (isDefaultImage) {
+      setMeta('property', 'og:image:width', String(DEFAULT_OG_IMAGE.width));
+      setMeta('property', 'og:image:height', String(DEFAULT_OG_IMAGE.height));
+    } else {
+      removeMeta('property', 'og:image:width');
+      removeMeta('property', 'og:image:height');
     }
 
-    // Og:type
-    const ogType = ensureMetaByProperty('og:type');
-    ogType.setAttribute('content', 'website');
+    setMeta('property', 'og:type', type);
+    setMeta('property', 'og:url', url);
+    setMeta('property', 'og:site_name', SITE_NAME);
+    setMeta('property', 'og:locale', 'pl_PL');
+    setMeta('name', 'twitter:card', 'summary_large_image');
+    setCanonical(url);
 
-    // URL / canonical
-    if (url) {
-      const ogUrl = ensureMetaByProperty('og:url');
-      ogUrl.setAttribute('content', url);
+    if (noindex) setMeta('name', 'robots', 'noindex, nofollow');
+    else removeMeta('name', 'robots');
 
-      const canonical = ensureCanonicalLink();
-      canonical.setAttribute('href', url);
-    }
+    return () => removeMeta('name', 'robots');
+  }, [title, description, image, type, noindex]);
 
-    // Twitter card
-    const twitterCard = ensureMetaByName('twitter:card');
-    if (!twitterCard.getAttribute('content')) {
-      twitterCard.setAttribute('content', 'summary_large_image');
-    }
-  }, [title, description, image]);
+  useEffect(() => {
+    document.getElementById(BREADCRUMB_SCRIPT_ID)?.remove();
+    if (!breadcrumbsKey) return;
+
+    const items = JSON.parse(breadcrumbsKey) as Breadcrumb[];
+    const script = document.createElement('script');
+    script.id = BREADCRUMB_SCRIPT_ID;
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: `${SITE_URL}${item.path}`,
+      })),
+    });
+    document.head.appendChild(script);
+    return () => script.remove();
+  }, [breadcrumbsKey]);
 
   return null;
 }

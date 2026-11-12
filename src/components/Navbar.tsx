@@ -14,21 +14,24 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const [open, setOpen] = React.useState(false);
-  const [scrolled, setScrolled] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(() => globalThis.scrollY > 12);
   const [location] = useLocation();
+  const [menuLocation, setMenuLocation] = React.useState(location);
   const toggleRef = React.useRef<HTMLButtonElement>(null);
+  const headerRef = React.useRef<HTMLElement>(null);
 
   const { data: joinLink } = useJoinLink();
   const joinUrl = joinLink?.survey_url ?? null;
 
-  // Zmiana trasy zamyka menu mobilne.
-  React.useEffect(() => setOpen(false), [location]);
+  // Zmiana trasy zamyka menu mobilne (korekta stanu w trakcie renderu zamiast efektu).
+  if (menuLocation !== location) {
+    setMenuLocation(location);
+    setOpen(false);
+  }
 
-  // Po ~12 px przewinięcia pasek się spłaszcza i dostaje cień - subtelny
-  // sygnał, że treść pod nim się przesuwa.
+  // Po ~12 px przewinięcia pasek się spłaszcza.
   React.useEffect(() => {
     const onScroll = () => setScrolled(globalThis.scrollY > 12);
-    onScroll();
     globalThis.addEventListener('scroll', onScroll, { passive: true });
     return () => globalThis.removeEventListener('scroll', onScroll);
   }, []);
@@ -46,22 +49,24 @@ export default function Navbar() {
     return () => globalThis.removeEventListener('keydown', onKey);
   }, [open]);
 
+  // Kliknięcie poza nagłówkiem zamyka menu mobilne.
+  React.useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.target instanceof Node && !headerRef.current?.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [open]);
+
   const linkClass = (isActive: boolean) =>
     [
-      'relative py-2 text-white/90 transition-colors hover:text-white',
-      'after:absolute after:-bottom-0.5 after:left-0 after:h-0.75 after:rounded-full',
-      'after:bg-ember after:transition-all after:duration-300 after:content-[""]',
-      isActive ? 'text-white after:w-full' : 'after:w-0 hover:after:w-full',
+      'py-2 underline-offset-8 transition-colors hover:text-on-brand hover:underline',
+      isActive ? 'text-on-brand underline decoration-ember decoration-2' : 'text-on-brand/90',
     ].join(' ');
 
   return (
-    <header
-      className={[
-        'on-brand sticky top-0 z-50 border-b border-white/10 bg-brand text-white',
-        'transition-shadow duration-300',
-        scrolled ? 'shadow-lg' : '',
-      ].join(' ')}
-    >
+    <header ref={headerRef} className="on-brand sticky top-0 z-50 border-b border-on-brand/10 bg-brand text-on-brand">
       <nav aria-label="Główne" className="container-max">
         <div
           className={[
@@ -123,7 +128,7 @@ export default function Navbar() {
               aria-expanded={open}
               aria-controls="mobile-menu"
               aria-label={open ? 'Zamknij menu' : 'Otwórz menu'}
-              className="btn btn-ghost px-3 text-white"
+              className="btn btn-ghost px-3 text-on-brand"
             >
               <span className="relative block size-5" aria-hidden="true">
                 <span
@@ -147,11 +152,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Menu mobilne.
-          `inert` (React 19) wyjmuje zwinięty panel z kolejności tabulacji
-          i z drzewa dostępności naraz. Wcześniej był tu `aria-hidden` przy
-          wciąż fokusowalnych linkach - kombinacja, którą walidatory
-          zgłaszają jako błąd. */}
+      {/* Menu mobilne. `inert` (React 19) wyjmuje zwinięty panel z kolejności tabulacji i z drzewa dostępności. */}
       <div
         id="mobile-menu"
         inert={!open}
@@ -161,7 +162,7 @@ export default function Navbar() {
         style={{ transitionTimingFunction: 'var(--ease-out-soft)' }}
       >
         <div className="container-max pb-4">
-          <ul className="flex flex-col gap-1 border-t border-white/15 pt-3">
+          <ul className="flex flex-col gap-1 border-t border-on-brand/15 pt-3">
             {NAV_ITEMS.map((item) => {
               const isActive = location === item.to;
               return (
@@ -169,8 +170,8 @@ export default function Navbar() {
                   <Link
                     href={item.to}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-white transition ${
-                      isActive ? 'bg-white/12 font-semibold' : 'hover:bg-white/8'
+                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-on-brand transition ${
+                      isActive ? 'bg-on-brand/12 font-semibold' : 'hover:bg-on-brand/8'
                     }`}
                   >
                     {isActive && (

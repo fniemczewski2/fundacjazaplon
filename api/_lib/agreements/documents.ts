@@ -1,5 +1,5 @@
 import pdfmake from 'pdfmake';
-import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
+import type { Content, ContentText, TDocumentDefinitions } from 'pdfmake/interfaces';
 import {
   LOGO_SVG, NOTOSERIF_BOLD_B64, NOTOSERIF_EXTRABOLD_B64, NOTOSERIF_REGULAR_B64,
   SIGNIKA_BOLD_B64, SIGNIKA_MEDIUM_B64, SIGNIKA_REGULAR_B64,
@@ -8,19 +8,6 @@ import { plnInWords } from './polish.js';
 import { sha256Hex } from './security.js';
 import type { AgreementKind, ContractorStatement } from './validate.js';
 
-/**
- * Pakiet dokumentów na papierze firmowym Fundacji „Zapłon”, odtworzony ze wzorów fundacji (czcionki Signika i
- * Noto Serif, logo w prawym górnym rogu pierwszej strony dokumentu, paragrafy wyśrodkowane, kropkowane pola,
- * numeracja „n z N”):
- *  - wolontariat: porozumienie + Zgoda wolontariacka (wersja dla osoby pełnoletniej albo dla rodzica/opiekuna),
- *  - zlecenie: umowa + Rachunek (załącznik nr 1) + Oświadczenie zleceniobiorcy,
- *  - oświadczenie dotyczące ochrony małoletnich (gdy współpraca obejmuje kontakt z małoletnimi),
- *  - Karta podpisów.
- *
- * UWAGA: treści prawne pochodzą ze wzorów fundacji z poprawkami wymienionymi w przeglądzie zgodności. Do czasu
- * ustawienia AGREEMENTS_TEMPLATES_APPROVED=true (po przeglądzie prawnika i IOD) każda strona ma znak wodny
- * „WERSJA ROBOCZA”.
- */
 export const TEMPLATE_VERSION = '2026-10-wzory-fundacji-1';
 
 export const templatesApproved = () => process.env.AGREEMENTS_TEMPLATES_APPROVED === 'true';
@@ -128,7 +115,7 @@ export function contentHash(r: AgreementRow, f: Foundation): string {
       v: TEMPLATE_VERSION,
       id: r.id, kind: r.kind,
       party: [r.first_name, r.last_name, r.email, r.pesel, r.birth_date, r.street, r.house_number, r.postal_code, r.city, r.is_minor, r.guardian_first_name, r.guardian_last_name, r.guardian_relation],
-      terms: [r.conclusion_place, r.contract_number, r.scope, r.start_date, r.end_date, r.rate_grosze, r.costs_description, r.costs_days, r.health_insurance_days, r.minors_checks_required, r.rep_name, r.rep_role, r.rep2_name, r.rep2_role],
+      terms: [r.conclusion_place, r.contract_number, r.scope, r.start_date, r.end_date, r.rate_grosze, r.costs_description, r.health_insurance_days, r.minors_checks_required, r.rep_name, r.rep_role, r.rep2_name, r.rep2_role],
       consents: [r.consent_image, r.consent_rspts, r.marketing_consent, r.declarations, r.info_clause_ack_at, r.contractor_statement, r.krk_issue_date],
       foundation: [f.name, f.address, f.krs, f.nip, f.regon],
     }),
@@ -151,7 +138,7 @@ const titleBlock = (title: string | Content[], first: boolean, subtitle?: string
       {
         width: '*', margin: [0, 10, 0, 0],
         stack: [
-          { text: title as any, font: HEAD, bold: true, fontSize: 28, lineHeight: 1.0 },
+          { text: title, font: HEAD, bold: true, fontSize: 28, lineHeight: 1.0 },
           ...(subtitle ? [{ text: subtitle, font: HEAD, bold: true, fontSize: 18, lineHeight: 1.1, margin: [0, 4, 0, 0] as [number, number, number, number] }] : []),
         ],
       },
@@ -162,13 +149,13 @@ const titleBlock = (title: string | Content[], first: boolean, subtitle?: string
 ];
 
 const heading = (text: string, margin: [number, number, number, number] = [0, 14, 0, 8]): Content => ({ text, font: HEAD, bold: true, fontSize: 16, margin });
-const paragraph = (runs: string | Content[], extra: Record<string, unknown> = {}): Content => ({ text: runs as any, alignment: 'justify', margin: [0, 0, 0, 6], ...extra });
+const paragraph = (runs: string | Content[], extra: Record<string, unknown> = {}): Content => ({ text: runs as ContentText['text'], alignment: 'justify', margin: [0, 0, 0, 6], ...extra });
 const paragraphNo = (n: string): Content => ({ text: n, font: 'SerifXB', fontSize: 16, alignment: 'center', margin: [0, 16, 0, 10] });
 const olist = (items: Array<string | Content[]>, extra: Record<string, unknown> = {}): Content => ({
-  ol: items.map((item) => (Array.isArray(item) ? { text: item } : item)) as any, alignment: 'justify', margin: [0, 0, 0, 4], ...extra,
+  ol: items.map((item) => (Array.isArray(item) ? { text: item } : item)) as Content[], alignment: 'justify', margin: [0, 0, 0, 4], ...extra,
 });
 const ulist = (items: Array<string | Content[]>): Content => ({
-  ul: items.map((item) => (Array.isArray(item) ? { text: item } : item)) as any, alignment: 'justify', margin: [0, 0, 0, 6], markerColor: COLORS.text,
+  ul: items.map((item) => (Array.isArray(item) ? { text: item } : item)) as Content[], alignment: 'justify', margin: [0, 0, 0, 6], markerColor: COLORS.text,
 });
 
 type Sig = { caption: string; name?: string; sub?: string; signedAt?: string | null; via?: string };
@@ -267,7 +254,7 @@ function volunteerAgreement(r: AgreementRow, f: Foundation): Content[] {
     paragraphNo('§ 2.'),
     olist([
       ['Strony Porozumienia uzgadniają, że czynności określone w § 1 ust. 1 będą wykonywane w okresie od ', val(fmtDate(r.start_date), 10), r.end_date ? ' do ' : ' do czasu rozwiązania porozumienia', ...(r.end_date ? [val(fmtDate(r.end_date), 10)] : []), '.'],
-      'Miejscem wykonywania czynności będzie szkoła albo inny podmiot wskazany przez Fundację.',
+      'Miejscem wykonywania czynności będzie wskazane przez Fundację.',
     ]),
 
     paragraphNo('§ 3.'),
@@ -283,27 +270,23 @@ function volunteerAgreement(r: AgreementRow, f: Foundation): Content[] {
     paragraphNo('§ 5.'),
     olist([
       ['Fundacja zobowiązuje się pokrywać niezbędne koszty ponoszone przez Wolontariusza, związane z wykonywaniem świadczeń w następujący sposób: ', val(r.costs_description, 30), '.'],
-      'Zwrot kosztów następuje na podstawie wystawionego przez Wolontariusza rachunku.',
-      ['Wolontariusz zobowiązuje się do przedłożenia rachunku, o którym mowa w ust. 2, w terminie ', val(r.costs_days, 4), ' dni od dnia poniesienia kosztów.'],
+      'Zwrot kosztów następuje na podstawie przedstawionych przez Wolontariusza faktur lub innych dokumentów potwierdzających poniesione koszty.',
+      ['Wolontariusz zobowiązuje się do przedłożenia rachunku, o którym mowa w ust. 2, w terminie 7 dni od dnia poniesienia kosztów, w sposób wskazanyprzez Fundację.'],
     ]),
 
     paragraphNo('§ 6.'),
-    paragraph('Fundacja ma obowiązek ubezpieczyć wolontariusza od następstw nieszczęśliwych wypadków.'),
-    paragraphNo('§ 7.'),
-    paragraph(['Fundacja zapewnia wolontariuszowi ubezpieczenie zdrowotne, w terminie ', val(r.health_insurance_days, 4), ' dni od dnia zawarcia Porozumienia.']),
-    paragraphNo('§ 8.'),
     paragraph('Wolontariusz zobowiązuje się zachować w tajemnicy wszelkie informacje i dane osobowe dotyczące uczniów i innych osób powiązanych z Podmiotem Korzystającym, które powziął w związku i przy okazji wykonywania porozumienia.'),
 
-    paragraphNo('§ 9.'),
+    paragraphNo('§ 7.'),
     olist([
       'Wolontariusz ponosi odpowiedzialność za szkody wyrządzone Fundacji, lub Podmiotowi Korzystającemu, chyba że szkoda została wywołana okolicznościami, za które odpowiedzialność ponosi Fundacja.',
       'Wolontariusz nie ponosi odpowiedzialności za szkody, które powstały w wyniku działania siły wyższej. Wolontariusz może zwolnić się od odpowiedzialności, jeżeli wykaże, że szkoda została wywołana okolicznościami od niego niezależnymi.',
     ]),
 
-    paragraphNo('§ 10.'),
+    paragraphNo('§ 8.'),
     paragraph('Wartość świadczenia Wolontariusza nie stanowi darowizny na rzecz korzystającego w rozumieniu przepisów Ustawy z dnia 23 kwietnia 1964 r. Kodeks cywilny (t.j. Dz. U. z 2024 r. poz. 1061 z późn. zm.) oraz przepisów podatkowych.'),
 
-    paragraphNo('§ 11.'),
+    paragraphNo('§ 9.'),
     olist([
       'Porozumienie może zostać rozwiązane w każdym czasie przez każdą ze stron z zachowaniem miesięcznego okresu wypowiedzenia.',
       'Porozumienie może zostać rozwiązane przez Fundację bez zachowania okresu wypowiedzenia w razie wystąpienia okoliczności uniemożliwiających dalsze trwanie porozumienia, w szczególności z powodu:',
@@ -314,11 +297,11 @@ function volunteerAgreement(r: AgreementRow, f: Foundation): Content[] {
       'wyrządzenia przez Wolontariusza szkody Podmiotowi Korzystającemu.',
     ], { type: 'lower-alpha', margin: [24, 0, 0, 4] }),
 
-    paragraphNo('§ 12.'),
+    paragraphNo('§ 10.'),
     paragraph('W sprawach nieuregulowanych niniejszym porozumieniem stosuje się przepisy:'),
     olist(['Ustawy o działalności pożytku publicznego i o wolontariacie;', 'Kodeksu cywilnego.']),
 
-    paragraphNo('§ 13.'),
+    paragraphNo('§ 11.'),
     olist([
       'Porozumienie zostało zawarte w postaci elektronicznej, w sposób opisany w Karcie podpisów (kod jednorazowy przesłany na adres e-mail osoby podpisującej w imieniu Wolontariusza oraz potwierdzenie przez dwóch przedstawicieli Fundacji). Każda ze stron otrzymuje kopię porozumienia w postaci pliku PDF.',
       'Wszelkie zmiany niniejszego porozumienia wymagają formy pisemnej pod rygorem nieważności.',
@@ -409,7 +392,7 @@ function volunteerInfoClause(r: AgreementRow, f: Foundation): Content[] {
     heading('Klauzula Informacyjna (RODO)'),
     olist([
       `Administratorem ${r.is_minor ? 'danych osobowych małoletniego i rodzica / opiekuna prawnego' : 'Twoich danych osobowych'} jest ${f.name} (KRS: ${f.krs}), z siedzibą w ${f.address}.`,
-      'Dane przetwarzamy w następujących celach: a) organizacja wolontariatu oraz zawarcie i wykonanie porozumienia wolontariackiego (podstawa prawna: art. 6 ust. 1 lit. b RODO); b) wypełnienie obowiązków prawnych ciążących na Fundacji, w tym objęcie wolontariusza ubezpieczeniem od następstw nieszczęśliwych wypadków oraz obowiązków wynikających z ustawy o działalności pożytku publicznego i o wolontariacie, a w przypadku kontaktu z małoletnimi także z ustawy o przeciwdziałaniu zagrożeniom przestępczością na tle seksualnym i ochronie małoletnich (podstawa prawna: art. 6 ust. 1 lit. c RODO); c) wykorzystanie wizerunku - wyłącznie na podstawie zgody (art. 6 ust. 1 lit. a RODO).',
+      'Dane przetwarzamy w następujących celach: a) organizacja wolontariatu oraz zawarcie i wykonanie porozumienia wolontariackiego (podstawa prawna: art. 6 ust. 1 lit. b RODO); b) wypełnienie obowiązków prawnych ciążących na Fundacji, w tym objęcie wolontariusza ubezpieczeniem od następstw nieszczęśliwych wypadków oraz obowiązków wynikających z ustawy o działalności pożytku publicznego i o wolontariacie, a w przypadku kontaktu z małoletnimi także z ustawy o przeciwdziałaniu zagrożeniom przestępczością na tle seksualnym i ochronie małoletnich (podstawa prawna: art. 6 ust. 1 lit. c RODO); c) wykorzystanie wizerunku: wyłącznie na podstawie zgody (art. 6 ust. 1 lit. a RODO).',
       'Dane mogą być przekazywane podmiotom przetwarzającym je na nasze zlecenie (w szczególności dostawcom usług informatycznych i ubezpieczycielowi) oraz uprawnionym organom państwowym na podstawie przepisów prawa.',
       'Dane będą przechowywane przez okres trwania porozumienia, a po jego zakończeniu przez czas określony w przepisach prawa oraz do czasu przedawnienia roszczeń.',
       'Przysługuje prawo dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania oraz przenoszenia danych, a także prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (UODO). Zgodę na wykorzystanie wizerunku można wycofać w każdym czasie, bez wpływu na zgodność z prawem przetwarzania dokonanego przed jej wycofaniem.',
@@ -501,7 +484,7 @@ function contractorStatement(r: AgreementRow, f: Foundation): Content[] {
   const d = (v: string | undefined) => val(fmtDate(v), 9);
   const idx = <T extends string>(list: readonly T[], v: T | '' | undefined) => (v ? list.indexOf(v as T) : null);
   const row = (label: string, value: Content): Content => ({ columns: [{ width: 120, text: label }, { width: '*', text: [value] }], margin: [0, 0, 0, 6] });
-  const note = { text: '* – niewłaściwe skreślić', fontSize: 8, margin: [0, 6, 0, 0] } as Content;
+  const note = { text: '* niewłaściwe skreślić', fontSize: 8, margin: [0, 6, 0, 0] } as Content;
   return [
     ...titleBlock('Oświadczenie zleceniobiorcy', false),
     { text: val(fmtDate(r.signed_at), 18), alignment: 'right' },
@@ -577,7 +560,7 @@ function minorsAnnex(r: AgreementRow, f: Foundation, number: number): Content[] 
 function signatureCard(r: AgreementRow, f: Foundation, hash: string, list: Annex[]): Content[] {
   const mandate = r.kind === 'mandate';
   const docs = mandate
-    ? [`Umowa Zlecenie${r.contract_number ? ` nr ${r.contract_number}` : ''}`, ...list.map((a, i) => `Załącznik nr ${i + 1} - ${a.title}`)]
+    ? [`Umowa Zlecenie${r.contract_number ? ` nr ${r.contract_number}` : ''}`, ...list.map((a, i) => `Załącznik nr ${i + 1}: ${a.title}`)]
     : ['Porozumienie o wykonywaniu świadczeń wolontariackich', r.is_minor ? 'Zgoda wolontariacka rodzica / opiekuna prawnego' : 'Zgoda wolontariacka', ...list.map((a) => a.title)];
   const rows: Array<[string, string]> = [
     ['Identyfikator dokumentu', r.id],
@@ -588,8 +571,8 @@ function signatureCard(r: AgreementRow, f: Foundation, hash: string, list: Annex
     ['Sposób złożenia oświadczenia', 'Po zapoznaniu się z dokumentami, wpisanie kodu jednorazowego przesłanego na adres e-mail osoby podpisującej'],
     ['Data i godzina (strefa Europe/Warsaw)', r.signed_at ? fmtDateTime(r.signed_at) : '-'],
     ['Adres IP', r.signed_ip ?? '-'],
-    [`Strona 2 - ${f.name} (przedstawiciel 1)`, `${r.rep_name ?? ''}, ${r.rep_role ?? ''}: ${r.cosign1_at ? `${fmtDateTime(r.cosign1_at)}, konto ${r.cosign1_by ?? '-'}` : 'oczekuje na podpis'}`],
-    [`Strona 2 - ${f.name} (przedstawiciel 2)`, `${r.rep2_name ?? ''}, ${r.rep2_role ?? ''}: ${r.cosign2_at ? `${fmtDateTime(r.cosign2_at)}, konto ${r.cosign2_by ?? '-'}` : 'oczekuje na podpis'}`],
+    [`Strona 2: ${f.name} (przedstawiciel 1)`, `${r.rep_name ?? ''}, ${r.rep_role ?? ''}: ${r.cosign1_at ? `${fmtDateTime(r.cosign1_at)}, konto ${r.cosign1_by ?? '-'}` : 'oczekuje na podpis'}`],
+    [`Strona 2: ${f.name} (przedstawiciel 2)`, `${r.rep2_name ?? ''}, ${r.rep2_role ?? ''}: ${r.cosign2_at ? `${fmtDateTime(r.cosign2_at)}, konto ${r.cosign2_by ?? '-'}` : 'oczekuje na podpis'}`],
   ];
   return [
     ...titleBlock('Karta podpisów', false),
@@ -636,7 +619,7 @@ export function buildDefinition(r: AgreementRow, f: Foundation, hash: string): T
   ];
 
   return {
-    info: { title: `${r.kind === 'mandate' ? 'Umowa zlecenie' : 'Porozumienie wolontariackie'} - ${personName(r)}`, author: f.name, creator: f.name },
+    info: { title: `${r.kind === 'mandate' ? 'Umowa zlecenie' : 'Porozumienie wolontariackie'}: ${personName(r)}`, author: f.name, creator: f.name },
     pageSize: 'A4',
     pageMargins: [57, 57, 57, 85],
     defaultStyle: { font: SERIF, fontSize: 11, lineHeight: 1.0, color: COLORS.text },

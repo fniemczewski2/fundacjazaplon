@@ -17,7 +17,7 @@
 
   /* --- Powierzchnie ----------------------------------------------------- */
   --color-surface: #faf6f3;        /* tło strony                              */
-  --color-surface-raised: #ffffff; /* karty                                   */
+  --color-surface-raised: #fffdfa; /* karty                                   */
   --color-surface-warm: #fff6e3;   /* pasma „ciepłe” (misja, CTA)             */
   --color-surface-cool: #edf4fc;   /* pasma „chłodne”                         */
 
@@ -34,16 +34,11 @@
   /* --- Stany ------------------------------------------------------------ */
   --color-danger: #b3261e;
   --color-success: #1c6b45;
+  --color-warning: #8a4a00;
 
-  /* --- Aliasy zgodnościowe (stary kod / panel admina) ------------------- */
-  --color-base-100: #faf6f3;
-  --color-base-200: #edf4fc;
-  --color-base-300: #dbe6f2;
-  --color-text-black: #2a2a2a;
-  --color-text-white: #ffffff;
-  --color-text-navbar: #ffffff;
-  --color-accent-orange: #a34708;
-  --color-button: #194770;
+  /* Tekst na tle marki i na przyciemnieniu okien - te same w obu motywach. */
+  --color-on-brand: #ffffff;
+  --color-scrim: rgb(0 0 0 / 0.6);
 
   /* --- Typografia ------------------------------------------------------- */
   --font-sans: 'Work Sans', ui-sans-serif, system-ui, sans-serif;
@@ -60,13 +55,9 @@
   --text-lead: clamp(1.05rem, 0.98rem + 0.4vw, 1.3rem);
   --text-lead--line-height: 1.65;
 
-  /* --- Kształt i głębia ------------------------------------------------- */
+  /* --- Kształt ---------------------------------------------------------- */
   --radius-2xl: 1.25rem;
   --radius-3xl: 1.75rem;
-
-  --shadow-soft: 0 1px 2px rgb(16 49 79 / 0.05), 0 8px 24px -12px rgb(16 49 79 / 0.18);
-  --shadow-lift: 0 2px 4px rgb(16 49 79 / 0.06), 0 20px 44px -20px rgb(16 49 79 / 0.3);
-  --shadow-ember: 0 14px 36px -18px rgb(163 71 8 / 0.55);
 
   /* --- Ruch ------------------------------------------------------------- */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
@@ -120,19 +111,9 @@ html.dark {
 
   --color-danger: #ff9d94;
   --color-success: #6bd6a4;
+  --color-warning: #ffc069;
 
-  --color-base-100: #0e1a26;
-  --color-base-200: #132538;
-  --color-base-300: #1f3549;
-  --color-text-black: #eaf0f6;
-  --color-text-white: #0e1a26;
-  --color-text-navbar: #ffffff;
-  --color-accent-orange: #ffa962;
-  --color-button: #a6cbf0;
 
-  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
-  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.4), 0 20px 44px -20px rgb(0 0 0 / 0.75);
-  --shadow-ember: 0 14px 36px -18px rgb(255 169 98 / 0.4);
 
   color-scheme: dark;
 }
@@ -198,7 +179,6 @@ html.dark {
   :focus-visible {
     outline: 3px solid var(--color-ember-ink);
     outline-offset: 3px;
-    border-radius: 0.35rem;
   }
 
   button, [role='button'], a, input, select, textarea {
@@ -254,10 +234,10 @@ html.dark {
   }
 
   .skip-link:focus-visible {
-    @apply not-sr-only fixed top-3 left-3 z-200 rounded-xl px-4 py-3 font-semibold;
+    @apply not-sr-only fixed top-3 left-3 z-200 rounded-xl border px-4 py-3 font-semibold;
     background: var(--color-surface-raised);
     color: var(--color-ink);
-    box-shadow: var(--shadow-lift);
+    border-color: var(--color-line-strong);
   }
 
   /* --- Typografia ------------------------------------------------------- */
@@ -308,17 +288,13 @@ html.dark {
     @apply rounded-2xl border;
     background: var(--color-surface-raised);
     border-color: var(--color-line);
-    box-shadow: var(--shadow-soft);
   }
 
   .card-interactive {
-    @apply transition duration-300;
-    transition-timing-function: var(--ease-out-soft);
+    @apply transition-colors duration-200;
   }
 
   .card-interactive:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lift);
     border-color: var(--color-line-strong);
   }
 
@@ -334,10 +310,10 @@ html.dark {
 
   .panel-brand {
     background: var(--color-brand);
-    color: #ffffff;
+    color: var(--color-on-brand);
   }
 
-  .panel-brand :is(h1, h2, h3, h4) { color: #ffffff; }
+  .panel-brand :is(h1, h2, h3, h4) { color: var(--color-on-brand); }
   .panel-brand .lead,
   .panel-brand .muted { color: rgb(255 255 255 / 0.82); }
   .panel-brand .eyebrow { color: var(--color-ember); }
@@ -354,20 +330,17 @@ html.dark {
 
   .btn-primary {
     background: var(--color-brand);
-    color: #ffffff;
-    box-shadow: var(--shadow-soft);
+    color: var(--color-on-brand);
   }
 
   .btn-primary:not(:disabled):hover {
     background: var(--color-brand-deep);
-    box-shadow: var(--shadow-lift);
   }
 
   /* Pomarańcz jako wypełnienie z ciemnym tekstem - 9,2:1, działa w obu motywach. */
   .btn-ember {
     background: var(--color-ember);
     color: #1a1a1a;
-    box-shadow: var(--shadow-ember);
   }
 
   .btn-ember:not(:disabled):hover { background: #ffbb80; }
@@ -398,12 +371,12 @@ html.dark {
      granacie znika. */
   .panel-brand .btn-secondary,
   .on-brand .btn-secondary {
-    color: #ffffff;
+    color: var(--color-on-brand);
   }
 
   .panel-brand .btn-secondary:hover,
   .on-brand .btn-secondary:hover {
-    background: #ffffff;
+    background: var(--color-on-brand);
     color: var(--color-brand);
   }
 
@@ -432,7 +405,8 @@ html.dark {
 
   .input-text,
   .input-textarea,
-  .input-select {
+  .input-select,
+  .input-plain {
     @apply w-full px-4 py-3 transition;
     background: var(--color-surface-raised);
     color: var(--color-ink);
@@ -442,14 +416,16 @@ html.dark {
 
   .input-text { @apply rounded-full; }
   .input-textarea,
-  .input-select { @apply rounded-xl; }
+  .input-select,
+  .input-plain { @apply rounded-xl; }
 
   .input-text::placeholder,
   .input-textarea::placeholder { color: var(--color-ink-muted); opacity: 1; }
 
   .input-text:focus-visible,
   .input-textarea:focus-visible,
-  .input-select:focus-visible {
+  .input-select:focus-visible,
+  .input-plain:focus-visible {
     border-color: var(--color-ember-ink);
     outline: 3px solid var(--color-ember-ink);
     outline-offset: 2px;
@@ -478,8 +454,9 @@ html.dark {
   .prose ol { @apply list-decimal pl-5; }
   .prose li + li { margin-top: 0.35em; }
   .prose blockquote {
-    @apply border-l-4 pl-4 italic;
-    border-color: var(--color-ember);
+    @apply rounded-xl border px-4 py-3 italic;
+    border-color: var(--color-line-strong);
+    background: var(--color-surface-cool);
     color: var(--color-ink-muted);
   }
   .prose code {
