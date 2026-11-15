@@ -5,6 +5,8 @@ import { getContact } from '../lib/contact';
 import { getAbout, getPillars } from '../lib/about';
 import { ALL_CATEGORIES, listDocuments } from '../lib/documents';
 import { listMaterials } from '../lib/materials';
+import { getInstagramPosts } from '../lib/instagram';
+import { listLinks } from '../lib/links';
 import { getPostBySlug, listPublishedPosts } from '../lib/post';
 import { listTeamPublic } from '../lib/team';
 import { STALE_TIME } from '../lib/config';
@@ -19,6 +21,14 @@ export function useSocialLinks() {
 
 export function useContactInfo() {
   return useQuery({ queryKey: ['contact-info'], queryFn: getContact, staleTime: STALE_TIME.settings });
+}
+
+export function useLinkItems() {
+  return useQuery({ queryKey: ['links'], queryFn: listLinks, staleTime: STALE_TIME.settings });
+}
+
+export function useInstagramPosts() {
+  return useQuery({ queryKey: ['instagram', 'posts'], queryFn: getInstagramPosts, staleTime: STALE_TIME.settings });
 }
 
 export function usePublishedPosts() {

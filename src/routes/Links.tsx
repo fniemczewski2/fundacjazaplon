@@ -9,8 +9,10 @@ import {
   FaEnvelope,
   FaDownload,
   FaArrowRight,
+  FaLink,
 } from 'react-icons/fa6';
-import { useJoinLink, useSocialLinks } from '../hooks/useAppData';
+import { useJoinLink, useLinkItems, useSocialLinks } from '../hooks/useAppData';
+import type { LinkIcon } from '../../shared/links';
 import Seo from '../components/Seo';
 import Loader from '../components/Loader';
 import Modal from '../components/Modal';
@@ -23,11 +25,26 @@ import { FaClipboard } from 'react-icons/fa';
 type ModalKind = 'donate' | 'newsletter' | null;
 
 type LinkItem = {
+  id: string;
   title: string;
   description?: string;
   icon: ReactNode;
   url?: string;
   onClick?: () => void;
+};
+
+const ICON_CLASS = 'text-xl';
+
+const ICONS: Record<LinkIcon, ReactNode> = {
+  link: <FaLink aria-hidden="true" className={ICON_CLASS} />,
+  clipboard: <FaClipboard aria-hidden="true" className={ICON_CLASS} />,
+  download: <FaDownload aria-hidden="true" className={ICON_CLASS} />,
+  globe: <FaGlobe aria-hidden="true" className={ICON_CLASS} />,
+  envelope: <FaEnvelope aria-hidden="true" className={ICON_CLASS} />,
+  heart: <FaHandHoldingHeart aria-hidden="true" className={ICON_CLASS} />,
+  'user-plus': <FaUserPlus aria-hidden="true" className={ICON_CLASS} />,
+  instagram: <FaInstagram aria-hidden="true" className={ICON_CLASS} />,
+  linkedin: <FaLinkedin aria-hidden="true" className={ICON_CLASS} />,
 };
 
 const DEEP_LINK_PATHS = new Set(['/wplacam', '/newsletter', '/dolacz']);
@@ -37,7 +54,8 @@ export default function Links() {
 
   const { data: socialLinks, isPending: socialPending } = useSocialLinks();
   const { data: joinLink, isPending: joinPending } = useJoinLink();
-  const loading = socialPending || joinPending;
+  const { data: items, isPending: itemsPending } = useLinkItems();
+  const loading = socialPending || joinPending || itemsPending;
 
   // Okno otwarte kliknięciem ma pierwszeństwo; linki /wplacam i /newsletter otwierają je od razu po wejściu.
   const [openedModal, setOpenedModal] = useState<ModalKind>(null);
@@ -49,74 +67,24 @@ export default function Links() {
     if (DEEP_LINK_PATHS.has(pathname)) setLocation('/links');
   };
 
-  const links: LinkItem[] = [
-    {
-      title: 'Warsztaty Akademia Młodych Liderów',
-      url: 'https://forms.cloud.microsoft/e/E7Dt1qDqm4',
-      icon: <FaClipboard aria-hidden="true" className="text-xl" />,
-      description: 'Zapisz się na warsztaty i działaj skuteczniej',
-    },
-    {
-      title: 'Aktywny Samorząd Uczniowski',
-      url: 'https://forms.cloud.microsoft/e/mSaJs7P03a',
-      icon: <FaClipboard aria-hidden="true" className="text-xl" />,
-      description: 'Zapisz się do programu i zgłoś swój samorząd',
-    },
-    {
-      title: 'Bezpłatne materiały',
-      url: '/materialy',
-      icon: <FaDownload aria-hidden="true" className="text-xl" />,
-      description: 'Poradniki do pobrania',
-    },
-    {
-      title: 'Wpłacam darowiznę',
-      onClick: () => setOpenedModal('donate'),
-      icon: <FaHandHoldingHeart aria-hidden="true" className="text-xl" />,
-      description: 'Wspieram wasze działania',
-    },
-    {
-      title: 'Zapisuję się do\u00a0newslettera',
-      onClick: () => setOpenedModal('newsletter'),
-      icon: <FaEnvelope aria-hidden="true" className="text-xl" />,
-      description: 'Chcę być na bieżąco',
-    },
-    ...(joinLink?.survey_url
-      ? [
-          {
-            title: 'Dołączam do\u00a0wolontariatu',
-            url: joinLink.survey_url,
-            icon: <FaUserPlus aria-hidden="true" className="text-xl" />,
-            description: 'Jestem częścią zmiany',
-          },
-        ]
-      : []),
-    ...(socialLinks?.instagram
-      ? [
-          {
-            title: 'Instagram',
-            url: socialLinks.instagram,
-            icon: <FaInstagram aria-hidden="true" className="text-xl" />,
-            description: '@fundacjazaplon',
-          },
-        ]
-      : []),
-    ...(socialLinks?.linkedin
-      ? [
-          {
-            title: 'LinkedIn',
-            url: socialLinks.linkedin,
-            icon: <FaLinkedin aria-hidden="true" className="text-xl" />,
-            description: 'Obserwuj nas',
-          },
-        ]
-      : []),
-    {
-      title: 'zaplon.org.pl',
-      url: 'https://zaplon.org.pl',
-      icon: <FaGlobe aria-hidden="true" className="text-xl" />,
-      description: 'Nasza strona główna',
-    },
-  ];
+  const links = (items ?? []).flatMap((item): LinkItem[] => {
+    if (!item.active) return [];
+    const base = { id: item.id, title: item.title, description: item.description ?? undefined, icon: ICONS[item.icon] };
+    switch (item.kind) {
+      case 'donate':
+        return [{ ...base, onClick: () => setOpenedModal('donate') }];
+      case 'newsletter':
+        return [{ ...base, onClick: () => setOpenedModal('newsletter') }];
+      case 'join':
+        return joinLink?.survey_url ? [{ ...base, url: joinLink.survey_url }] : [];
+      case 'instagram':
+        return socialLinks?.instagram ? [{ ...base, url: socialLinks.instagram }] : [];
+      case 'linkedin':
+        return socialLinks?.linkedin ? [{ ...base, url: socialLinks.linkedin }] : [];
+      default:
+        return item.url ? [{ ...base, url: item.url }] : [];
+    }
+  });
 
   const itemClasses =
     'card card-interactive flex w-full items-center gap-4 p-5 text-left no-underline';
@@ -164,7 +132,7 @@ export default function Links() {
               !!link.url && link.url.startsWith('http') && !link.url.includes('zaplon.org.pl');
 
             return (
-              <Reveal as="li" key={link.title} delay={i * 70}>
+              <Reveal as="li" key={link.id} delay={i * 70}>
                 {link.onClick ? (
                   <button type="button" onClick={link.onClick} className={itemClasses}>
                     {content}

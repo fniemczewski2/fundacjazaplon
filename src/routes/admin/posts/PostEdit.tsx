@@ -11,6 +11,7 @@ import {
 } from '../../../lib/post';
 import { getErrorMessage } from '../../../lib/utils/errors';
 import { useToast, useConfirm } from '../../../components/ui/Feedback';
+import { useStaff } from '../../../app/staffContext';
 
 type Model = {
   title: string;
@@ -40,6 +41,7 @@ export default function PostEdit() {
   const [saving, setSaving] = useState(false);
   const showToast = useToast();
   const confirm = useConfirm();
+  const { can } = useStaff();
 
   useEffect(() => {
     if (isNew || !id) return;
@@ -217,7 +219,7 @@ export default function PostEdit() {
         >
           {saving ? 'Zapisywanie…' : 'Opublikuj'}
         </button>
-        {!isNew && (
+        {!isNew && can('admin') && (
           <button type="button" onClick={remove} className="px-3 py-2 rounded-xl border">
             Usuń
           </button>

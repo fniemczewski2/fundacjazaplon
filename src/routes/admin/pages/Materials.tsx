@@ -5,6 +5,7 @@ import { listMaterials, type Material } from '../../../lib/materials';
 import { useAsyncData } from '../../../hooks/useAsyncData';
 import { getErrorMessage } from '../../../lib/utils/errors';
 import { useConfirm, useToast } from '../../../components/ui/Feedback';
+import { useStaff } from '../../../app/staffContext';
 
 type MaterialForm = Omit<Material, 'id' | 'created_at'>;
 
@@ -15,6 +16,7 @@ export default function MaterialsAdmin() {
   const [form, setForm] = useState<MaterialForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const confirm = useConfirm();
+  const { can } = useStaff();
   const showToast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,13 +121,15 @@ export default function MaterialsAdmin() {
                 {mat.file_url}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => handleDelete(mat.id)}
-              className="btn btn-danger whitespace-nowrap"
-            >
-              Usuń
-            </button>
+            {can('admin') && (
+              <button
+                type="button"
+                onClick={() => handleDelete(mat.id)}
+                className="btn btn-danger whitespace-nowrap"
+              >
+                Usuń
+              </button>
+            )}
           </div>
         ))}
       </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getSocialLinks, upsertSocialLinks, type SocialLinks } from '../../../lib/social';
 import { getErrorMessage } from '../../../lib/utils/errors';
 import Loader from '../../../components/Loader';
+import InstagramCheck from '../../../components/admin/InstagramCheck';
 
 const EMPTY_LINKS: SocialLinks = {
   id: '',
@@ -94,6 +95,8 @@ export default function SocialEdit() {
       >
         {saving ? 'Zapisywanie…' : 'Zapisz'}
       </button>
+
+      <InstagramCheck />
     </div>
   );
 }

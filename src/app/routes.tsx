@@ -4,6 +4,7 @@ import Layout from '../components/Layout';
 import PageTracker from '../components/PageTracker';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import ProtectedAdminRoute from './ProtectedAdminRoute';
+import type { StaffRole } from '../../shared/roles';
 
 const Home = React.lazy(() => import('../routes/Home'));
 const Blog = React.lazy(() => import('../routes/Blog'));
@@ -24,7 +25,6 @@ const PrivacyPolicy = React.lazy(() => import('../routes/PrivacyPolicy'));
 const Terms = React.lazy(() => import('../routes/Terms'));
 
 const AdminLogin = React.lazy(() => import('../routes/admin/Login'));
-const ResetPasswordPage = React.lazy(() => import('../routes/admin/Password'));
 const AdminDashboard = React.lazy(() => import('../routes/admin/Dashboard'));
 const PostsList = React.lazy(() => import('../routes/admin/posts/PostsList'));
 const PostEdit = React.lazy(() => import('../routes/admin/posts/PostEdit'));
@@ -39,9 +39,11 @@ const Media = React.lazy(() => import('../routes/admin/Media'));
 const AdminDocuments = React.lazy(() => import('../routes/admin/Documents'));
 const AdminSettlements = React.lazy(() => import('../routes/admin/Settlements'));
 const AdminAgreements = React.lazy(() => import('../routes/admin/Agreements'));
+const AdminStaff = React.lazy(() => import('../routes/admin/Staff'));
+const AdminLinks = React.lazy(() => import('../routes/admin/Links'));
 
 /** Trasy panelu: każda ma tytuł karty i jest chroniona przez `ProtectedAdminRoute`. */
-const ADMIN_ROUTES: ReadonlyArray<{ path: string; title: string; component: React.ComponentType }> = [
+const ADMIN_ROUTES: ReadonlyArray<{ path: string; title: string; component: React.ComponentType; minRole?: StaffRole }> = [
   { path: '/admin', title: 'Panel', component: AdminDashboard },
   { path: '/admin/aktualnosci', title: 'Aktualności', component: PostsList },
   { path: '/admin/aktualnosci/:id', title: 'Edycja wpisu', component: PostEdit },
@@ -51,10 +53,12 @@ const ADMIN_ROUTES: ReadonlyArray<{ path: string; title: string; component: Reac
   { path: '/admin/strony/kontakt', title: 'Strona: Kontakt', component: ContactEdit },
   { path: '/admin/strony/social', title: 'Linki społecznościowe', component: SocialEdit },
   { path: '/admin/strony/join', title: 'Dołącz do nas', component: JoinUsEdit },
+  { path: '/admin/linki', title: 'Linki', component: AdminLinks },
   { path: '/admin/strony/materials', title: 'Materiały do pobrania', component: MaterialsAdmin },
   { path: '/admin/media', title: 'Media', component: Media },
-  { path: '/admin/rozliczenia', title: 'Rozliczenia faktur', component: AdminSettlements },
-  { path: '/admin/umowy', title: 'Umowy i zgody', component: AdminAgreements },
+  { path: '/admin/rozliczenia', title: 'Rozliczenia faktur', component: AdminSettlements, minRole: 'admin' },
+  { path: '/admin/umowy', title: 'Umowy i zgody', component: AdminAgreements, minRole: 'admin' },
+  { path: '/admin/uprawnienia', title: 'Uprawnienia', component: AdminStaff, minRole: 'super_admin' },
   { path: '/admin/dokumenty', title: 'Dokumenty', component: AdminDocuments },
 ];
 
@@ -88,12 +92,11 @@ export default function AppRoutes() {
       <ErrorBoundary variant="route" resetKey={location}>
         <Switch>
           {/* Trasy bez głównego Layoutu (logowanie i panel) */}
-          <Route path="/reset-password" component={ResetPasswordPage} />
           <Route path="/admin/login" component={AdminLogin} />
 
-          {ADMIN_ROUTES.map(({ path, title, component }) => (
+          {ADMIN_ROUTES.map(({ path, title, component, minRole }) => (
             <Route key={path} path={path}>
-              <ProtectedAdminRoute title={title} component={component} />
+              <ProtectedAdminRoute title={title} component={component} minRole={minRole} />
             </Route>
           ))}
 

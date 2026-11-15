@@ -11,6 +11,8 @@ const VENDOR_CHUNKS: ReadonlyArray<[chunk: string, match: string]> = [
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), apiDevServer()],
+  // Stały port: adres przekierowania logowania Microsoft (Supabase, Redirect URLs) musi się zgadzać co do znaku.
+  server: { port: 5173, strictPort: true },
   build: {
     sourcemap: false,
     rollupOptions: {

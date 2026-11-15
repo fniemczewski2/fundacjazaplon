@@ -11,6 +11,7 @@ import { uploadToMedia } from '../../../lib/media';
 import { toSafeSlug } from '../../../lib/utils/text';
 import { getErrorMessage } from '../../../lib/utils/errors';
 import { useToast, useConfirm } from '../../../components/ui/Feedback';
+import { useStaff } from '../../../app/staffContext';
 
 type Model = Omit<TeamMemberCreate, 'photo_url'> & { id?: string; photo_url: string | null };
 
@@ -36,6 +37,7 @@ export default function TeamEdit() {
   const [saving, setSaving] = useState(false);
   const showToast = useToast();
   const confirm = useConfirm();
+  const { can } = useStaff();
 
   useEffect(() => {
     if (isNew || !id) return;
@@ -239,7 +241,7 @@ export default function TeamEdit() {
         >
           {saving ? 'Zapisywanie…' : 'Zapisz'}
         </button>
-        {!isNew && (
+        {!isNew && can('admin') && (
           <button type="button" onClick={handleDelete} className="btn btn-secondary text-danger">
             Usuń
           </button>

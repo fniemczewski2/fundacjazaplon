@@ -12,6 +12,7 @@ import {
 } from '../../lib/documents';
 import { getErrorMessage } from '../../lib/utils/errors';
 import { useConfirm } from '../../components/ui/Feedback';
+import { useStaff } from '../../app/staffContext';
 import { FiTrash2, FiUpload } from 'react-icons/fi';
 import Loader from '../../components/Loader';
 
@@ -22,6 +23,7 @@ export default function AdminDocuments() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const confirm = useConfirm();
+  const { can } = useStaff();
 
   const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
@@ -71,14 +73,17 @@ export default function AdminDocuments() {
             <a href={f.url} target="_blank" rel="noopener noreferrer" className="underline truncate max-w-[70%]">
               {f.name}
             </a>
-            <button
-              type="button"
-              onClick={() => onDelete(f.path)}
-              className="btn btn-secondary"
-              disabled={busy}
-            >
-              <FiTrash2 />
-            </button>
+            {can('admin') && (
+              <button
+                type="button"
+                onClick={() => onDelete(f.path)}
+                className="btn btn-secondary"
+                disabled={busy}
+                aria-label={`Usuń plik ${f.name}`}
+              >
+                <FiTrash2 aria-hidden="true" />
+              </button>
+            )}
           </li>
         ))}
       </ul>

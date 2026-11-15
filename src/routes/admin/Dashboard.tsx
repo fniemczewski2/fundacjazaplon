@@ -3,8 +3,11 @@ import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { getAdminCounts, getCurrentUserEmail, signOutAdmin, type AdminCounts } from '../../lib/admin';
 import Loader from '../../components/Loader';
+import { useStaff } from '../../app/staffContext';
+import { ROLE_LABELS } from '../../../shared/roles';
 
 export default function AdminDashboard() {
+  const { role, can } = useStaff();
   const [counts, setCounts] = useState<AdminCounts>({
     newsPublished: 0,
     newsDrafts: 0,
@@ -35,6 +38,7 @@ export default function AdminDashboard() {
         <div className="space-y-1">
           <div className="text-sm text-ink-muted">Zalogowany jako</div>
           <div className="font-medium break-all">{email ?? '-'}</div>
+          <div className="text-sm text-ink-muted">{ROLE_LABELS[role]}</div>
         </div>
 
         <nav className="space-y-2">
@@ -45,15 +49,27 @@ export default function AdminDashboard() {
           <NavItem to="/admin/strony/kontakt">Kontakt</NavItem>
           <NavItem to="/admin/strony/join">Dołącz do nas</NavItem>
           <NavItem to="/admin/strony/social">Social Media</NavItem>
+          <NavItem to="/admin/linki">Linki (strona /links)</NavItem>
 
-          <SectionLabel>Finanse i współpraca</SectionLabel>
-          <NavItem to="/admin/rozliczenia">Rozliczenia faktur</NavItem>
-          <NavItem to="/admin/umowy">Umowy i zgody</NavItem>
+          {can('admin') && (
+            <>
+              <SectionLabel>Finanse i współpraca</SectionLabel>
+              <NavItem to="/admin/rozliczenia">Rozliczenia faktur</NavItem>
+              <NavItem to="/admin/umowy">Umowy i zgody</NavItem>
+            </>
+          )}
 
           <SectionLabel>Pliki</SectionLabel>
           <NavItem to="/admin/media">Media</NavItem>
           <NavItem to="/admin/dokumenty">Dokumenty</NavItem>
           <NavItem to="/admin/strony/materials">Materiały do pobrania</NavItem>
+
+          {can('super_admin') && (
+            <>
+              <SectionLabel>Administracja</SectionLabel>
+              <NavItem to="/admin/uprawnienia">Uprawnienia</NavItem>
+            </>
+          )}
         </nav>
 
         <div className="pt-4">

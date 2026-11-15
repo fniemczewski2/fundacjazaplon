@@ -5,6 +5,7 @@ import Hero from '../components/Hero';
 import SupportPillars from '../components/SupportPillars';
 import MissionBand from '../components/MissionBand';
 import RecentPosts from '../components/RecentPosts';
+import InstagramFeed from '../components/InstagramFeed';
 import DonateCard from '../components/DonateCard';
 import NewsletterCard from '../components/NewsletterCard';
 import JoinUsCard from '../components/JoinUsCard';
@@ -45,6 +46,8 @@ export default function Home() {
       <MissionBand />
 
       <RecentPosts />
+
+      <InstagramFeed />
 
       {/* Materiały - most między „chcę pomóc” a „potrzebuję pomocy”. */}
       <section aria-labelledby="materials-title" className="section-gap container-max">

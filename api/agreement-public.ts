@@ -6,7 +6,8 @@ import { OTP_COOLDOWN_MS, OTP_MAX_ATTEMPTS, OTP_TTL_MS } from './_lib/config.js'
 import { sendGraphMail } from './_lib/graph.js';
 import { bodyOf, clientIp, sendJson, sendPdf, shorten, type ApiRequest, type JsonObject } from './_lib/http.js';
 import { encryptPii } from './_lib/pii.js';
-import { rateLimited } from './_lib/rateLimit.js';
+import { rateLimited, UNAVAILABLE_MESSAGE } from './_lib/rateLimit.js';
+import { incrementWindow, RedisUnavailableError } from './_lib/redis.js';
 import { logSecurityEvent } from './_lib/securityEvents.js';
 import { buildPackage, contentHash, templatesApproved, TEMPLATE_VERSION, type AgreementRow } from './_lib/agreements/documents.js';
 import { otpMail } from './_lib/agreements/emails.js';
@@ -197,6 +198,13 @@ async function sendOtp(db: SupabaseClient, row: FullRow, res: ServerResponse) {
   return sendJson(res, 200, { ok: true });
 }
 
+/** Zużywa próbę podania kodu (INCR w Redis, atomowo przed porównaniem). Wartość > OTP_MAX_ATTEMPTS oznacza wyczerpanie. */
+async function claimOtpAttempt(row: FullRow): Promise<number> {
+  const sentAt = row.otp_sent_at ? new Date(row.otp_sent_at).getTime() : 0;
+  const { count } = await incrementWindow(`otp:${row.id}:${sentAt}`, Math.ceil(OTP_TTL_MS / 1000) + 60);
+  return count;
+}
+
 async function sign(db: SupabaseClient, row: FullRow, body: JsonObject, req: ApiRequest, res: ServerResponse) {
   if (row.status !== 'approved') return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
   if (!row.consents_saved_at) return sendJson(res, 409, { error: 'Najpierw zapisz zgody i oświadczenia.' });
@@ -210,9 +218,9 @@ async function sign(db: SupabaseClient, row: FullRow, body: JsonObject, req: Api
   }
 
   // Próba jest zużywana atomowo PRZED porównaniem kodu: równoległe żądania nie przekroczą limitu.
-  const { data: attempt, error: attemptError } = await db.rpc('claim_otp_attempt', { p_id: row.id, p_max: OTP_MAX_ATTEMPTS });
-  if (attemptError) throw attemptError;
-  if (typeof attempt !== 'number') {
+  // Licznik w Redis jest kluczowany czasem wysłania kodu: nowy kod = nowy licznik. Brak Redis = odmowa (fail-closed).
+  const attempt = await claimOtpAttempt(row);
+  if (attempt > OTP_MAX_ATTEMPTS) {
     await logSecurityEvent(db, req, 'otp_exhausted', { agreementId: row.id });
     return sendJson(res, 429, { error: 'Zbyt wiele błędnych prób. Poproś o nowy kod.' });
   }
@@ -299,6 +307,10 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
         return await sign(db, row, body, req, res);
     }
   } catch (err) {
+    if (err instanceof RedisUnavailableError) {
+      console.error('agreement-public: Redis niedostępny:', shorten(err));
+      return sendJson(res, 503, { error: UNAVAILABLE_MESSAGE }, { 'Retry-After': '30' });
+    }
     console.error('agreement-public error:', err);
     return sendJson(res, 500, { error: 'Błąd serwera. Spróbuj ponownie.' });
   }

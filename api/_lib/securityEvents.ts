@@ -8,7 +8,9 @@ export type SecurityEventType =
   | 'invalid_token'
   | 'otp_exhausted'
   | 'bad_ticket'
-  | 'invalid_file_url';
+  | 'invalid_file_url'
+  | 'staff_role_set'
+  | 'staff_role_removed';
 
 /** Zapisuje zdarzenie istotne dla bezpieczeństwa. Błąd zapisu nigdy nie przerywa obsługi żądania. */
 export async function logSecurityEvent(

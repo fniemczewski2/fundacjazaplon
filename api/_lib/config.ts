@@ -20,13 +20,26 @@ export const DONATION_MAX_PLN = 50_000;
 export const SETTLEMENT_BUCKET = 'settlements';
 export const SETTLEMENT_TICKET_TTL_MS = 30 * 60_000;
 
+// --- Instagram (Meta Graph API) ---
+export const INSTAGRAM = {
+  graphVersion: 'v26.0',
+  timeoutMs: 5000,
+  fetchLimit: 6,
+  show: 4,
+  captionMax: 300,
+  cacheKey: 'ig:posts',
+  staleKey: 'ig:posts:stale',
+  cacheTtlSec: 900,
+  staleTtlSec: 7 * 86_400,
+} as const;
+
 // --- formularze publiczne ---
 export const CONTACT_MESSAGE_MAX = 5000;
 export const FIELD_NAME_MAX = 200;
 export const FILE_URL_MAX = 500;
 export const FILE_TITLE_MAX = 200;
 
-// --- limity żądań: liczba prób w oknie czasowym, osobno dla adresu IP ---
+// --- limity żądań (Upstash Redis): liczba prób w oknie czasowym, osobno dla adresu IP ---
 export const RATE_LIMITS = {
   newsletter: { limit: 5, windowSec: 3600 },
   donation: { limit: 10, windowSec: 3600 },
