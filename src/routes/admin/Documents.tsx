@@ -19,22 +19,30 @@ import Loader from '../../components/Loader';
 export default function AdminDocuments() {
   const [category, setCategory] = useState<DocCategory>('statut');
   const fetchFiles = useCallback(() => listDocuments(category), [category]);
-  const { data: files, loading, reload } = useAsyncData(fetchFiles, [] as DocumentFile[], 'Nie udało się wczytać plików.');
+  const {
+    data: files,
+    loading,
+    reload,
+  } = useAsyncData(fetchFiles, [] as DocumentFile[], 'Nie udało się wczytać plików.');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const confirm = useConfirm();
   const { can } = useStaff();
 
   const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return;
-    setBusy(true); setMsg(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusy(true);
+    setMsg(null);
     try {
       await uploadDocument(category, file);
       await reload();
       setMsg('Plik przesłany.');
     } catch (err) {
       const message =
-        err instanceof DocumentValidationError ? err.message : getErrorMessage(err, 'Błąd przesyłania.');
+        err instanceof DocumentValidationError
+          ? err.message
+          : getErrorMessage(err, 'Błąd przesyłania.');
       setMsg(message);
     } finally {
       setBusy(false);
@@ -49,7 +57,8 @@ export default function AdminDocuments() {
     });
     if (!confirmed) return;
 
-    setBusy(true); setMsg(null);
+    setBusy(true);
+    setMsg(null);
     try {
       await deleteDocument(path);
       await reload();
@@ -70,7 +79,12 @@ export default function AdminDocuments() {
       <ul className="divide-y border rounded-xl">
         {files.map((f) => (
           <li key={f.path} className="p-3 flex items-center justify-between">
-            <a href={f.url} target="_blank" rel="noopener noreferrer" className="underline truncate max-w-[70%]">
+            <a
+              href={f.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline truncate max-w-[70%]"
+            >
               {f.name}
             </a>
             {can('admin') && (
@@ -100,16 +114,23 @@ export default function AdminDocuments() {
           onChange={(e) => setCategory(e.target.value as DocCategory)}
           className="border p-2 rounded"
         >
-          {ALL_CATEGORIES.map(c => (
-            <option key={c.key} value={c.key}>{c.label}</option>
+          {ALL_CATEGORIES.map((c) => (
+            <option key={c.key} value={c.key}>
+              {c.label}
+            </option>
           ))}
         </select>
 
         <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer">
           <FiUpload />
           <span>Dodaj plik</span>
-          <input type="file" className="hidden" onChange={onUpload}
-            accept=".pdf,.doc,.docx,.odt,.txt" disabled={busy} />
+          <input
+            type="file"
+            className="hidden"
+            onChange={onUpload}
+            accept=".pdf,.doc,.docx,.odt,.txt"
+            disabled={busy}
+          />
         </label>
 
         {msg && <span className="text-sm text-ink-muted">{msg}</span>}

@@ -26,7 +26,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   override componentDidUpdate(prev: Props) {
-    if (this.state.hasError && prev.resetKey !== this.props.resetKey) this.setState({ hasError: false });
+    if (this.state.hasError && prev.resetKey !== this.props.resetKey)
+      this.setState({ hasError: false });
   }
 
   override render() {
@@ -37,7 +38,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
       <div className={`${height} grid place-items-center bg-surface p-6 text-center`}>
         <div>
           <h1 className="mb-2 text-2xl font-semibold text-ink">Coś poszło nie tak.</h1>
-          <p className="muted mb-6">Przepraszamy za utrudnienia. Spróbuj odświeżyć stronę lub wrócić na stronę główną.</p>
+          <p className="muted mb-6">
+            Przepraszamy za utrudnienia. Spróbuj odświeżyć stronę lub wrócić na stronę główną.
+          </p>
           <a href="/" className="btn btn-primary inline-flex">
             Strona główna
           </a>

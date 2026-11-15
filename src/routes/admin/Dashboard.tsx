@@ -1,7 +1,12 @@
 // src/routes/admin/Dashboard.tsx
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
-import { getAdminCounts, getCurrentUserEmail, signOutAdmin, type AdminCounts } from '../../lib/admin';
+import {
+  getAdminCounts,
+  getCurrentUserEmail,
+  signOutAdmin,
+  type AdminCounts,
+} from '../../lib/admin';
 import Loader from '../../components/Loader';
 import { useStaff } from '../../app/staffContext';
 import { ROLE_LABELS } from '../../../shared/roles';
@@ -21,10 +26,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const [email, counts] = await Promise.all([
-        getCurrentUserEmail(),
-        getAdminCounts(),
-      ]);
+      const [email, counts] = await Promise.all([getCurrentUserEmail(), getAdminCounts()]);
       setEmail(email);
       setCounts(counts);
       setLoading(false);
@@ -54,6 +56,7 @@ export default function AdminDashboard() {
           {can('admin') && (
             <>
               <SectionLabel>Finanse i współpraca</SectionLabel>
+              <NavItem to="/admin/finanse">Finanse (Stripe)</NavItem>
               <NavItem to="/admin/rozliczenia">Rozliczenia faktur</NavItem>
               <NavItem to="/admin/umowy">Umowy i zgody</NavItem>
             </>
@@ -73,11 +76,7 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="pt-4">
-          <button
-            type="button"
-            onClick={signOutAdmin}
-            className="btn btn-secondary w-full"
-          >
+          <button type="button" onClick={signOutAdmin} className="btn btn-secondary w-full">
             Wyloguj
           </button>
         </div>
@@ -86,13 +85,15 @@ export default function AdminDashboard() {
       <main className="p-6 space-y-6">
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Panel administracyjny</h1>
-          <div className="text-sm text-ink-muted">
-            {loading && <Loader />}
-          </div>
+          <div className="text-sm text-ink-muted">{loading && <Loader />}</div>
         </header>
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <KpiCard label="Opublikowane aktualności" value={counts.newsPublished} to="/admin/aktualnosci" />
+          <KpiCard
+            label="Opublikowane aktualności"
+            value={counts.newsPublished}
+            to="/admin/aktualnosci"
+          />
           <KpiCard label="Szkice aktualności" value={counts.newsDrafts} to="/admin/aktualnosci" />
           <KpiCard label="Członkowie zespołu" value={counts.teamCount} to="/admin/zespol" />
           <div className="border rounded-2xl p-4">
@@ -104,8 +105,16 @@ export default function AdminDashboard() {
         </section>
 
         <section className="grid gap-4 lg:grid-cols-2">
-          <PageCard title="Strona „O nas”" updatedAt={<NiceDate iso={counts.oNasUpdatedAt} />} to="/admin/strony/o-nas" />
-          <PageCard title="Strona „Kontakt”" updatedAt={<NiceDate iso={counts.kontaktUpdatedAt} />} to="/admin/strony/kontakt" />
+          <PageCard
+            title="Strona „O nas”"
+            updatedAt={<NiceDate iso={counts.oNasUpdatedAt} />}
+            to="/admin/strony/o-nas"
+          />
+          <PageCard
+            title="Strona „Kontakt”"
+            updatedAt={<NiceDate iso={counts.kontaktUpdatedAt} />}
+            to="/admin/strony/kontakt"
+          />
         </section>
 
         <section className="grid gap-4 md:grid-cols-2">
@@ -139,20 +148,33 @@ function SectionLabel({ children }: Readonly<{ children: React.ReactNode }>) {
 
 function NavItem({ to, children }: Readonly<{ to: string; children: React.ReactNode }>) {
   return (
-    <Link to={to} className="block w-full px-3 py-2 rounded-xl text-ink hover:bg-surface-cool border border-transparent hover:border-line">
+    <Link
+      to={to}
+      className="block w-full px-3 py-2 rounded-xl text-ink hover:bg-surface-cool border border-transparent hover:border-line"
+    >
       {children}
     </Link>
   );
 }
 
-function KpiCard({ label, value, to }: Readonly<{ label: string; value: number | string; to?: string }>) {
+function KpiCard({
+  label,
+  value,
+  to,
+}: Readonly<{ label: string; value: number | string; to?: string }>) {
   const content = (
     <div className="border rounded-2xl p-4">
       <div className="text-sm text-ink-muted">{label}</div>
       <div className="mt-2 text-3xl font-semibold">{value}</div>
     </div>
   );
-  return to ? <Link to={to} className="block hover:border-line-strong">{content}</Link> : content;
+  return to ? (
+    <Link to={to} className="block hover:border-line-strong">
+      {content}
+    </Link>
+  ) : (
+    content
+  );
 }
 
 function QuickAction({ to, children }: Readonly<{ to: string; children: React.ReactNode }>) {
@@ -163,24 +185,37 @@ function QuickAction({ to, children }: Readonly<{ to: string; children: React.Re
   );
 }
 
-function PageCard({ title, updatedAt, to }: Readonly<{ title: string; updatedAt: React.ReactNode; to: string }>) {
+function PageCard({
+  title,
+  updatedAt,
+  to,
+}: Readonly<{ title: string; updatedAt: React.ReactNode; to: string }>) {
   return (
     <div className="border rounded-2xl p-4 flex items-start justify-between">
       <div>
         <div className="font-medium">{title}</div>
         <div className="text-sm text-ink-muted">Ostatnia aktualizacja: {updatedAt}</div>
       </div>
-      <Link to={to} className="btn btn-secondary">Edytuj</Link>
+      <Link to={to} className="btn btn-secondary">
+        Edytuj
+      </Link>
     </div>
   );
 }
 
-function ShortcutCard({ title, description, to, cta }: Readonly<{ title: string; description: string; to: string; cta: string }>) {
+function ShortcutCard({
+  title,
+  description,
+  to,
+  cta,
+}: Readonly<{ title: string; description: string; to: string; cta: string }>) {
   return (
     <div className="border rounded-2xl p-5">
       <div className="text-lg font-medium">{title}</div>
       <p className="text-sm text-ink-muted mt-1">{description}</p>
-      <Link to={to} className="inline-block mt-3 btn btn-secondary">{cta}</Link>
+      <Link to={to} className="inline-block mt-3 btn btn-secondary">
+        {cta}
+      </Link>
     </div>
   );
 }

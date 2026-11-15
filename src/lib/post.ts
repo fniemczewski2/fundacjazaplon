@@ -60,7 +60,12 @@ export async function createPost(payload: PostCreate): Promise<Post> {
 }
 
 export async function updatePost(id: string, payload: PostUpdate): Promise<Post> {
-  const { data, error } = await supabase.from('posts').update(payload).eq('id', id).select('*').single();
+  const { data, error } = await supabase
+    .from('posts')
+    .update(payload)
+    .eq('id', id)
+    .select('*')
+    .single();
   if (error) throw new Error(error.message);
   return data as Post;
 }

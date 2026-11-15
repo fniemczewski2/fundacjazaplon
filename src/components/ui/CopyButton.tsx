@@ -12,7 +12,11 @@ export default function CopyButton({ value, label }: Readonly<{ value: string; l
       aria-label={copied ? `Skopiowano: ${label}` : `Skopiuj: ${label}`}
       className="inline-flex size-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-surface-cool"
     >
-      {copied ? <FiCheck aria-hidden="true" className="size-4 text-success" /> : <FiCopy aria-hidden="true" className="size-4" />}
+      {copied ? (
+        <FiCheck aria-hidden="true" className="size-4 text-success" />
+      ) : (
+        <FiCopy aria-hidden="true" className="size-4" />
+      )}
     </button>
   );
 }

@@ -1,9 +1,26 @@
 // Pozycje strony /links współdzielone przez przeglądarkę (src/). Plik nie może importować niczego spoza `shared/`.
 
-export const LINK_KINDS = ['link', 'donate', 'newsletter', 'join', 'instagram', 'linkedin'] as const;
+export const LINK_KINDS = [
+  'link',
+  'donate',
+  'newsletter',
+  'join',
+  'instagram',
+  'linkedin',
+] as const;
 export type LinkKind = (typeof LINK_KINDS)[number];
 
-export const LINK_ICONS = ['link', 'clipboard', 'download', 'globe', 'envelope', 'heart', 'user-plus', 'instagram', 'linkedin'] as const;
+export const LINK_ICONS = [
+  'link',
+  'clipboard',
+  'download',
+  'globe',
+  'envelope',
+  'heart',
+  'user-plus',
+  'instagram',
+  'linkedin',
+] as const;
 export type LinkIcon = (typeof LINK_ICONS)[number];
 
 export const LINK_ICON_LABELS: Record<LinkIcon, string> = {
@@ -32,4 +49,5 @@ export const LINK_LIMITS = { title: 120, description: 200, url: 500 } as const;
 /** Adres wewnętrzny (`/materialy`) albo zewnętrzny http(s). Odrzuca `javascript:`, `//host` i białe znaki; zgodne z CHECK w bazie. */
 export const LINK_URL_RE = /^(https?:\/\/\S+|\/[^/\s]\S*|\/)$/;
 
-export const isValidLinkUrl = (value: string): boolean => value.length <= LINK_LIMITS.url && LINK_URL_RE.test(value);
+export const isValidLinkUrl = (value: string): boolean =>
+  value.length <= LINK_LIMITS.url && LINK_URL_RE.test(value);

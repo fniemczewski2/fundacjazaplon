@@ -59,7 +59,12 @@ export default function AdminSettlements() {
   const busyRef = useRef(false);
   const [resendingId, setResendingId] = useState<string | null>(null);
 
-  const { data: rows, loading, error: err, reload: refresh } = useAsyncData(listSettlements, [] as SettlementRow[], 'Błąd pobierania danych.');
+  const {
+    data: rows,
+    loading,
+    error: err,
+    reload: refresh,
+  } = useAsyncData(listSettlements, [] as SettlementRow[], 'Błąd pobierania danych.');
 
   const counts = useMemo(
     () => ({
@@ -156,7 +161,10 @@ export default function AdminSettlements() {
         popup.opener = null;
         popup.location.href = url;
       } else {
-        toast('Przeglądarka zablokowała nowe okno. Zezwól na wyskakujące okna dla tej strony.', 'error');
+        toast(
+          'Przeglądarka zablokowała nowe okno. Zezwól na wyskakujące okna dla tej strony.',
+          'error',
+        );
       }
     } catch (e) {
       popup?.close();
@@ -238,10 +246,16 @@ export default function AdminSettlements() {
                   <article className="card flex h-full flex-col p-5 md:p-6">
                     <div className="grid grid-cols-1 gap-y-3 sm:grid-cols-[1fr_auto] sm:gap-x-4">
                       <div className="min-w-0">
-                        <h2 className="font-heading text-xl leading-snug font-semibold break-words">{fullName}</h2>
-                        <p className="muted mt-1 text-sm break-words">{r.email ?? 'brak adresu e-mail'}</p>
+                        <h2 className="font-heading text-xl leading-snug font-semibold break-words">
+                          {fullName}
+                        </h2>
+                        <p className="muted mt-1 text-sm break-words">
+                          {r.email ?? 'brak adresu e-mail'}
+                        </p>
                         <p className="muted text-sm">
-                          <time dateTime={r.created_at}>{new Date(r.created_at).toLocaleString('pl-PL')}</time>
+                          <time dateTime={r.created_at}>
+                            {new Date(r.created_at).toLocaleString('pl-PL')}
+                          </time>
                         </p>
                       </div>
 
@@ -287,7 +301,10 @@ export default function AdminSettlements() {
                             <>
                               <span className="font-mono break-all">{r.ksef_number}</span>
                               {r.ksef_number && (
-                                <CopyButton value={r.ksef_number} label={`numer KSeF, ${fullName}`} />
+                                <CopyButton
+                                  value={r.ksef_number}
+                                  label={`numer KSeF, ${fullName}`}
+                                />
                               )}
                             </>
                           )}
@@ -375,7 +392,8 @@ export default function AdminSettlements() {
               <div>
                 <dt className={LABEL}>Wnioskodawca</dt>
                 <dd className="mt-0.5 font-semibold">
-                  {dialog.row.first_name} {dialog.row.last_name}, {formatPln(dialog.row.amount_grosze)}
+                  {dialog.row.first_name} {dialog.row.last_name},{' '}
+                  {formatPln(dialog.row.amount_grosze)}
                 </dd>
               </div>
               <div>
@@ -386,7 +404,9 @@ export default function AdminSettlements() {
 
             <div>
               <label htmlFor="decision-note" className="field-label">
-                {dialog.action === 'approve' ? 'Uwagi dla wnioskodawcy (opcjonalnie)' : 'Powód odrzucenia'}
+                {dialog.action === 'approve'
+                  ? 'Uwagi dla wnioskodawcy (opcjonalnie)'
+                  : 'Powód odrzucenia'}
               </label>
               <textarea
                 id="decision-note"
@@ -410,7 +430,12 @@ export default function AdminSettlements() {
             </div>
 
             <div className="flex flex-wrap justify-end gap-2">
-              <button type="button" onClick={closeDialog} disabled={busy} className="btn btn-secondary">
+              <button
+                type="button"
+                onClick={closeDialog}
+                disabled={busy}
+                className="btn btn-secondary"
+              >
                 Anuluj
               </button>
               <button
@@ -419,7 +444,11 @@ export default function AdminSettlements() {
                 disabled={busy}
                 className={`btn ${dialog.action === 'approve' ? 'btn-primary' : 'btn-danger'}`}
               >
-                {busy ? 'Zapisujemy…' : dialog.action === 'approve' ? 'Zatwierdź i wyślij e-mail' : 'Odrzuć i wyślij e-mail'}
+                {busy
+                  ? 'Zapisujemy…'
+                  : dialog.action === 'approve'
+                    ? 'Zatwierdź i wyślij e-mail'
+                    : 'Odrzuć i wyślij e-mail'}
               </button>
             </div>
           </div>

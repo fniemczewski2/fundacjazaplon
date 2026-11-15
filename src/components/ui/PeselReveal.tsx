@@ -7,7 +7,10 @@ import CopyButton from './CopyButton';
  * PESEL jest w bazie zaszyfrowany. Odsłonięcie wymaga osobnego żądania do serwera, które zostawia ślad w dzienniku zdarzeń umowy.
  * Numer znika z widoku po ponownym kliknięciu i nie jest nigdzie zapisywany po stronie przeglądarki.
  */
-export default function PeselReveal({ agreementId, label }: Readonly<{ agreementId: string; label: string }>) {
+export default function PeselReveal({
+  agreementId,
+  label,
+}: Readonly<{ agreementId: string; label: string }>) {
   const [pesel, setPesel] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -30,7 +33,11 @@ export default function PeselReveal({ agreementId, label }: Readonly<{ agreement
       <span className="inline-flex items-center gap-1 font-mono">
         {pesel}
         <CopyButton value={pesel} label={`PESEL, ${label}`} />
-        <button type="button" onClick={() => setPesel(null)} className="link-quiet ml-1 font-sans text-xs underline">
+        <button
+          type="button"
+          onClick={() => setPesel(null)}
+          className="link-quiet ml-1 font-sans text-xs underline"
+        >
           Ukryj
         </button>
       </span>
@@ -39,11 +46,20 @@ export default function PeselReveal({ agreementId, label }: Readonly<{ agreement
 
   return (
     <span className="inline-flex items-center gap-2">
-      <button type="button" onClick={reveal} disabled={busy} className="btn btn-secondary px-3 py-1 text-xs">
+      <button
+        type="button"
+        onClick={reveal}
+        disabled={busy}
+        className="btn btn-secondary px-3 py-1 text-xs"
+      >
         {busy ? 'Pobieranie…' : 'Pokaż PESEL'}
         <span className="sr-only">: {label}</span>
       </button>
-      {error && <span role="alert" className="field-error text-xs">{error}</span>}
+      {error && (
+        <span role="alert" className="field-error text-xs">
+          {error}
+        </span>
+      )}
     </span>
   );
 }

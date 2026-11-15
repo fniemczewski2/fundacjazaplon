@@ -15,7 +15,9 @@ export function supabaseEnv(): SupabaseEnv | null {
 }
 
 export function serviceClient(env: SupabaseEnv): SupabaseClient {
-  return createClient(env.url, env.serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  return createClient(env.url, env.serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 }
 
 /** Adres super administratora ze zmiennej środowiskowej SUPER_ADMIN_EMAIL (małe litery) albo null. */
@@ -29,11 +31,18 @@ export function superAdminEmail(): string | null {
  * z której korzystają polityki RLS: poprzedniemu (zmienionemu) super administratorowi obniżamy rolę do admin.
  */
 async function syncSuperAdmin(db: SupabaseClient, email: string): Promise<void> {
-  const demote = await db.from('staff_roles').update({ role: 'admin' }).eq('role', 'super_admin').neq('email', email);
+  const demote = await db
+    .from('staff_roles')
+    .update({ role: 'admin' })
+    .eq('role', 'super_admin')
+    .neq('email', email);
   if (demote.error) throw demote.error;
   const upsert = await db
     .from('staff_roles')
-    .upsert({ email, role: 'super_admin', granted_by: 'SUPER_ADMIN_EMAIL' }, { onConflict: 'email' });
+    .upsert(
+      { email, role: 'super_admin', granted_by: 'SUPER_ADMIN_EMAIL' },
+      { onConflict: 'email' },
+    );
   if (upsert.error) throw upsert.error;
 }
 
@@ -44,7 +53,11 @@ export type Identity = { db: SupabaseClient; email: string; role: StaffRole | nu
  * (funkcja staff_role(), ta sama co w politykach RLS), a dla super administratora zmienna SUPER_ADMIN_EMAIL.
  * Przy niepowodzeniu sama wysyła odpowiedź i zwraca null.
  */
-export async function identifyUser(req: ApiRequest, res: ServerResponse, who: string): Promise<Identity | null> {
+export async function identifyUser(
+  req: ApiRequest,
+  res: ServerResponse,
+  who: string,
+): Promise<Identity | null> {
   const env = supabaseEnv();
   if (!env) {
     console.error(`${who}: brak SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY.`);
@@ -90,12 +103,18 @@ export async function identifyUser(req: ApiRequest, res: ServerResponse, who: st
   // polityk; osoba z rolą jest w niej wpisana). Klucz anon / publishable zwraca tu 0 wierszy, a UPDATE po cichu
   // nie zmienia niczego.
   if (role) {
-    const { data: probe, error: probeError } = await db.from('staff_roles').select('email').limit(1);
+    const { data: probe, error: probeError } = await db
+      .from('staff_roles')
+      .select('email')
+      .limit(1);
     if (probeError) throw probeError;
     if (!probe || probe.length === 0) {
-      console.error(`${who}: SUPABASE_SERVICE_ROLE_KEY nie omija RLS (klucz anon/publishable lub z innego projektu).`);
+      console.error(
+        `${who}: SUPABASE_SERVICE_ROLE_KEY nie omija RLS (klucz anon/publishable lub z innego projektu).`,
+      );
       sendJson(res, 500, {
-        error: 'SUPABASE_SERVICE_ROLE_KEY nie omija RLS. Wklej klucz service_role / Secret key z tego samego projektu (nie anon / publishable).',
+        error:
+          'SUPABASE_SERVICE_ROLE_KEY nie omija RLS. Wklej klucz service_role / Secret key z tego samego projektu (nie anon / publishable).',
       });
       return null;
     }
@@ -117,7 +136,9 @@ export async function authenticateStaff(
   if (!identity) return null;
 
   if (!hasRole(identity.role, min)) {
-    sendJson(res, 403, { error: min === 'editor' ? 'Brak uprawnień do panelu.' : 'Brak uprawnień do tej operacji.' });
+    sendJson(res, 403, {
+      error: min === 'editor' ? 'Brak uprawnień do panelu.' : 'Brak uprawnień do tej operacji.',
+    });
     return null;
   }
   return { db: identity.db, adminEmail: identity.email, role: identity.role as StaffRole };

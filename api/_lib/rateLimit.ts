@@ -32,6 +32,11 @@ export async function rateLimited(
   }
 
   await logSecurityEvent(db ?? null, req, 'rate_limited', { limiter: name });
-  sendJson(res, 429, { error: 'Zbyt wiele prób. Spróbuj ponownie za jakiś czas.' }, { 'Retry-After': String(ttlSec) });
+  sendJson(
+    res,
+    429,
+    { error: 'Zbyt wiele prób. Spróbuj ponownie za jakiś czas.' },
+    { 'Retry-After': String(ttlSec) },
+  );
   return true;
 }

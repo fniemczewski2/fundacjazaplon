@@ -26,8 +26,10 @@ function metaElement(attr: 'name' | 'property', key: string): HTMLMetaElement {
   return meta;
 }
 
-const setMeta = (attr: 'name' | 'property', key: string, content: string) => metaElement(attr, key).setAttribute('content', content);
-const removeMeta = (attr: 'name' | 'property', key: string) => document.head.querySelector(`meta[${attr}="${key}"]`)?.remove();
+const setMeta = (attr: 'name' | 'property', key: string, content: string) =>
+  metaElement(attr, key).setAttribute('content', content);
+const removeMeta = (attr: 'name' | 'property', key: string) =>
+  document.head.querySelector(`meta[${attr}="${key}"]`)?.remove();
 
 function setCanonical(href: string) {
   let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
@@ -39,13 +41,21 @@ function setCanonical(href: string) {
   link.href = href;
 }
 
-const absolute = (value: string) => (/^https?:\/\//i.test(value) ? value : `${SITE_URL}${value.startsWith('/') ? '' : '/'}${value}`);
+const absolute = (value: string) =>
+  /^https?:\/\//i.test(value) ? value : `${SITE_URL}${value.startsWith('/') ? '' : '/'}${value}`;
 
 /**
  * Meta tagi strony. Adres kanoniczny to adres serwisu + ścieżka, bez parametrów zapytania i fragmentu
  * (parametry i tokeny nie powinny trafiać do indeksu ani do podglądów w mediach społecznościowych).
  */
-export default function Seo({ title, description, image, type = 'website', noindex = false, breadcrumbs }: Readonly<Props>) {
+export default function Seo({
+  title,
+  description,
+  image,
+  type = 'website',
+  noindex = false,
+  breadcrumbs,
+}: Readonly<Props>) {
   const breadcrumbsKey = breadcrumbs ? JSON.stringify(breadcrumbs) : '';
 
   useEffect(() => {

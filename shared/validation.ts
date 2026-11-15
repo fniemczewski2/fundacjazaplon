@@ -72,10 +72,12 @@ export function validateSettlementFields(input: SettlementFields): SettlementFie
   const purpose = input.purpose.trim();
 
   if (!first) errors.firstName = 'Podaj imię.';
-  else if (first.length > MAX_NAME_LENGTH) errors.firstName = `Imię może mieć maksymalnie ${MAX_NAME_LENGTH} znaków.`;
+  else if (first.length > MAX_NAME_LENGTH)
+    errors.firstName = `Imię może mieć maksymalnie ${MAX_NAME_LENGTH} znaków.`;
 
   if (!last) errors.lastName = 'Podaj nazwisko.';
-  else if (last.length > MAX_NAME_LENGTH) errors.lastName = `Nazwisko może mieć maksymalnie ${MAX_NAME_LENGTH} znaków.`;
+  else if (last.length > MAX_NAME_LENGTH)
+    errors.lastName = `Nazwisko może mieć maksymalnie ${MAX_NAME_LENGTH} znaków.`;
 
   if (!isValidEmail(input.email.trim())) errors.email = 'Podaj poprawny adres e-mail.';
 
@@ -86,11 +88,13 @@ export function validateSettlementFields(input: SettlementFields): SettlementFie
   }
 
   if (!isValidPlIban(normalizeIban(input.iban))) {
-    errors.iban = 'Podaj poprawny polski numer konta (26 cyfr). Format lub suma kontrolna się nie zgadza.';
+    errors.iban =
+      'Podaj poprawny polski numer konta (26 cyfr). Format lub suma kontrolna się nie zgadza.';
   }
 
   const grosze = parseAmountToGrosze(input.amount);
-  if (grosze === null) errors.amount = 'Podaj kwotę w formacie 123,45 (maks. 2 miejsca po przecinku).';
+  if (grosze === null)
+    errors.amount = 'Podaj kwotę w formacie 123,45 (maks. 2 miejsca po przecinku).';
   else if (grosze < 1) errors.amount = 'Kwota musi być większa od zera.';
   else if (grosze > MAX_AMOUNT_GROSZE) errors.amount = 'Kwota przekracza limit 1 000 000 zł.';
 

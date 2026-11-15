@@ -8,7 +8,9 @@ import { usePrivacyPolicyDocUrl } from '../hooks/useAppData';
 export default function PrivacyPolicyLink({ black }: Readonly<{ black?: boolean }>) {
   const { data: pdfUrl } = usePrivacyPolicyDocUrl();
   // `black` = link stoi na jasnej karcie, więc dostaje kolor akcentu. Bez niego dziedziczy kolor otoczenia (stopka).
-  const className = black ? 'link-accent text-sm' : 'text-sm underline-offset-4 transition-colors hover:underline';
+  const className = black
+    ? 'link-accent text-sm'
+    : 'text-sm underline-offset-4 transition-colors hover:underline';
 
   if (pdfUrl) {
     return (

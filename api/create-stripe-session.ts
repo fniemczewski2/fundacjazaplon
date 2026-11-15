@@ -1,5 +1,5 @@
 import type { ServerResponse } from 'node:http';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
 import { isValidEmail } from '../shared/validation.js';
 import { serviceClient, supabaseEnv } from './_lib/auth.js';
 import { requireCaptcha } from './_lib/captcha.js';
@@ -7,6 +7,7 @@ import { DONATION_MAX_PLN, DONATION_MIN_PLN, FIELD_NAME_MAX, siteUrl } from './_
 import { bodyOf, sendJson, type ApiRequest, type JsonObject } from './_lib/http.js';
 import { subscribeToMailerLite } from './_lib/mailerlite.js';
 import { rateLimited } from './_lib/rateLimit.js';
+import { getStripe } from './_lib/stripe.js';
 
 interface DonationPayload {
   amount: number;
@@ -19,13 +20,26 @@ interface DonationPayload {
 function validatePayload(body: JsonObject): { data: DonationPayload } | { error: string } {
   const { amount, isRecurring, name, email, marketingConsent } = body;
 
-  if (typeof amount !== 'number' || !Number.isFinite(amount) || amount < DONATION_MIN_PLN || amount > DONATION_MAX_PLN) {
+  if (
+    typeof amount !== 'number' ||
+    !Number.isFinite(amount) ||
+    amount < DONATION_MIN_PLN ||
+    amount > DONATION_MAX_PLN
+  ) {
     return { error: `Kwota musi być liczbą z zakresu ${DONATION_MIN_PLN}-${DONATION_MAX_PLN} zł.` };
   }
   if (!isValidEmail(email)) return { error: 'Podaj prawidłowy adres e-mail.' };
 
   const safeName = typeof name === 'string' ? name.slice(0, FIELD_NAME_MAX) : undefined;
-  return { data: { amount, isRecurring: Boolean(isRecurring), safeName, email, marketingConsent: marketingConsent === true } };
+  return {
+    data: {
+      amount,
+      isRecurring: Boolean(isRecurring),
+      safeName,
+      email,
+      marketingConsent: marketingConsent === true,
+    },
+  };
 }
 
 async function subscribeDonor(email: string, safeName: string | undefined) {
@@ -40,14 +54,26 @@ async function subscribeDonor(email: string, safeName: string | undefined) {
   }
 }
 
-type SessionInput = { stripe: Stripe; email: string; safeName: string | undefined; unitAmount: number; successUrl: string; cancelUrl: string };
+type SessionInput = {
+  stripe: Stripe;
+  email: string;
+  safeName: string | undefined;
+  unitAmount: number;
+  successUrl: string;
+  cancelUrl: string;
+};
 
-async function createRecurringSession({ stripe, email, safeName, unitAmount, successUrl, cancelUrl }: SessionInput) {
-  const recurringProductId = process.env.STRIPE_RECURRING_PRODUCT_ID;
-  if (!recurringProductId) throw new Error('Brak konfiguracji STRIPE_RECURRING_PRODUCT_ID.');
-
-  const customers = await stripe.customers.list({ email, limit: 1 });
-  const customer = customers.data[0] ?? (await stripe.customers.create({ email, name: safeName }));
+async function createRecurringSession({
+  stripe,
+  email,
+  safeName,
+  unitAmount,
+  successUrl,
+  cancelUrl,
+}: SessionInput) {
+  // Nowy klient przy każdej wpłacie cyklicznej (bez wyszukiwania po e-mailu): link zarządzania z podziękowania
+  // otwiera panel Stripe tego klienta, więc nie może dawać wglądu w wpłaty innej osoby o tym samym adresie.
+  const customer = await stripe.customers.create({ email, name: safeName });
 
   return stripe.checkout.sessions.create({
     mode: 'subscription',
@@ -55,7 +81,12 @@ async function createRecurringSession({ stripe, email, safeName, unitAmount, suc
     customer_update: { name: 'auto' },
     line_items: [
       {
-        price_data: { currency: 'pln', product: recurringProductId, unit_amount: unitAmount, recurring: { interval: 'month' } },
+        price_data: {
+          currency: 'pln',
+          unit_amount: unitAmount,
+          recurring: { interval: 'month' },
+          product_data: { name: 'Regularne wsparcie Fundacji „Zapłon”' },
+        },
         quantity: 1,
       },
     ],
@@ -64,7 +95,14 @@ async function createRecurringSession({ stripe, email, safeName, unitAmount, suc
   });
 }
 
-async function createOneTimeSession({ stripe, email, safeName, unitAmount, successUrl, cancelUrl }: SessionInput) {
+async function createOneTimeSession({
+  stripe,
+  email,
+  safeName,
+  unitAmount,
+  successUrl,
+  cancelUrl,
+}: SessionInput) {
   return stripe.checkout.sessions.create({
     mode: 'payment',
     customer_email: email,
@@ -89,8 +127,8 @@ async function createOneTimeSession({ stripe, email, safeName, unitAmount, succe
 export default async function handler(req: ApiRequest, res: ServerResponse) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Metoda niedozwolona' });
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) {
+  const stripe = getStripe();
+  if (!stripe) {
     console.error('Brak klucza STRIPE_SECRET_KEY w zmiennych środowiskowych.');
     return sendJson(res, 500, { error: 'Błąd konfiguracji płatności.' });
   }
@@ -106,19 +144,22 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
   if (!(await requireCaptcha(req, res, body.captchaToken, db))) return;
 
   try {
-    const stripe = new Stripe(secretKey);
     const base = siteUrl();
     const input: SessionInput = {
       stripe,
       email,
       safeName,
       unitAmount: Math.round(amount * 100),
-      successUrl: `${base}/dziekujemy`,
+      // Identyfikator sesji pozwala stronie podziękowania otworzyć panel zarządzania wpłatą cykliczną (bez webhooka).
+      successUrl: `${base}/dziekujemy?session_id={CHECKOUT_SESSION_ID}${isRecurring ? '&typ=cykliczna' : ''}`,
       cancelUrl: `${base}/#donate`,
     };
 
-    const session = isRecurring ? await createRecurringSession(input) : await createOneTimeSession(input);
-    if (!session.url) return sendJson(res, 502, { error: 'Nie udało się utworzyć sesji płatności.' });
+    const session = isRecurring
+      ? await createRecurringSession(input)
+      : await createOneTimeSession(input);
+    if (!session.url)
+      return sendJson(res, 502, { error: 'Nie udało się utworzyć sesji płatności.' });
 
     // Zapis do newslettera dopiero po utworzeniu sesji płatności i tylko za zgodą.
     if (marketingConsent) await subscribeDonor(email, safeName);

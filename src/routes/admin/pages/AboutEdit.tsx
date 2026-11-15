@@ -8,8 +8,19 @@ import { useToast } from '../../../components/ui/Feedback';
 import Loader from '../../../components/Loader';
 
 // Zaktualizowany model o pole image_url
-type PillarModel = { id?: string; order_index: number; title: string; body_md: string; image_url: string };
-const emptyPillar = (i: number): PillarModel => ({ order_index: i, title: '', body_md: '', image_url: '' });
+type PillarModel = {
+  id?: string;
+  order_index: number;
+  title: string;
+  body_md: string;
+  image_url: string;
+};
+const emptyPillar = (i: number): PillarModel => ({
+  order_index: i,
+  title: '',
+  body_md: '',
+  image_url: '',
+});
 
 /** STABILNY komponent – poza AboutEdit, memo dla mikro-optymalizacji */
 const PillarEditor = memo(function PillarEditor({
@@ -36,7 +47,9 @@ const PillarEditor = memo(function PillarEditor({
       onChange({ ...m, image_url: url });
     } catch (err) {
       const message =
-        err instanceof MediaValidationError ? err.message : getErrorMessage(err, 'Błąd wgrywania pliku.');
+        err instanceof MediaValidationError
+          ? err.message
+          : getErrorMessage(err, 'Błąd wgrywania pliku.');
       showToast(message, 'error');
     } finally {
       setUploading(false);
@@ -46,7 +59,7 @@ const PillarEditor = memo(function PillarEditor({
   return (
     <div className="border rounded-2xl p-4 bg-surface-raised">
       <div className="text-sm text-ink-muted font-bold mb-3">Filar {m.order_index}</div>
-      
+
       {/* Sekcja Obrazka */}
       <div className="mb-4">
         <label htmlFor={imageInputId} className="text-xs text-ink-muted block mb-1">
@@ -73,11 +86,17 @@ const PillarEditor = memo(function PillarEditor({
           </label>
         </div>
         {m.image_url && (
-          <img src={m.image_url} alt="Podgląd" className="h-16 w-auto mt-2 rounded object-contain bg-surface-cool  p-1" />
+          <img
+            src={m.image_url}
+            alt="Podgląd"
+            className="h-16 w-auto mt-2 rounded object-contain bg-surface-cool  p-1"
+          />
         )}
       </div>
 
-      <label htmlFor={titleInputId} className="sr-only">Tytuł filaru {m.order_index}</label>
+      <label htmlFor={titleInputId} className="sr-only">
+        Tytuł filaru {m.order_index}
+      </label>
       <input
         id={titleInputId}
         className="input-plain mb-3"
@@ -85,7 +104,9 @@ const PillarEditor = memo(function PillarEditor({
         value={m.title}
         onChange={(e) => onChange({ ...m, title: e.target.value })}
       />
-      <label htmlFor={bodyInputId} className="sr-only">Opis filaru {m.order_index} (Markdown)</label>
+      <label htmlFor={bodyInputId} className="sr-only">
+        Opis filaru {m.order_index} (Markdown)
+      </label>
       <textarea
         id={bodyInputId}
         className="input-plain font-mono text-sm"
@@ -135,7 +156,9 @@ export default function AboutEdit() {
       }
       setLoading(false);
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const save = async () => {
@@ -161,12 +184,7 @@ export default function AboutEdit() {
     <div className="p-6 space-y-8 max-w-6xl">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Edycja: O nas</h1>
-        <button
-          type="button"
-          onClick={save}
-          disabled={saving}
-          className="btn btn-primary"
-        >
+        <button type="button" onClick={save} disabled={saving} className="btn btn-primary">
           {saving ? 'Zapisywanie…' : 'Zapisz zmiany'}
         </button>
       </div>
@@ -176,7 +194,9 @@ export default function AboutEdit() {
 
       <section className="grid gap-6 md:grid-cols-2">
         <div className="flex flex-col">
-          <label htmlFor="about-description" className="text-sm font-semibold mb-2">Główny opis (Markdown)</label>
+          <label htmlFor="about-description" className="text-sm font-semibold mb-2">
+            Główny opis (Markdown)
+          </label>
           <textarea
             id="about-description"
             className="input-plain font-mono flex-1 min-h-[300px]"
@@ -185,7 +205,9 @@ export default function AboutEdit() {
           />
         </div>
         <div className="flex flex-col">
-          <span id="about-preview-label" className="text-sm font-semibold mb-2">Podgląd na żywo</span>
+          <span id="about-preview-label" className="text-sm font-semibold mb-2">
+            Podgląd na żywo
+          </span>
           <section
             aria-labelledby="about-preview-label"
             className="prose max-w-none border rounded-xl p-6 flex-1 bg-surface-raised overflow-y-auto max-h-[500px]"
@@ -200,7 +222,7 @@ export default function AboutEdit() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {pillars.map((m, idx) => (
             <PillarEditor
-              key={`pillar-${m.order_index}`} 
+              key={`pillar-${m.order_index}`}
               m={m}
               onChange={(pm) =>
                 setPillars((prev) => {

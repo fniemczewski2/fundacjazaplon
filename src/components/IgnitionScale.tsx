@@ -48,9 +48,7 @@ export default function IgnitionScale({ className = '' }: Readonly<{ className?:
             style={{
               marginTop: '-1px',
               background: 'var(--color-ember)',
-              animation: reduced
-                ? undefined
-                : 'ignite-line 2200ms var(--ease-out-soft) 250ms both',
+              animation: reduced ? undefined : 'ignite-line 2200ms var(--ease-out-soft) 250ms both',
             }}
           />
         </div>
@@ -67,12 +65,7 @@ export default function IgnitionScale({ className = '' }: Readonly<{ className?:
               }}
             >
               <div className="flex w-full items-end justify-center" style={{ height: ART_BOX }}>
-                <Illustration
-                  name={step.name}
-                  priority={i < 2}
-                  glow
-                  className="h-full w-auto"
-                />
+                <Illustration name={step.name} priority={i < 2} glow className="h-full w-auto" />
               </div>
 
               {/* Węzeł spinający ilustrację z torem. */}

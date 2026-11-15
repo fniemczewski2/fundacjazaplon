@@ -31,12 +31,7 @@ export default function JoinUsCard() {
             odezwiemy się z propozycją.
           </p>
 
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-ember mt-7"
-          >
+          <a href={url} target="_blank" rel="noopener noreferrer" className="btn btn-ember mt-7">
             Wypełnij ankietę
             <FaArrowRight aria-hidden="true" />
             <span className="sr-only">- otwiera się w nowej karcie</span>

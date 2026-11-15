@@ -12,7 +12,14 @@ import { newTicket, readTicket } from './_lib/agreements/security.js';
 import { serviceClient, supabaseEnv } from './_lib/auth.js';
 import { requireCaptcha } from './_lib/captcha.js';
 import { SETTLEMENT_BUCKET, SETTLEMENT_TICKET_TTL_MS } from './_lib/config.js';
-import { asString, bodyOf, sendJson, shorten, type ApiRequest, type JsonObject } from './_lib/http.js';
+import {
+  asString,
+  bodyOf,
+  sendJson,
+  shorten,
+  type ApiRequest,
+  type JsonObject,
+} from './_lib/http.js';
 import { rateLimited } from './_lib/rateLimit.js';
 import { logSecurityEvent } from './_lib/securityEvents.js';
 
@@ -32,7 +39,9 @@ async function prepare(req: ApiRequest, res: ServerResponse, db: SupabaseClient,
   const ticket = newTicket(id, body.kind, SETTLEMENT_TICKET_TTL_MS);
   if (body.kind === 'ksef') return sendJson(res, 200, { ticket });
 
-  const { data, error } = await db.storage.from(SETTLEMENT_BUCKET).createSignedUploadUrl(`${id}.pdf`);
+  const { data, error } = await db.storage
+    .from(SETTLEMENT_BUCKET)
+    .createSignedUploadUrl(`${id}.pdf`);
   if (error || !data) throw error ?? new Error('Nie udało się przygotować wysyłki pliku.');
   return sendJson(res, 200, { ticket, upload: { path: data.path, token: data.token } });
 }
@@ -49,7 +58,9 @@ async function commit(req: ApiRequest, res: ServerResponse, db: SupabaseClient, 
   const ticket = readTicket(body.ticket);
   if (!ticket || !UUID_RE.test(ticket.id) || ticket.kind !== body.kind || !isKind(body.kind)) {
     await logSecurityEvent(db, req, 'bad_ticket');
-    return sendJson(res, 400, { error: 'Sesja formularza wygasła. Odśwież stronę i spróbuj ponownie.' });
+    return sendJson(res, 400, {
+      error: 'Sesja formularza wygasła. Odśwież stronę i spróbuj ponownie.',
+    });
   }
   const { id } = ticket;
   const kind: InvoiceKind = body.kind;
@@ -78,8 +89,11 @@ async function commit(req: ApiRequest, res: ServerResponse, db: SupabaseClient, 
   }
 
   if (kind === 'pdf') {
-    const { data: file, error: downloadError } = await db.storage.from(SETTLEMENT_BUCKET).download(`${id}.pdf`);
-    if (downloadError || !file) return sendJson(res, 400, { error: 'Nie znaleziono wysłanego pliku faktury.' });
+    const { data: file, error: downloadError } = await db.storage
+      .from(SETTLEMENT_BUCKET)
+      .download(`${id}.pdf`);
+    if (downloadError || !file)
+      return sendJson(res, 400, { error: 'Nie znaleziono wysłanego pliku faktury.' });
     if ((await file.slice(0, PDF_MAGIC.length).text()) !== PDF_MAGIC) {
       await discardFile(db, id);
       return sendJson(res, 400, { error: 'Plik nie jest prawidłowym dokumentem PDF.' });
@@ -101,7 +115,8 @@ async function commit(req: ApiRequest, res: ServerResponse, db: SupabaseClient, 
   });
 
   if (error) {
-    if (error.code === '23505') return sendJson(res, 409, { error: 'To rozliczenie zostało już wysłane.' });
+    if (error.code === '23505')
+      return sendJson(res, 409, { error: 'To rozliczenie zostało już wysłane.' });
     if (kind === 'pdf') await discardFile(db, id);
     throw error;
   }
@@ -113,7 +128,9 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
 
   const env = supabaseEnv();
   if (!env) {
-    console.error('submit-settlement: brak SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY.');
+    console.error(
+      'submit-settlement: brak SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY.',
+    );
     return sendJson(res, 500, { error: 'Błąd konfiguracji serwera.' });
   }
   const db = serviceClient(env);

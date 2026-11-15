@@ -17,5 +17,5 @@ export function useScrollToHash(ready: boolean) {
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [ready, pathname]); 
+  }, [ready, pathname]);
 }

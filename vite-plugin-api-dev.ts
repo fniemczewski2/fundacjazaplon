@@ -48,10 +48,13 @@ function readBody(req: IncomingMessage): Promise<string> {
 
     req.on('data', (chunk: Buffer) => {
       size += chunk.length;
-      if (size > MAX_BODY_BYTES) tooLarge = true; // dalej opróżniamy strumień, żeby móc odpowiedzieć
+      if (size > MAX_BODY_BYTES)
+        tooLarge = true; // dalej opróżniamy strumień, żeby móc odpowiedzieć
       else chunks.push(chunk);
     });
-    req.on('end', () => (tooLarge ? reject(new BodyTooLargeError()) : resolve(Buffer.concat(chunks).toString('utf8'))));
+    req.on('end', () =>
+      tooLarge ? reject(new BodyTooLargeError()) : resolve(Buffer.concat(chunks).toString('utf8')),
+    );
     req.on('error', reject);
   });
 }
@@ -84,13 +87,18 @@ export default function apiDevServer(): Plugin {
 
     configureServer(server) {
       const host = config.server.host;
-      if (host === true || (typeof host === 'string' && !['localhost', '127.0.0.1', '::1'].includes(host))) {
+      if (
+        host === true ||
+        (typeof host === 'string' && !['localhost', '127.0.0.1', '::1'].includes(host))
+      ) {
         config.logger.warn(
           '[api-dev-server] Serwer nasłuchuje poza localhost. Funkcje z api/ mają dostęp do kluczy z .env* ' +
             '(m.in. SUPABASE_SERVICE_ROLE_KEY) i będą dostępne dla urządzeń w sieci.',
         );
       }
-      config.logger.info('  api: funkcje z katalogu api/ działają pod /api/* (tylko tryb deweloperski)');
+      config.logger.info(
+        '  api: funkcje z katalogu api/ działają pod /api/* (tylko tryb deweloperski)',
+      );
 
       const handle = async (req: ApiRequest, res: ServerResponse) => {
         const url = new URL(req.url ?? '/', 'http://localhost');
@@ -107,22 +115,29 @@ export default function apiDevServer(): Plugin {
           const raw = await readBody(req);
           req.body = parseBody(raw, String(req.headers['content-type'] ?? ''));
         } catch (err) {
-          if (err instanceof BodyTooLargeError) return sendJson(res, 413, { error: 'Zbyt duże żądanie.' });
+          if (err instanceof BodyTooLargeError)
+            return sendJson(res, 413, { error: 'Zbyt duże żądanie.' });
           return sendJson(res, 400, { error: 'Nieprawidłowy format żądania.' });
         }
         req.query = Object.fromEntries(url.searchParams);
 
         try {
           // ssrLoadModule przetwarza TypeScript i unieważnia moduł po edycji pliku - bez restartu.
-          const mod = (await server.ssrLoadModule(`/api/${name}${ext}`)) as { default?: ApiHandler };
+          const mod = (await server.ssrLoadModule(`/api/${name}${ext}`)) as {
+            default?: ApiHandler;
+          };
           if (typeof mod.default !== 'function') {
-            return sendJson(res, 500, { error: 'Funkcja API nie eksportuje handlera (export default).' });
+            return sendJson(res, 500, {
+              error: 'Funkcja API nie eksportuje handlera (export default).',
+            });
           }
           await mod.default(req, res);
           if (!res.writableEnded) res.end();
         } catch (err) {
           if (err instanceof Error) server.ssrFixStacktrace(err);
-          config.logger.error(`[api-dev-server] /api/${name}: ${err instanceof Error ? (err.stack ?? err.message) : String(err)}`);
+          config.logger.error(
+            `[api-dev-server] /api/${name}: ${err instanceof Error ? (err.stack ?? err.message) : String(err)}`,
+          );
           sendJson(res, 500, { error: 'Błąd funkcji API (szczegóły w konsoli serwera).' });
         }
       };

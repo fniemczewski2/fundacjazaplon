@@ -45,7 +45,10 @@ export default function Blog() {
             {posts.map((p, i) => (
               <Reveal as="li" key={p.id} delay={(i % 3) * 110} className="h-full">
                 <article className="card card-interactive flex h-full flex-col overflow-hidden p-0">
-                  <div aria-hidden="true" className="aspect-[16/9] w-full overflow-hidden panel-cool">
+                  <div
+                    aria-hidden="true"
+                    className="aspect-[16/9] w-full overflow-hidden panel-cool"
+                  >
                     {p.cover_url ? (
                       <img
                         src={`${p.cover_url}?width=560&height=315&resize=cover&quality=75`}

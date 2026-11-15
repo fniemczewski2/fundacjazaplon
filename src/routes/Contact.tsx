@@ -76,10 +76,7 @@ export default function Contact() {
                             aria-label={`Skopiuj: ${label}`}
                           >
                             {copied === key ? (
-                              <FiCheck
-                                aria-hidden="true"
-                                className="size-4 text-success"
-                              />
+                              <FiCheck aria-hidden="true" className="size-4 text-success" />
                             ) : (
                               <FiCopy aria-hidden="true" className="size-4" />
                             )}

@@ -24,7 +24,11 @@ export default function ContactForm() {
     setErrorMessage('');
 
     try {
-      await postJson('/api/contact', { name, email, message, website: honeypot, captchaToken }, 'Nie udało się wysłać wiadomości. Spróbuj ponownie.');
+      await postJson(
+        '/api/contact',
+        { name, email, message, website: honeypot, captchaToken },
+        'Nie udało się wysłać wiadomości. Spróbuj ponownie.',
+      );
       setStatus('success');
       setName('');
       setEmail('');
@@ -52,20 +56,49 @@ export default function ContactForm() {
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Imię i nazwisko">
             {(a11y) => (
-              <input {...a11y} type="text" required maxLength={200} autoComplete="name" placeholder="Jan Kowalski" value={name} onChange={(e) => setName(e.target.value)} className="input-text" />
+              <input
+                {...a11y}
+                type="text"
+                required
+                maxLength={200}
+                autoComplete="name"
+                placeholder="Jan Kowalski"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="input-text"
+              />
             )}
           </Field>
 
           <Field label="Adres e-mail">
             {(a11y) => (
-              <input {...a11y} type="email" required autoComplete="email" placeholder="jan.kowalski@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="input-text" />
+              <input
+                {...a11y}
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="jan.kowalski@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-text"
+              />
             )}
           </Field>
         </div>
 
         <Field label="Wiadomość">
           {(a11y) => (
-            <textarea {...a11y} rows={6} required minLength={5} maxLength={5000} placeholder="W czym możemy pomóc?" value={message} onChange={(e) => setMessage(e.target.value)} className="input-textarea" />
+            <textarea
+              {...a11y}
+              rows={6}
+              required
+              minLength={5}
+              maxLength={5000}
+              placeholder="W czym możemy pomóc?"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="input-textarea"
+            />
           )}
         </Field>
 
@@ -73,7 +106,14 @@ export default function ContactForm() {
         <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
           <label>
             Nie wypełniaj tego pola
-            <input type="text" name="website" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+            />
           </label>
         </div>
 

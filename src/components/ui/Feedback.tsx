@@ -1,4 +1,12 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { FaXmark } from 'react-icons/fa6';
 import Modal from '../Modal';
 
@@ -27,7 +35,10 @@ const TOAST_BG: Record<ToastType, string> = {
 };
 
 /** Pojedynczy komunikat. Zegar zamknięcia staje, gdy wskaźnik albo fokus jest na komunikacie (WCAG 2.2.1). */
-function Toast({ item, onDismiss }: Readonly<{ item: ToastItem; onDismiss: (id: number) => void }>) {
+function Toast({
+  item,
+  onDismiss,
+}: Readonly<{ item: ToastItem; onDismiss: (id: number) => void }>) {
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
@@ -106,7 +117,11 @@ export function FeedbackProvider({ children }: Readonly<{ children: React.ReactN
         ))}
       </section>
 
-      <Modal open={confirmState !== null} onClose={closeConfirm} title={confirmState?.title ?? 'Potwierdź akcję'}>
+      <Modal
+        open={confirmState !== null}
+        onClose={closeConfirm}
+        title={confirmState?.title ?? 'Potwierdź akcję'}
+      >
         <p className="text-sm text-ink-muted">{confirmState?.message}</p>
         <div className="mt-6 flex justify-end gap-2">
           <button type="button" className="btn btn-secondary" onClick={() => resolveConfirm(false)}>

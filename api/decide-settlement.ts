@@ -60,12 +60,14 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
 
   // 2. Walidacja danych wejściowych.
   const { id, action, note } = bodyOf(req);
-  if (typeof id !== 'string' || !UUID_RE.test(id)) return sendJson(res, 400, { error: 'Nieprawidłowy identyfikator.' });
+  if (typeof id !== 'string' || !UUID_RE.test(id))
+    return sendJson(res, 400, { error: 'Nieprawidłowy identyfikator.' });
   if (typeof action !== 'string' || !ACTIONS.includes(action as Action)) {
     return sendJson(res, 400, { error: 'Nieprawidłowa akcja.' });
   }
   const cleanNote = asString(note, NOTE_MAX + 1);
-  if (cleanNote.length > NOTE_MAX) return sendJson(res, 400, { error: `Notatka może mieć maksymalnie ${NOTE_MAX} znaków.` });
+  if (cleanNote.length > NOTE_MAX)
+    return sendJson(res, 400, { error: `Notatka może mieć maksymalnie ${NOTE_MAX} znaków.` });
   if (action === 'reject' && cleanNote.length < 3) {
     return sendJson(res, 400, { error: 'Podaj powód odrzucenia (min. 3 znaki).' });
   }
@@ -84,7 +86,8 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
         .maybeSingle();
       if (error) throw error;
       if (!data) return sendJson(res, 404, { error: 'Nie znaleziono rozpatrzonego wniosku.' });
-      if (data.notified_at) return sendJson(res, 409, { error: 'Powiadomienie zostało już wysłane.' });
+      if (data.notified_at)
+        return sendJson(res, 409, { error: 'Powiadomienie zostało już wysłane.' });
       row = data as MailRow & { id: string };
       status = data.status as DecidedStatus;
       mailNote = (data.decision_note as string | null) ?? null;
@@ -109,9 +112,15 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
         .maybeSingle();
       if (error) throw error;
       if (!data) {
-        const { data: current } = await db.from('settlements').select('status').eq('id', id).maybeSingle();
+        const { data: current } = await db
+          .from('settlements')
+          .select('status')
+          .eq('id', id)
+          .maybeSingle();
         if (!current) return sendJson(res, 404, { error: 'Nie znaleziono wniosku.' });
-        return sendJson(res, 409, { error: `Wniosek został już rozpatrzony (status: ${String(current.status)}).` });
+        return sendJson(res, 409, {
+          error: `Wniosek został już rozpatrzony (status: ${String(current.status)}).`,
+        });
       }
       row = data as MailRow & { id: string };
     }
@@ -119,7 +128,10 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
     // 4. Powiadomienie. Decyzja jest już zapisana - błąd wysyłki jej nie cofa, tylko trafia do rekordu.
     try {
       await sendDecisionMail(row, status, mailNote);
-      await db.from('settlements').update({ notified_at: new Date().toISOString(), notify_error: null }).eq('id', id);
+      await db
+        .from('settlements')
+        .update({ notified_at: new Date().toISOString(), notify_error: null })
+        .eq('id', id);
       return sendJson(res, 200, { ok: true, emailSent: true });
     } catch (mailError) {
       const message = shorten(mailError);

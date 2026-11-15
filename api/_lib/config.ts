@@ -1,6 +1,7 @@
 // Jedno miejsce na limity, czasy życia i stałe konfiguracyjne funkcji serwerowych.
 
-export const siteUrl = (): string => (process.env.PUBLIC_SITE_URL || 'https://zaplon.org.pl').replace(/\/+$/, '');
+export const siteUrl = (): string =>
+  (process.env.PUBLIC_SITE_URL || 'https://zaplon.org.pl').replace(/\/+$/, '');
 
 export const DAY_MS = 86_400_000;
 
@@ -43,6 +44,7 @@ export const FILE_TITLE_MAX = 200;
 export const RATE_LIMITS = {
   newsletter: { limit: 5, windowSec: 3600 },
   donation: { limit: 10, windowSec: 3600 },
+  stripePortal: { limit: 10, windowSec: 3600 },
   contact: { limit: 5, windowSec: 3600 },
   agreementSubmit: { limit: 5, windowSec: 3600 },
   agreementAccess: { limit: 120, windowSec: 600 },
@@ -54,4 +56,14 @@ export const RATE_LIMITS = {
 export type RateLimitName = keyof typeof RATE_LIMITS;
 
 // Strony publiczne ujęte w sitemap.xml (wpisy dodaje api/sitemap.ts z bazy).
-export const SITEMAP_PATHS = ['/', '/aktualnosci', '/o-nas', '/zespol', '/dokumenty', '/materialy', '/kontakt', '/wspolpraca', '/linki'] as const;
+export const SITEMAP_PATHS = [
+  '/',
+  '/aktualnosci',
+  '/o-nas',
+  '/zespol',
+  '/dokumenty',
+  '/materialy',
+  '/kontakt',
+  '/wspolpraca',
+  '/linki',
+] as const;

@@ -43,9 +43,7 @@ export default function Page({
 
       <div
         className={
-          width === 'prose'
-            ? 'container-prose py-12 md:py-16'
-            : 'container-max py-12 md:py-16'
+          width === 'prose' ? 'container-prose py-12 md:py-16' : 'container-max py-12 md:py-16'
         }
       >
         {children}

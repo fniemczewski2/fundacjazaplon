@@ -12,9 +12,14 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
     if (req.method === 'GET') {
       const { configured, posts } = await getRecentInstagramPosts();
       const maxAge = posts.length > 0 ? 900 : 60; // pustą odpowiedź (błąd, brak konfiguracji) odświeżamy szybciej
-      return sendJson(res, 200, { configured, posts }, {
-        'Cache-Control': `public, max-age=60, s-maxage=${maxAge}, stale-while-revalidate=3600`,
-      });
+      return sendJson(
+        res,
+        200,
+        { configured, posts },
+        {
+          'Cache-Control': `public, max-age=60, s-maxage=${maxAge}, stale-while-revalidate=3600`,
+        },
+      );
     }
 
     if (req.method === 'POST' && bodyOf(req).action === 'check') {

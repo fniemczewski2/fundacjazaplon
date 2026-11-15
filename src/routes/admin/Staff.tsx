@@ -6,7 +6,13 @@ import { getErrorMessage } from '../../lib/utils/errors';
 import { useConfirm, useToast } from '../../components/ui/Feedback';
 import Loader from '../../components/Loader';
 import Field from '../../components/ui/Field';
-import { ASSIGNABLE_ROLES, ROLE_LABELS, STAFF_DOMAIN, isAssignableRole, type AssignableRole } from '../../../shared/roles';
+import {
+  ASSIGNABLE_ROLES,
+  ROLE_LABELS,
+  STAFF_DOMAIN,
+  isAssignableRole,
+  type AssignableRole,
+} from '../../../shared/roles';
 
 const EMPTY: StaffList = { staff: [], pending: [] };
 
@@ -15,7 +21,12 @@ function RoleSelect({
   onChange,
   label,
   disabled,
-}: Readonly<{ value: AssignableRole | ''; onChange: (role: AssignableRole) => void; label: string; disabled?: boolean }>) {
+}: Readonly<{
+  value: AssignableRole | '';
+  onChange: (role: AssignableRole) => void;
+  label: string;
+  disabled?: boolean;
+}>) {
   return (
     <select
       aria-label={label}
@@ -26,7 +37,9 @@ function RoleSelect({
     >
       {value === '' && <option value="">Wybierz rolę</option>}
       {ASSIGNABLE_ROLES.map((role) => (
-        <option key={role} value={role}>{ROLE_LABELS[role]}</option>
+        <option key={role} value={role}>
+          {ROLE_LABELS[role]}
+        </option>
       ))}
     </select>
   );
@@ -34,7 +47,11 @@ function RoleSelect({
 
 export default function AdminStaff() {
   const fetchList = useCallback(() => listStaff(), []);
-  const { data, loading, error, reload } = useAsyncData(fetchList, EMPTY, 'Nie udało się wczytać listy uprawnień.');
+  const { data, loading, error, reload } = useAsyncData(
+    fetchList,
+    EMPTY,
+    'Nie udało się wczytać listy uprawnień.',
+  );
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<AssignableRole>('editor');
@@ -63,7 +80,10 @@ export default function AdminStaff() {
   };
 
   const onRemove = async (target: string) => {
-    const confirmed = await confirm(`Odebrać uprawnienia: ${target}?`, { title: 'Odbierz uprawnienia', confirmLabel: 'Odbierz' });
+    const confirmed = await confirm(`Odebrać uprawnienia: ${target}?`, {
+      title: 'Odbierz uprawnienia',
+      confirmLabel: 'Odbierz',
+    });
     if (confirmed) void run(() => removeStaffRole(target), 'Uprawnienia odebrane.');
   };
 
@@ -71,16 +91,23 @@ export default function AdminStaff() {
     <div className="p-6 space-y-6 max-w-3xl">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Uprawnienia</h1>
-        <Link to="/admin" className="btn btn-secondary">Panel</Link>
+        <Link to="/admin" className="btn btn-secondary">
+          Panel
+        </Link>
       </div>
 
       <p className="text-sm text-ink-muted">
-        Redaktor dodaje i edytuje treści strony. Administrator dodatkowo usuwa treści oraz zatwierdza rozliczenia, umowy i podpisuje je za
-        fundację. Konta w domenie @{STAFF_DOMAIN} bez roli nie mają dostępu.
+        Redaktor dodaje i edytuje treści strony. Administrator dodatkowo usuwa treści oraz
+        zatwierdza rozliczenia, umowy i podpisuje je za fundację. Konta w domenie @{STAFF_DOMAIN}{' '}
+        bez roli nie mają dostępu.
       </p>
 
       {loading && <Loader />}
-      {error && <p className="field-error" role="alert">{error}</p>}
+      {error && (
+        <p className="field-error" role="alert">
+          {error}
+        </p>
+      )}
 
       <section className="space-y-2">
         <h2 className="text-lg font-medium">Osoby z uprawnieniami</h2>
@@ -92,16 +119,25 @@ export default function AdminStaff() {
               <li key={m.email} className="p-3 flex flex-wrap items-center justify-between gap-3">
                 <span className="break-all">{m.email}</span>
                 {m.role === 'super_admin' ? (
-                  <span className="text-sm text-ink-muted">{ROLE_LABELS.super_admin} (zmienna środowiskowa)</span>
+                  <span className="text-sm text-ink-muted">
+                    {ROLE_LABELS.super_admin} (zmienna środowiskowa)
+                  </span>
                 ) : (
                   <span className="flex items-center gap-2">
                     <RoleSelect
                       label={`Rola: ${m.email}`}
                       value={isAssignableRole(m.role) ? m.role : 'editor'}
                       disabled={busy}
-                      onChange={(next) => void run(() => setStaffRole(m.email, next), 'Uprawnienia zapisane.')}
+                      onChange={(next) =>
+                        void run(() => setStaffRole(m.email, next), 'Uprawnienia zapisane.')
+                      }
                     />
-                    <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => void onRemove(m.email)}>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      disabled={busy}
+                      onClick={() => void onRemove(m.email)}
+                    >
                       Odbierz
                     </button>
                   </span>
@@ -125,7 +161,9 @@ export default function AdminStaff() {
                   label={`Nadaj rolę: ${p.email}`}
                   value=""
                   disabled={busy}
-                  onChange={(next) => void run(() => setStaffRole(p.email, next), 'Uprawnienia zapisane.')}
+                  onChange={(next) =>
+                    void run(() => setStaffRole(p.email, next), 'Uprawnienia zapisane.')
+                  }
                 />
               </li>
             ))}
@@ -150,7 +188,9 @@ export default function AdminStaff() {
             )}
           </Field>
           <RoleSelect label="Rola" value={role} onChange={setRole} disabled={busy} />
-          <button type="submit" className="btn btn-primary" disabled={busy}>Zapisz</button>
+          <button type="submit" className="btn btn-primary" disabled={busy}>
+            Zapisz
+          </button>
         </form>
       </section>
     </div>

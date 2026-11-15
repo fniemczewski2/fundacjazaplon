@@ -72,12 +72,7 @@ export default function Reveal({
 
   const classes = reduced
     ? className
-    : [
-        'reveal',
-        DIRECTION_CLASS[direction],
-        visible ? 'is-visible' : '',
-        className,
-      ]
+    : ['reveal', DIRECTION_CLASS[direction], visible ? 'is-visible' : '', className]
         .filter(Boolean)
         .join(' ');
 
@@ -86,7 +81,9 @@ export default function Reveal({
       id={id}
       ref={ref as React.Ref<never>}
       className={classes}
-      style={delay && !reduced ? ({ '--reveal-delay': `${delay}ms` } as React.CSSProperties) : undefined}
+      style={
+        delay && !reduced ? ({ '--reveal-delay': `${delay}ms` } as React.CSSProperties) : undefined
+      }
     >
       {children}
     </Tag>

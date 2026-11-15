@@ -52,7 +52,10 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
       email,
       name: asString(body.name, FIELD_NAME_MAX),
       fields: fileUrl
-        ? { ostatni_plik_url: fileUrl, ostatni_plik_tytul: asString(body.file_title, FILE_TITLE_MAX) }
+        ? {
+            ostatni_plik_url: fileUrl,
+            ostatni_plik_tytul: asString(body.file_title, FILE_TITLE_MAX),
+          }
         : {},
       groups: [process.env.MAILERLITE_GROUP_ID, materialsGroup],
     });

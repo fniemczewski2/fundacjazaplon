@@ -11,7 +11,10 @@ export interface Material {
 }
 
 export async function listMaterials(): Promise<Material[]> {
-  const { data, error } = await supabase.from('materials').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('materials')
+    .select('*')
+    .order('created_at', { ascending: false });
   if (error) throw new Error(error.message);
   return (data as Material[]) ?? [];
 }

@@ -19,6 +19,7 @@ const Links = React.lazy(() => import('../routes/Links'));
 const Settlement = React.lazy(() => import('../routes/Settlement'));
 const Agreement = React.lazy(() => import('../routes/Agreement'));
 const AgreementSign = React.lazy(() => import('../routes/AgreementSign'));
+const Subscription = React.lazy(() => import('../routes/Subscription'));
 const ThankYou = React.lazy(() => import('../routes/ThankYou'));
 const TeamMemberCard = React.lazy(() => import('../routes/TeamMemberCard'));
 const PrivacyPolicy = React.lazy(() => import('../routes/PrivacyPolicy'));
@@ -40,10 +41,16 @@ const AdminDocuments = React.lazy(() => import('../routes/admin/Documents'));
 const AdminSettlements = React.lazy(() => import('../routes/admin/Settlements'));
 const AdminAgreements = React.lazy(() => import('../routes/admin/Agreements'));
 const AdminStaff = React.lazy(() => import('../routes/admin/Staff'));
+const AdminFinance = React.lazy(() => import('../routes/admin/Finance'));
 const AdminLinks = React.lazy(() => import('../routes/admin/Links'));
 
 /** Trasy panelu: każda ma tytuł karty i jest chroniona przez `ProtectedAdminRoute`. */
-const ADMIN_ROUTES: ReadonlyArray<{ path: string; title: string; component: React.ComponentType; minRole?: StaffRole }> = [
+const ADMIN_ROUTES: ReadonlyArray<{
+  path: string;
+  title: string;
+  component: React.ComponentType;
+  minRole?: StaffRole;
+}> = [
   { path: '/admin', title: 'Panel', component: AdminDashboard },
   { path: '/admin/aktualnosci', title: 'Aktualności', component: PostsList },
   { path: '/admin/aktualnosci/:id', title: 'Edycja wpisu', component: PostEdit },
@@ -56,9 +63,20 @@ const ADMIN_ROUTES: ReadonlyArray<{ path: string; title: string; component: Reac
   { path: '/admin/linki', title: 'Linki', component: AdminLinks },
   { path: '/admin/strony/materials', title: 'Materiały do pobrania', component: MaterialsAdmin },
   { path: '/admin/media', title: 'Media', component: Media },
-  { path: '/admin/rozliczenia', title: 'Rozliczenia faktur', component: AdminSettlements, minRole: 'admin' },
+  {
+    path: '/admin/rozliczenia',
+    title: 'Rozliczenia faktur',
+    component: AdminSettlements,
+    minRole: 'admin',
+  },
+  { path: '/admin/finanse', title: 'Finanse', component: AdminFinance, minRole: 'admin' },
   { path: '/admin/umowy', title: 'Umowy i zgody', component: AdminAgreements, minRole: 'admin' },
-  { path: '/admin/uprawnienia', title: 'Uprawnienia', component: AdminStaff, minRole: 'super_admin' },
+  {
+    path: '/admin/uprawnienia',
+    title: 'Uprawnienia',
+    component: AdminStaff,
+    minRole: 'super_admin',
+  },
   { path: '/admin/dokumenty', title: 'Dokumenty', component: AdminDocuments },
 ];
 
@@ -79,6 +97,7 @@ const PUBLIC_ROUTES: ReadonlyArray<{ path: string; component: React.ComponentTyp
   { path: '/wspolpraca', component: Agreement },
   { path: '/umowa/:token?', component: AgreementSign },
   { path: '/dziekujemy', component: ThankYou },
+  { path: '/subskrypcja', component: Subscription },
   { path: '/polityka-prywatnosci', component: PrivacyPolicy },
   { path: '/regulamin', component: Terms },
   { path: '/w/:slug', component: TeamMemberCard },

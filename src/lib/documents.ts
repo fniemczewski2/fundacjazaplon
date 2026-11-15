@@ -6,10 +6,7 @@ import { ALLOWED_DOCUMENT_TYPES, DOCUMENTS_BUCKET, MAX_DOCUMENT_SIZE_MB } from '
 import { logger } from './logger';
 
 export type DocCategory =
-  | 'statut'
-  | 'sprawozdania'
-  | 'polityka-prywatnosci'
-  | 'standardy-ochrony-maloletnich';
+  'statut' | 'sprawozdania' | 'polityka-prywatnosci' | 'standardy-ochrony-maloletnich';
 
 export const ALL_CATEGORIES = [
   { key: 'statut', label: 'Statut fundacji' },

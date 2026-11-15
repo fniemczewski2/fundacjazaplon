@@ -2,12 +2,20 @@ import { getErrorMessage } from './utils/errors';
 
 const GENERIC_ERROR = 'Wystąpił błąd. Spróbuj ponownie.';
 
-async function send(path: string, body: unknown, fallbackError: string, token?: string): Promise<Response> {
+async function send(
+  path: string,
+  body: unknown,
+  fallbackError: string,
+  token?: string,
+): Promise<Response> {
   let response: Response;
   try {
     response = await fetch(path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify(body),
     });
   } catch (err) {
@@ -18,7 +26,9 @@ async function send(path: string, body: unknown, fallbackError: string, token?: 
   if (!response.ok) {
     // Przy awarii funkcja może odpowiedzieć pustym ciałem lub HTML-em: JSON czytamy tylko po sprawdzeniu nagłówka.
     const isJson = (response.headers.get('content-type') ?? '').includes('application/json');
-    const data = (isJson ? await response.json().catch(() => null) : null) as { error?: string } | null;
+    const data = (isJson ? await response.json().catch(() => null) : null) as {
+      error?: string;
+    } | null;
     throw new Error(data?.error || fallbackError);
   }
   return response;
@@ -36,6 +46,11 @@ export async function postJson<T = Record<string, unknown>>(
 }
 
 /** Jak `postJson`, ale odpowiedzią jest plik (np. PDF z podglądem dokumentów). */
-export async function postBlob(path: string, body: unknown, fallbackError = GENERIC_ERROR, token?: string): Promise<Blob> {
+export async function postBlob(
+  path: string,
+  body: unknown,
+  fallbackError = GENERIC_ERROR,
+  token?: string,
+): Promise<Blob> {
   return (await send(path, body, fallbackError, token)).blob();
 }

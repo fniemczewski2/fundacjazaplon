@@ -29,4 +29,5 @@ export const isAssignableRole = (value: unknown): value is AssignableRole =>
 export const hasRole = (role: StaffRole | null | undefined, min: StaffRole): boolean =>
   role !== null && role !== undefined && RANK[role] >= RANK[min];
 
-export const isStaffDomainEmail = (email: string): boolean => email.toLowerCase().endsWith(`@${STAFF_DOMAIN}`);
+export const isStaffDomainEmail = (email: string): boolean =>
+  email.toLowerCase().endsWith(`@${STAFF_DOMAIN}`);

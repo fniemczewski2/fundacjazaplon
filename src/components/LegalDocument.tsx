@@ -2,9 +2,21 @@ import Seo from './Seo';
 import Page from './Page';
 import { LEGAL_UPDATED, type LegalSection } from '../content/legal';
 
-type Props = { title: string; description: string; path: string; lead: string; sections: LegalSection[] };
+type Props = {
+  title: string;
+  description: string;
+  path: string;
+  lead: string;
+  sections: LegalSection[];
+};
 
-export default function LegalDocument({ title, description, path, lead, sections }: Readonly<Props>) {
+export default function LegalDocument({
+  title,
+  description,
+  path,
+  lead,
+  sections,
+}: Readonly<Props>) {
   return (
     <>
       <Seo
@@ -22,7 +34,10 @@ export default function LegalDocument({ title, description, path, lead, sections
         <div className="mt-8 space-y-8">
           {sections.map((section) => (
             <section key={section.heading} aria-labelledby={`legal-${section.heading.slice(0, 2)}`}>
-              <h2 id={`legal-${section.heading.slice(0, 2)}`} className="font-heading text-xl font-semibold">
+              <h2
+                id={`legal-${section.heading.slice(0, 2)}`}
+                className="font-heading text-xl font-semibold"
+              >
                 {section.heading}
               </h2>
               {section.paragraphs?.map((text) => (

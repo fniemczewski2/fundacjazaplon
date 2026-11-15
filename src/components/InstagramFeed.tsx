@@ -34,7 +34,12 @@ export default function InstagramFeed() {
           </div>
 
           {profileUrl && (
-            <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="link-accent inline-flex items-center gap-2">
+            <a
+              href={profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-accent inline-flex items-center gap-2"
+            >
               Zobacz profil
               <FaArrowRight aria-hidden="true" />
               <span className="sr-only">(otwiera się w nowej karcie)</span>
@@ -58,18 +63,35 @@ export default function InstagramFeed() {
                 className="card card-interactive flex h-full flex-col gap-3 overflow-hidden p-0"
               >
                 {post.image && (
-                  <div aria-hidden="true" className="aspect-square w-full overflow-hidden panel-cool">
-                    <img src={post.image} alt="" width={400} height={400} className="size-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
+                  <div
+                    aria-hidden="true"
+                    className="aspect-square w-full overflow-hidden panel-cool"
+                  >
+                    <img
+                      src={post.image}
+                      alt=""
+                      width={400}
+                      height={400}
+                      className="size-full object-cover"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
                   </div>
                 )}
                 <div className="flex flex-1 flex-col gap-2 p-4">
                   <p className="muted flex items-center gap-2 text-xs tracking-wide uppercase">
                     <FaInstagram aria-hidden="true" />
                     <time dateTime={post.date}>
-                      {new Date(post.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {new Date(post.date).toLocaleDateString('pl-PL', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
                     </time>
                   </p>
-                  {post.caption && <p className="line-clamp-4 text-sm leading-relaxed">{post.caption}</p>}
+                  {post.caption && (
+                    <p className="line-clamp-4 text-sm leading-relaxed">{post.caption}</p>
+                  )}
                   <span className="sr-only">(otwiera się w nowej karcie)</span>
                 </div>
               </a>

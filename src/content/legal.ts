@@ -97,6 +97,8 @@ export const TERMS_SECTIONS: LegalSection[] = [
   },
   {
     heading: '6. Zmiany regulaminu',
-    paragraphs: ['Fundacja może zmienić regulamin. Obowiązuje wersja opublikowana w serwisie w dniu korzystania z niego.'],
+    paragraphs: [
+      'Fundacja może zmienić regulamin. Obowiązuje wersja opublikowana w serwisie w dniu korzystania z niego.',
+    ],
   },
 ];

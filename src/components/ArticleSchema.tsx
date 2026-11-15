@@ -17,7 +17,7 @@ export default function ArticleSchema({
   datePublished,
   dateModified,
   author = 'Fundacja Zapłon',
-  url
+  url,
 }: Readonly<Props>) {
   const schema = {
     '@context': 'https://schema.org',
@@ -27,24 +27,20 @@ export default function ArticleSchema({
     image,
     author: {
       '@type': 'Organization',
-      name: author
+      name: author,
     },
     publisher: {
       '@type': 'Organization',
       name: 'Fundacja Zapłon',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://zaplon.org.pl/images/logo.svg'
-      }
+        url: 'https://zaplon.org.pl/images/logo.svg',
+      },
     },
     datePublished,
     dateModified: dateModified ?? datePublished,
-    mainEntityOfPage: url
+    mainEntityOfPage: url,
   };
 
-  return (
-    <script type="application/ld+json">
-      {JSON.stringify(schema)}
-    </script>
-  );
+  return <script type="application/ld+json">{JSON.stringify(schema)}</script>;
 }

@@ -52,26 +52,26 @@ export default function Hero({
       <div aria-hidden="true" className="bg-dots pointer-events-none absolute inset-0 opacity-40" />
 
       <div className="relative container-max py-16 md:py-24">
-        <div className='flex justify-between items-center'>
-        <div className="max-w-4xl">
-          {eyebrow && <p className="eyebrow animate-fade-in mb-6">{eyebrow}</p>}
+        <div className="flex justify-between items-center">
+          <div className="max-w-4xl">
+            {eyebrow && <p className="eyebrow animate-fade-in mb-6">{eyebrow}</p>}
 
-          <h1 className="display">
-            {title}
-            <br />
-            <span className="text-gradient-ember">{highlight}</span>
-          </h1>
+            <h1 className="display">
+              {title}
+              <br />
+              <span className="text-gradient-ember">{highlight}</span>
+            </h1>
 
-          {subtitle && <p className="lead mt-7 max-w-2xl">{subtitle}</p>}
+            {subtitle && <p className="lead mt-7 max-w-2xl">{subtitle}</p>}
 
-          {(primaryCta || secondaryCta) && (
-            <div className="mt-9 flex flex-wrap gap-3">
-              {primaryCta && <CtaLink cta={primaryCta} className="btn btn-ember" />}
-              {secondaryCta && <CtaLink cta={secondaryCta} className="btn btn-secondary" />}
-            </div>
-          )}
-        </div>
-        <Illustration name="zapalki" className="md:w-[30vw] hidden sm:inline"/>
+            {(primaryCta || secondaryCta) && (
+              <div className="mt-9 flex flex-wrap gap-3">
+                {primaryCta && <CtaLink cta={primaryCta} className="btn btn-ember" />}
+                {secondaryCta && <CtaLink cta={secondaryCta} className="btn btn-secondary" />}
+              </div>
+            )}
+          </div>
+          <Illustration name="zapalki" className="md:w-[30vw] hidden sm:inline" />
         </div>
         <hr className="mt-14 border-t md:mt-20" />
       </div>

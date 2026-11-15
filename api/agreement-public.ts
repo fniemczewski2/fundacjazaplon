@@ -4,17 +4,49 @@ import { serviceClient, supabaseEnv } from './_lib/auth.js';
 import { requireCaptcha } from './_lib/captcha.js';
 import { OTP_COOLDOWN_MS, OTP_MAX_ATTEMPTS, OTP_TTL_MS } from './_lib/config.js';
 import { sendGraphMail } from './_lib/graph.js';
-import { bodyOf, clientIp, sendJson, sendPdf, shorten, type ApiRequest, type JsonObject } from './_lib/http.js';
+import {
+  bodyOf,
+  clientIp,
+  sendJson,
+  sendPdf,
+  shorten,
+  type ApiRequest,
+  type JsonObject,
+} from './_lib/http.js';
 import { encryptPii } from './_lib/pii.js';
 import { rateLimited, UNAVAILABLE_MESSAGE } from './_lib/rateLimit.js';
 import { incrementWindow, RedisUnavailableError } from './_lib/redis.js';
 import { logSecurityEvent } from './_lib/securityEvents.js';
-import { buildPackage, contentHash, templatesApproved, TEMPLATE_VERSION, type AgreementRow } from './_lib/agreements/documents.js';
-import { otpMail } from './_lib/agreements/emails.js';
-import { hashOtp, isTokenShape, newOtp, safeEqualHex, sha256Hex } from './_lib/agreements/security.js';
-import { downloadPdf, loadFoundation, logEvent, recipientOf, uploadPdf, withPlainPesel, type FullRow } from './_lib/agreements/store.js';
 import {
-  decodeKrkFile, validateApplication, validateDeclarations, validateKrkDate, validateStatement,
+  buildPackage,
+  contentHash,
+  templatesApproved,
+  TEMPLATE_VERSION,
+  type AgreementRow,
+} from './_lib/agreements/documents.js';
+import { otpMail } from './_lib/agreements/emails.js';
+import {
+  hashOtp,
+  isTokenShape,
+  newOtp,
+  safeEqualHex,
+  sha256Hex,
+} from './_lib/agreements/security.js';
+import {
+  downloadPdf,
+  loadFoundation,
+  logEvent,
+  recipientOf,
+  uploadPdf,
+  withPlainPesel,
+  type FullRow,
+} from './_lib/agreements/store.js';
+import {
+  decodeKrkFile,
+  validateApplication,
+  validateDeclarations,
+  validateKrkDate,
+  validateStatement,
 } from './_lib/agreements/validate.js';
 
 const LINK_ERROR = 'Link jest nieprawidłowy lub wygasł. Poproś fundację o nowy.';
@@ -31,7 +63,9 @@ function viewOf(row: FullRow) {
     isMinor: row.is_minor,
     firstName: row.first_name,
     lastName: row.last_name,
-    signerName: row.is_minor ? `${row.guardian_first_name} ${row.guardian_last_name}` : `${row.first_name} ${row.last_name}`,
+    signerName: row.is_minor
+      ? `${row.guardian_first_name} ${row.guardian_last_name}`
+      : `${row.first_name} ${row.last_name}`,
     guardianRelation: row.guardian_relation,
     emailMasked: maskEmail(recipientOf(row)),
     scope: row.scope,
@@ -64,10 +98,15 @@ function viewOf(row: FullRow) {
 }
 
 async function loadByToken(db: SupabaseClient, token: string): Promise<FullRow | null> {
-  const { data, error } = await db.from('agreements').select('*').eq('token_hash', sha256Hex(token)).maybeSingle();
+  const { data, error } = await db
+    .from('agreements')
+    .select('*')
+    .eq('token_hash', sha256Hex(token))
+    .maybeSingle();
   if (error) throw error;
   const row = data as FullRow | null;
-  if (!row || !row.token_expires_at || new Date(row.token_expires_at).getTime() < Date.now()) return null;
+  if (!row || !row.token_expires_at || new Date(row.token_expires_at).getTime() < Date.now())
+    return null;
   if (!['approved', 'signed', 'completed'].includes(row.status)) return null;
   return withPlainPesel(row);
 }
@@ -84,29 +123,55 @@ async function submit(db: SupabaseClient, body: JsonObject, res: ServerResponse)
 
   const id = crypto.randomUUID();
   const { error } = await db.from('agreements').insert({
-    id, kind: a.kind, first_name: a.firstName, last_name: a.lastName, email: a.email, phone: a.phone,
-    pesel: encryptPii(a.pesel), birth_date: a.birthDate, is_minor: a.isMinor,
-    street: a.street, house_number: a.houseNumber, postal_code: a.postalCode, city: a.city, note: a.note,
+    id,
+    kind: a.kind,
+    first_name: a.firstName,
+    last_name: a.lastName,
+    email: a.email,
+    phone: a.phone,
+    pesel: encryptPii(a.pesel),
+    birth_date: a.birthDate,
+    is_minor: a.isMinor,
+    street: a.street,
+    house_number: a.houseNumber,
+    postal_code: a.postalCode,
+    city: a.city,
+    note: a.note,
     ...(a.guardian
       ? {
-          guardian_first_name: a.guardian.firstName, guardian_last_name: a.guardian.lastName, guardian_email: a.guardian.email,
-          guardian_phone: a.guardian.phone, guardian_relation: a.guardian.relation,
+          guardian_first_name: a.guardian.firstName,
+          guardian_last_name: a.guardian.lastName,
+          guardian_email: a.guardian.email,
+          guardian_phone: a.guardian.phone,
+          guardian_relation: a.guardian.relation,
         }
       : {}),
   });
   if (error) throw error;
 
-  await logEvent(db, id, a.isMinor ? 'rodzic / opiekun (w imieniu małoletniego)' : 'wnioskodawca', 'submitted', { minor: a.isMinor });
+  await logEvent(
+    db,
+    id,
+    a.isMinor ? 'rodzic / opiekun (w imieniu małoletniego)' : 'wnioskodawca',
+    'submitted',
+    { minor: a.isMinor },
+  );
   return sendJson(res, 200, { ok: true });
 }
 
 // --- zgody, KRK ------------------------------------------------------------------------------------
 
 async function save(db: SupabaseClient, row: FullRow, body: JsonObject, res: ServerResponse) {
-  if (row.status !== 'approved') return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
+  if (row.status !== 'approved')
+    return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
 
-  if (typeof body.marketingConsent !== 'boolean') return sendJson(res, 400, { error: 'Wskaż, czy wyrażasz zgodę na informowanie o działaniach fundacji (zgoda jest dobrowolna).' });
-  if (body.infoClauseAck !== true) return sendJson(res, 400, { error: 'Potwierdź zapoznanie się z klauzulą informacyjną.' });
+  if (typeof body.marketingConsent !== 'boolean')
+    return sendJson(res, 400, {
+      error:
+        'Wskaż, czy wyrażasz zgodę na informowanie o działaniach fundacji (zgoda jest dobrowolna).',
+    });
+  if (body.infoClauseAck !== true)
+    return sendJson(res, 400, { error: 'Potwierdź zapoznanie się z klauzulą informacyjną.' });
 
   const now = new Date().toISOString();
   const update: Record<string, unknown> = {
@@ -114,12 +179,14 @@ async function save(db: SupabaseClient, row: FullRow, body: JsonObject, res: Ser
     info_clause_ack_at: now,
     consents_saved_at: now,
     // Zmiana zgód unieważnia zamówiony kod - podpisujemy dokładnie to, co jest zapisane.
-    otp_hash: null, otp_expires_at: null,
+    otp_hash: null,
+    otp_expires_at: null,
     updated_at: now,
   };
 
   if (row.kind === 'volunteer') {
-    if (typeof body.consentImage !== 'boolean') return sendJson(res, 400, { error: 'Wskaż, czy wyrażasz zgodę na wykorzystanie wizerunku.' });
+    if (typeof body.consentImage !== 'boolean')
+      return sendJson(res, 400, { error: 'Wskaż, czy wyrażasz zgodę na wykorzystanie wizerunku.' });
     const declarations = validateDeclarations(body);
     if ('error' in declarations) return sendJson(res, 400, { error: declarations.error });
     update.consent_image = body.consentImage;
@@ -133,7 +200,10 @@ async function save(db: SupabaseClient, row: FullRow, body: JsonObject, res: Ser
 
   let krkBytes: Buffer | null = null;
   if (row.minors_checks_required) {
-    if (body.consentRspts !== true) return sendJson(res, 400, { error: 'Zgoda na weryfikację w rejestrze jest warunkiem współpracy z małoletnimi.' });
+    if (body.consentRspts !== true)
+      return sendJson(res, 400, {
+        error: 'Zgoda na weryfikację w rejestrze jest warunkiem współpracy z małoletnimi.',
+      });
     update.consent_rspts = true;
 
     const date = validateKrkDate(body.krkIssueDate);
@@ -145,7 +215,9 @@ async function save(db: SupabaseClient, row: FullRow, body: JsonObject, res: Ser
       if ('error' in file) return sendJson(res, 400, { error: file.error });
       krkBytes = file.data;
     } else if (!row.krk_file_path) {
-      return sendJson(res, 400, { error: 'Dołącz zaświadczenie o niekaralności z KRK w formacie PDF.' });
+      return sendJson(res, 400, {
+        error: 'Dołącz zaświadczenie o niekaralności z KRK w formacie PDF.',
+      });
     }
   } else {
     update.consent_rspts = null;
@@ -154,35 +226,58 @@ async function save(db: SupabaseClient, row: FullRow, body: JsonObject, res: Ser
   if (krkBytes) {
     const path = `krk/${row.id}.pdf`;
     await uploadPdf(db, path, krkBytes);
-    Object.assign(update, { krk_file_path: path, krk_uploaded_at: now, krk_verified_at: null, krk_verified_by: null, krk_file_deleted_at: null });
+    Object.assign(update, {
+      krk_file_path: path,
+      krk_uploaded_at: now,
+      krk_verified_at: null,
+      krk_verified_by: null,
+      krk_file_deleted_at: null,
+    });
   }
 
-  const { data, error } = await db.from('agreements').update(update).eq('id', row.id).eq('status', 'approved').select('id').maybeSingle();
+  const { data, error } = await db
+    .from('agreements')
+    .update(update)
+    .eq('id', row.id)
+    .eq('status', 'approved')
+    .select('id')
+    .maybeSingle();
   if (error) throw error;
   if (!data) return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
 
-  await logEvent(db, row.id, row.is_minor ? 'rodzic / opiekun' : 'wnioskodawca', 'consents_saved', { krkUploaded: Boolean(krkBytes) });
+  await logEvent(db, row.id, row.is_minor ? 'rodzic / opiekun' : 'wnioskodawca', 'consents_saved', {
+    krkUploaded: Boolean(krkBytes),
+  });
   return sendJson(res, 200, { ok: true });
 }
 
 // --- podpis ----------------------------------------------------------------------------------------
 
 async function sendOtp(db: SupabaseClient, row: FullRow, res: ServerResponse) {
-  if (row.status !== 'approved') return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
-  if (!row.consents_saved_at) return sendJson(res, 409, { error: 'Najpierw zapisz zgody i oświadczenia.' });
+  if (row.status !== 'approved')
+    return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
+  if (!row.consents_saved_at)
+    return sendJson(res, 409, { error: 'Najpierw zapisz zgody i oświadczenia.' });
 
   if (row.otp_sent_at && Date.now() - new Date(row.otp_sent_at).getTime() < OTP_COOLDOWN_MS) {
-    return sendJson(res, 429, { error: 'Kod został wysłany przed chwilą. Odczekaj minutę przed kolejną próbą.' });
+    return sendJson(res, 429, {
+      error: 'Kod został wysłany przed chwilą. Odczekaj minutę przed kolejną próbą.',
+    });
   }
 
   const code = newOtp();
   const { data, error } = await db
     .from('agreements')
     .update({
-      otp_hash: hashOtp(row.id, code), otp_expires_at: new Date(Date.now() + OTP_TTL_MS).toISOString(),
-      otp_attempts: 0, otp_sent_at: new Date().toISOString(),
+      otp_hash: hashOtp(row.id, code),
+      otp_expires_at: new Date(Date.now() + OTP_TTL_MS).toISOString(),
+      otp_attempts: 0,
+      otp_sent_at: new Date().toISOString(),
     })
-    .eq('id', row.id).eq('status', 'approved').select('id').maybeSingle();
+    .eq('id', row.id)
+    .eq('status', 'approved')
+    .select('id')
+    .maybeSingle();
   if (error) throw error;
   if (!data) return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
 
@@ -201,20 +296,37 @@ async function sendOtp(db: SupabaseClient, row: FullRow, res: ServerResponse) {
 /** Zużywa próbę podania kodu (INCR w Redis, atomowo przed porównaniem). Wartość > OTP_MAX_ATTEMPTS oznacza wyczerpanie. */
 async function claimOtpAttempt(row: FullRow): Promise<number> {
   const sentAt = row.otp_sent_at ? new Date(row.otp_sent_at).getTime() : 0;
-  const { count } = await incrementWindow(`otp:${row.id}:${sentAt}`, Math.ceil(OTP_TTL_MS / 1000) + 60);
+  const { count } = await incrementWindow(
+    `otp:${row.id}:${sentAt}`,
+    Math.ceil(OTP_TTL_MS / 1000) + 60,
+  );
   return count;
 }
 
-async function sign(db: SupabaseClient, row: FullRow, body: JsonObject, req: ApiRequest, res: ServerResponse) {
-  if (row.status !== 'approved') return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
-  if (!row.consents_saved_at) return sendJson(res, 409, { error: 'Najpierw zapisz zgody i oświadczenia.' });
-  if (body.accept !== true) return sendJson(res, 400, { error: 'Potwierdź, że zapoznałeś/aś się z dokumentami i je podpisujesz.' });
+async function sign(
+  db: SupabaseClient,
+  row: FullRow,
+  body: JsonObject,
+  req: ApiRequest,
+  res: ServerResponse,
+) {
+  if (row.status !== 'approved')
+    return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
+  if (!row.consents_saved_at)
+    return sendJson(res, 409, { error: 'Najpierw zapisz zgody i oświadczenia.' });
+  if (body.accept !== true)
+    return sendJson(res, 400, {
+      error: 'Potwierdź, że zapoznałeś/aś się z dokumentami i je podpisujesz.',
+    });
 
   const code = typeof body.code === 'string' ? body.code.trim() : '';
-  if (!/^\d{6}$/.test(code)) return sendJson(res, 400, { error: 'Podaj 6-cyfrowy kod z wiadomości e-mail.' });
+  if (!/^\d{6}$/.test(code))
+    return sendJson(res, 400, { error: 'Podaj 6-cyfrowy kod z wiadomości e-mail.' });
 
   if (!row.otp_hash || !row.otp_expires_at || new Date(row.otp_expires_at).getTime() < Date.now()) {
-    return sendJson(res, 400, { error: 'Kod wygasł albo nie został zamówiony. Poproś o nowy kod.' });
+    return sendJson(res, 400, {
+      error: 'Kod wygasł albo nie został zamówiony. Poproś o nowy kod.',
+    });
   }
 
   // Próba jest zużywana atomowo PRZED porównaniem kodu: równoległe żądania nie przekroczą limitu.
@@ -227,18 +339,26 @@ async function sign(db: SupabaseClient, row: FullRow, body: JsonObject, req: Api
 
   if (!safeEqualHex(hashOtp(row.id, code), row.otp_hash)) {
     await logEvent(db, row.id, 'osoba podpisująca', 'otp_failed');
-    return sendJson(res, 400, { error: `Nieprawidłowy kod. Pozostało prób: ${Math.max(OTP_MAX_ATTEMPTS - attempt, 0)}.` });
+    return sendJson(res, 400, {
+      error: `Nieprawidłowy kod. Pozostało prób: ${Math.max(OTP_MAX_ATTEMPTS - attempt, 0)}.`,
+    });
   }
 
   if (row.minors_checks_required && (!row.krk_file_path || !row.consent_rspts)) {
-    return sendJson(res, 409, { error: 'Brakuje zaświadczenia z KRK lub zgody na weryfikację w rejestrze.' });
+    return sendJson(res, 409, {
+      error: 'Brakuje zaświadczenia z KRK lub zgody na weryfikację w rejestrze.',
+    });
   }
 
   const foundation = await loadFoundation(db);
   const signedAt = new Date().toISOString();
   const ip = clientIp(req);
   const hash = contentHash(row as AgreementRow, foundation);
-  const pdf = await buildPackage({ ...row, signed_at: signedAt, signed_ip: ip } as AgreementRow, foundation, hash);
+  const pdf = await buildPackage(
+    { ...row, signed_at: signedAt, signed_ip: ip } as AgreementRow,
+    foundation,
+    hash,
+  );
 
   const path = `signed/${row.id}.pdf`;
   await uploadPdf(db, path, pdf);
@@ -246,12 +366,23 @@ async function sign(db: SupabaseClient, row: FullRow, body: JsonObject, req: Api
   const { data, error } = await db
     .from('agreements')
     .update({
-      status: 'signed', signed_at: signedAt, signed_ip: ip, signed_ua: String(req.headers['user-agent'] ?? '').slice(0, 300),
-      content_sha256: hash, signed_file_path: path, file_sha256: sha256Hex(pdf),
-      template_version: TEMPLATE_VERSION, template_approved: templatesApproved(),
-      otp_hash: null, otp_expires_at: null, updated_at: signedAt,
+      status: 'signed',
+      signed_at: signedAt,
+      signed_ip: ip,
+      signed_ua: String(req.headers['user-agent'] ?? '').slice(0, 300),
+      content_sha256: hash,
+      signed_file_path: path,
+      file_sha256: sha256Hex(pdf),
+      template_version: TEMPLATE_VERSION,
+      template_approved: templatesApproved(),
+      otp_hash: null,
+      otp_expires_at: null,
+      updated_at: signedAt,
     })
-    .eq('id', row.id).eq('status', 'approved').select('id').maybeSingle();
+    .eq('id', row.id)
+    .eq('status', 'approved')
+    .select('id')
+    .maybeSingle();
   if (error) throw error;
   if (!data) return sendJson(res, 409, { error: 'Dokumenty zostały już podpisane.' });
 
@@ -266,7 +397,9 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
 
   const env = supabaseEnv();
   if (!env) {
-    console.error('agreement-public: brak SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY.');
+    console.error(
+      'agreement-public: brak SUPABASE_URL / SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY.',
+    );
     return sendJson(res, 500, { error: 'Błąd konfiguracji serwera.' });
   }
   const db = serviceClient(env);
@@ -279,10 +412,21 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
       return await submit(db, body, res);
     }
 
-    if (typeof body.action !== 'string' || !['get', 'preview', 'save', 'otp', 'sign'].includes(body.action)) {
+    if (
+      typeof body.action !== 'string' ||
+      !['get', 'preview', 'save', 'otp', 'sign'].includes(body.action)
+    ) {
       return sendJson(res, 400, { error: 'Nieprawidłowa akcja.' });
     }
-    if (await rateLimited(req, res, body.action === 'otp' || body.action === 'sign' ? 'agreementSign' : 'agreementAccess', db)) return;
+    if (
+      await rateLimited(
+        req,
+        res,
+        body.action === 'otp' || body.action === 'sign' ? 'agreementSign' : 'agreementAccess',
+        db,
+      )
+    )
+      return;
 
     const row = isTokenShape(body.token) ? await loadByToken(db, body.token) : null;
     if (!row) {
@@ -294,10 +438,15 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
       case 'get':
         return sendJson(res, 200, viewOf(row));
       case 'preview': {
-        if (row.signed_file_path) return sendPdf(res, await downloadPdf(db, row.signed_file_path), 'dokumenty.pdf');
+        if (row.signed_file_path)
+          return sendPdf(res, await downloadPdf(db, row.signed_file_path), 'dokumenty.pdf');
         const foundation = await loadFoundation(db);
         const hash = contentHash(row as AgreementRow, foundation);
-        return sendPdf(res, await buildPackage(row as AgreementRow, foundation, hash), 'dokumenty-do-podpisu.pdf');
+        return sendPdf(
+          res,
+          await buildPackage(row as AgreementRow, foundation, hash),
+          'dokumenty-do-podpisu.pdf',
+        );
       }
       case 'save':
         return await save(db, row, body, res);

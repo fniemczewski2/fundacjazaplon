@@ -24,14 +24,20 @@ async function resolveAccess(): Promise<Access> {
 
   try {
     const me = await fetchMe();
-    return me.role ? { status: 'granted', session: { email: me.email, role: me.role } } : { status: 'pending', email: me.email };
+    return me.role
+      ? { status: 'granted', session: { email: me.email, role: me.role } }
+      : { status: 'pending', email: me.email };
   } catch (error) {
     logger.warn('ProtectedAdminRoute', error instanceof Error ? error.message : error);
     return { status: 'denied' };
   }
 }
 
-export default function ProtectedAdminRoute({ component: Component, title, minRole = 'editor' }: Readonly<Props>) {
+export default function ProtectedAdminRoute({
+  component: Component,
+  title,
+  minRole = 'editor',
+}: Readonly<Props>) {
   const [access, setAccess] = useState<Access>({ status: 'checking' });
 
   useEffect(() => {
@@ -67,7 +73,9 @@ export default function ProtectedAdminRoute({ component: Component, title, minRo
   if (!hasRole(access.session.role, minRole)) {
     return (
       <AccessMessage title="Brak uprawnień" text="Twoja rola nie obejmuje tej sekcji.">
-        <Link to="/admin" className="btn btn-secondary">Wróć do panelu</Link>
+        <Link to="/admin" className="btn btn-secondary">
+          Wróć do panelu
+        </Link>
       </AccessMessage>
     );
   }

@@ -50,11 +50,7 @@ export default function Section({
       </Reveal>
 
       <div
-        className={
-          layout === 'grid'
-            ? 'mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3'
-            : 'mt-10'
-        }
+        className={layout === 'grid' ? 'mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3' : 'mt-10'}
       >
         {children}
       </div>

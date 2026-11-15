@@ -30,7 +30,8 @@ function loadTurnstile(): Promise<TurnstileApi> {
     const script = document.createElement('script');
     script.src = SCRIPT_SRC;
     script.async = true;
-    script.onload = () => (w.turnstile ? resolve(w.turnstile) : reject(new Error('Turnstile niedostępny')));
+    script.onload = () =>
+      w.turnstile ? resolve(w.turnstile) : reject(new Error('Turnstile niedostępny'));
     script.onerror = () => {
       scriptPromise = null;
       reject(new Error('Nie udało się wczytać Turnstile'));

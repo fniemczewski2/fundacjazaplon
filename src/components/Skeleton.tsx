@@ -1,11 +1,17 @@
 /** Szkielet ładowania. Animację pulsowania wyłącza `prefers-reduced-motion` (reguła globalna w index.css). */
 export function Skeleton({ className = '' }: Readonly<{ className?: string }>) {
-  return <div aria-hidden="true" className={`animate-pulse rounded-lg bg-surface-cool ${className}`} />;
+  return (
+    <div aria-hidden="true" className={`animate-pulse rounded-lg bg-surface-cool ${className}`} />
+  );
 }
 
 type SkeletonListProps = { count?: number; variant?: 'card' | 'row' | 'article'; label?: string };
 
-export function SkeletonList({ count = 3, variant = 'card', label = 'Wczytywanie treści' }: Readonly<SkeletonListProps>) {
+export function SkeletonList({
+  count = 3,
+  variant = 'card',
+  label = 'Wczytywanie treści',
+}: Readonly<SkeletonListProps>) {
   if (variant === 'article') {
     return (
       <output className="block space-y-4" aria-label={label}>

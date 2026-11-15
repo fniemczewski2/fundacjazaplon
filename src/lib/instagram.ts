@@ -21,5 +21,10 @@ export async function checkInstagramConnection(): Promise<InstagramConnectionSta
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error('Sesja wygasła. Zaloguj się ponownie.');
-  return postJson<InstagramConnectionStatus>('/api/instagram-posts', { action: 'check' }, 'Nie udało się sprawdzić połączenia.', token);
+  return postJson<InstagramConnectionStatus>(
+    '/api/instagram-posts',
+    { action: 'check' },
+    'Nie udało się sprawdzić połączenia.',
+    token,
+  );
 }

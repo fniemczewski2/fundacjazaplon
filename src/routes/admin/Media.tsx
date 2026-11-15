@@ -1,11 +1,21 @@
 import { useState } from 'react';
-import { listMediaFiles, uploadToMedia, MediaValidationError, type MediaFile } from '../../lib/media';
+import {
+  listMediaFiles,
+  uploadToMedia,
+  MediaValidationError,
+  type MediaFile,
+} from '../../lib/media';
 import { useAsyncData } from '../../hooks/useAsyncData';
 import { getErrorMessage } from '../../lib/utils/errors';
 import { useToast } from '../../components/ui/Feedback';
 
 export default function Media() {
-  const { data: files, loading, error, reload: list } = useAsyncData(listMediaFiles, [] as MediaFile[], 'Nie udało się wczytać listy plików.');
+  const {
+    data: files,
+    loading,
+    error,
+    reload: list,
+  } = useAsyncData(listMediaFiles, [] as MediaFile[], 'Nie udało się wczytać listy plików.');
   const [uploading, setUploading] = useState(false);
   const showToast = useToast();
 
@@ -22,7 +32,9 @@ export default function Media() {
       showToast('Plik został wgrany.', 'success');
     } catch (err) {
       const message =
-        err instanceof MediaValidationError ? err.message : getErrorMessage(err, 'Nie udało się wgrać pliku.');
+        err instanceof MediaValidationError
+          ? err.message
+          : getErrorMessage(err, 'Nie udało się wgrać pliku.');
       showToast(message, 'error');
     } finally {
       setUploading(false);
@@ -51,7 +63,12 @@ export default function Media() {
 
   function renderFiles() {
     if (loading) return <p className="text-ink-muted">Ładowanie…</p>;
-    if (error) return <p role="alert" className="field-error">{error}</p>;
+    if (error)
+      return (
+        <p role="alert" className="field-error">
+          {error}
+        </p>
+      );
     if (files.length === 0) return <p className="text-ink-muted">Brak wgranych plików.</p>;
 
     return (
@@ -64,7 +81,12 @@ export default function Media() {
             rel="noopener noreferrer"
             className="block border rounded-xl overflow-hidden"
           >
-            <img src={f.url} alt={f.name} className="w-full aspect-square object-cover" loading="lazy" />
+            <img
+              src={f.url}
+              alt={f.name}
+              className="w-full aspect-square object-cover"
+              loading="lazy"
+            />
             <div className="p-2 text-sm truncate">{f.name}</div>
           </a>
         ))}

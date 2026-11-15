@@ -22,7 +22,11 @@ export default function NewsletterCard() {
     setErrorMessage('');
 
     try {
-      await postJson('/api/subscribe-newsletter', { name, email, captchaToken }, 'Nie udało się zapisać na newsletter. Spróbuj ponownie.');
+      await postJson(
+        '/api/subscribe-newsletter',
+        { name, email, captchaToken },
+        'Nie udało się zapisać na newsletter. Spróbuj ponownie.',
+      );
       trackEvent('newsletter_signup');
       setStatus('success');
       setName('');
@@ -60,13 +64,29 @@ export default function NewsletterCard() {
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Imię">
                 {(a11y) => (
-                  <input {...a11y} type="text" required autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} className="input-text" />
+                  <input
+                    {...a11y}
+                    type="text"
+                    required
+                    autoComplete="given-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="input-text"
+                  />
                 )}
               </Field>
 
               <Field label="Adres e-mail">
                 {(a11y) => (
-                  <input {...a11y} type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-text" />
+                  <input
+                    {...a11y}
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-text"
+                  />
                 )}
               </Field>
             </div>

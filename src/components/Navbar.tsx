@@ -66,7 +66,10 @@ export default function Navbar() {
     ].join(' ');
 
   return (
-    <header ref={headerRef} className="on-brand sticky top-0 z-50 border-b border-on-brand/10 bg-brand text-on-brand">
+    <header
+      ref={headerRef}
+      className="on-brand sticky top-0 z-50 border-b border-on-brand/10 bg-brand text-on-brand"
+    >
       <nav aria-label="Główne" className="container-max">
         <div
           className={[
@@ -74,7 +77,11 @@ export default function Navbar() {
             scrolled ? 'py-2' : 'py-3 md:py-4',
           ].join(' ')}
         >
-          <Link href="/" className="flex shrink-0 items-center" aria-label="Fundacja Zapłon - strona główna">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center"
+            aria-label="Fundacja Zapłon - strona główna"
+          >
             <img
               src="/images/logo.svg"
               alt="Fundacja Zapłon"
@@ -108,7 +115,12 @@ export default function Navbar() {
           {/* Działania - desktop */}
           <div className="hidden shrink-0 items-center gap-2 xl:flex">
             {joinUrl && (
-              <a href={joinUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+              <a
+                href={joinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary"
+              >
                 Dołączam
               </a>
             )}

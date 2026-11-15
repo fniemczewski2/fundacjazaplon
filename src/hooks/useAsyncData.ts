@@ -15,7 +15,11 @@ export function useAsyncData<T>(fetcher: () => Promise<T>, initial: T, fallbackE
       const data = await fetcher();
       setState({ data, loading: false, error: null });
     } catch (error) {
-      setState((prev) => ({ ...prev, loading: false, error: getErrorMessage(error, fallbackError) }));
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: getErrorMessage(error, fallbackError),
+      }));
     }
   }, [fetcher, fallbackError]);
 

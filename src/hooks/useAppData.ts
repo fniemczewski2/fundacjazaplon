@@ -12,15 +12,27 @@ import { listTeamPublic } from '../lib/team';
 import { STALE_TIME } from '../lib/config';
 
 export function useJoinLink() {
-  return useQuery({ queryKey: ['join-link'], queryFn: getJoinLink, staleTime: STALE_TIME.settings });
+  return useQuery({
+    queryKey: ['join-link'],
+    queryFn: getJoinLink,
+    staleTime: STALE_TIME.settings,
+  });
 }
 
 export function useSocialLinks() {
-  return useQuery({ queryKey: ['social-links'], queryFn: getSocialLinks, staleTime: STALE_TIME.settings });
+  return useQuery({
+    queryKey: ['social-links'],
+    queryFn: getSocialLinks,
+    staleTime: STALE_TIME.settings,
+  });
 }
 
 export function useContactInfo() {
-  return useQuery({ queryKey: ['contact-info'], queryFn: getContact, staleTime: STALE_TIME.settings });
+  return useQuery({
+    queryKey: ['contact-info'],
+    queryFn: getContact,
+    staleTime: STALE_TIME.settings,
+  });
 }
 
 export function useLinkItems() {
@@ -28,11 +40,19 @@ export function useLinkItems() {
 }
 
 export function useInstagramPosts() {
-  return useQuery({ queryKey: ['instagram', 'posts'], queryFn: getInstagramPosts, staleTime: STALE_TIME.settings });
+  return useQuery({
+    queryKey: ['instagram', 'posts'],
+    queryFn: getInstagramPosts,
+    staleTime: STALE_TIME.settings,
+  });
 }
 
 export function usePublishedPosts() {
-  return useQuery({ queryKey: ['posts', 'published'], queryFn: listPublishedPosts, staleTime: STALE_TIME.content });
+  return useQuery({
+    queryKey: ['posts', 'published'],
+    queryFn: listPublishedPosts,
+    staleTime: STALE_TIME.content,
+  });
 }
 
 /** `data === null` oznacza, że wpisu nie ma (albo nie jest jeszcze opublikowany). */
@@ -47,7 +67,11 @@ export function usePost(slug: string | undefined) {
 
 export function useTeam() {
   // Musi być `listTeamPublic` (filtruje active=true): wersja panelowa pokazywałaby też osoby nieaktywne z ich danymi kontaktowymi.
-  return useQuery({ queryKey: ['team', 'public'], queryFn: listTeamPublic, staleTime: STALE_TIME.settings });
+  return useQuery({
+    queryKey: ['team', 'public'],
+    queryFn: listTeamPublic,
+    staleTime: STALE_TIME.settings,
+  });
 }
 
 export function useAbout() {
@@ -69,7 +93,10 @@ export function useDocumentGroups() {
         ALL_CATEGORIES.map(async (category) => ({
           key: category.key,
           label: category.label,
-          items: (await listDocuments(category.key)).map((item) => ({ name: item.name, url: item.url })),
+          items: (await listDocuments(category.key)).map((item) => ({
+            name: item.name,
+            url: item.url,
+          })),
         })),
       ),
     staleTime: STALE_TIME.settings,
@@ -77,7 +104,11 @@ export function useDocumentGroups() {
 }
 
 export function useMaterials() {
-  return useQuery({ queryKey: ['materials'], queryFn: listMaterials, staleTime: STALE_TIME.content });
+  return useQuery({
+    queryKey: ['materials'],
+    queryFn: listMaterials,
+    staleTime: STALE_TIME.content,
+  });
 }
 
 /** Adres PDF z polityką prywatności z panelu (jeśli wgrany). Brak pliku to `null`, nie błąd. */

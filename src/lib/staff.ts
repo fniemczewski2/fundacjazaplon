@@ -3,7 +3,12 @@ import { postJson } from './api';
 import type { AssignableRole, StaffRole } from '../../shared/roles';
 
 export type Me = { email: string; role: StaffRole | null };
-export type StaffMember = { email: string; role: StaffRole; grantedBy: string | null; grantedAt: string };
+export type StaffMember = {
+  email: string;
+  role: StaffRole;
+  grantedBy: string | null;
+  grantedAt: string;
+};
 export type PendingUser = { email: string; lastSignInAt: string | null };
 export type StaffList = { staff: StaffMember[]; pending: PendingUser[] };
 
@@ -21,7 +26,8 @@ async function call<T>(body: Record<string, unknown>, fallbackError: string): Pr
 /** Tożsamość i rola zalogowanej osoby (rola null = konto czeka na nadanie uprawnień). */
 export const fetchMe = () => call<Me>({ action: 'me' }, 'Nie udało się sprawdzić uprawnień.');
 
-export const listStaff = () => call<StaffList>({ action: 'list' }, 'Nie udało się wczytać listy uprawnień.');
+export const listStaff = () =>
+  call<StaffList>({ action: 'list' }, 'Nie udało się wczytać listy uprawnień.');
 
 export const setStaffRole = (email: string, role: AssignableRole) =>
   call<{ ok: true }>({ action: 'set', email, role }, 'Nie udało się zapisać uprawnień.');

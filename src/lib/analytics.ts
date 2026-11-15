@@ -2,7 +2,8 @@ import { CONSENT_REOPEN_EVENT, CONSENT_STORAGE_KEY, GA_MEASUREMENT_ID } from './
 
 export type ConsentValue = 'accepted' | 'rejected';
 
-export type AnalyticsEvent = 'donate_start' | 'newsletter_signup' | 'material_download' | 'settlement_submit';
+export type AnalyticsEvent =
+  'donate_start' | 'newsletter_signup' | 'material_download' | 'settlement_submit';
 
 type Gtag = (...args: unknown[]) => void;
 type AnalyticsWindow = Window & { dataLayer?: unknown[]; gtag?: Gtag };
@@ -31,7 +32,12 @@ function load() {
   w.gtag = function gtag(...args: unknown[]) {
     w.dataLayer?.push(args);
   };
-  w.gtag('consent', 'default', { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
+  w.gtag('consent', 'default', {
+    analytics_storage: 'granted',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+  });
   w.gtag('js', new Date());
   w.gtag('config', GA_MEASUREMENT_ID, { send_page_view: false });
 

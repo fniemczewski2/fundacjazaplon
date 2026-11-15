@@ -122,7 +122,12 @@ export default function Settlement() {
       setStatus('queued');
     } catch (err) {
       setStatus('error');
-      setServerError(getErrorMessage(err, 'Brak połączenia z siecią i nie udało się zapisać formularza w przeglądarce.'));
+      setServerError(
+        getErrorMessage(
+          err,
+          'Brak połączenia z siecią i nie udało się zapisać formularza w przeglądarce.',
+        ),
+      );
     }
   };
 
@@ -161,7 +166,10 @@ export default function Settlement() {
         width="prose"
       >
         {queue.items.length > 0 && (
-          <section aria-label="Rozliczenia czekające na wysłanie" className="card mb-6 p-5 panel-warm">
+          <section
+            aria-label="Rozliczenia czekające na wysłanie"
+            className="card mb-6 p-5 panel-warm"
+          >
             <p className="font-medium">
               Rozliczenia zapisane w przeglądarce, czekające na wysłanie: {queue.items.length}.
             </p>
@@ -183,7 +191,8 @@ export default function Settlement() {
 
         {status === 'queued' && (
           <output className="card mb-6 block p-5 panel-warm">
-            Brak połączenia. Rozliczenie zapisaliśmy w tej przeglądarce i możesz je wysłać, gdy wróci sieć.
+            Brak połączenia. Rozliczenie zapisaliśmy w tej przeglądarce i możesz je wysłać, gdy
+            wróci sieć.
           </output>
         )}
 
@@ -328,7 +337,9 @@ export default function Settlement() {
                       setErrors((s) => ({ ...s, invoice: undefined }));
                     }}
                     className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition-colors ${
-                      kind === opt.value ? 'bg-brand text-on-brand' : 'text-ink hover:text-ember-ink'
+                      kind === opt.value
+                        ? 'bg-brand text-on-brand'
+                        : 'text-ink hover:text-ember-ink'
                     }`}
                   >
                     {opt.label}
@@ -405,8 +416,8 @@ export default function Settlement() {
             </button>
 
             <p className="field-hint text-center leading-relaxed">
-              Dane (imię, nazwisko, adres e-mail, numer konta) przetwarzamy w celu zwrotu wydatku i rozliczenia
-              fundacji. Szczegóły: <PrivacyPolicyLink black />
+              Dane (imię, nazwisko, adres e-mail, numer konta) przetwarzamy w celu zwrotu wydatku i
+              rozliczenia fundacji. Szczegóły: <PrivacyPolicyLink black />
             </p>
           </form>
         )}

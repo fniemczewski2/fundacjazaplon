@@ -1,14 +1,23 @@
 // src/lib/agreements.ts
 import { supabase } from './supabase';
 import { postBlob, postJson } from './api';
-import { EMAIL_RE, formatIban, isValidPlIban, normalizeIban, parseAmountToGrosze } from '../../shared/validation';
+import {
+  EMAIL_RE,
+  formatIban,
+  isValidPlIban,
+  normalizeIban,
+  parseAmountToGrosze,
+} from '../../shared/validation';
 
 export { formatIban, isValidPlIban, normalizeIban, parseAmountToGrosze };
 
 export type AgreementKind = 'volunteer' | 'mandate';
 export type AgreementStatus = 'submitted' | 'approved' | 'rejected' | 'signed' | 'completed';
 
-export const KIND_LABEL: Record<AgreementKind, string> = { volunteer: 'Wolontariat', mandate: 'Umowa zlecenie' };
+export const KIND_LABEL: Record<AgreementKind, string> = {
+  volunteer: 'Wolontariat',
+  mandate: 'Umowa zlecenie',
+};
 export const MAX_KRK_MB = 2;
 
 // --- PESEL (kopia reguł z serwera; serwer i tak waliduje ponownie) --------------------------------
@@ -27,7 +36,8 @@ export function birthDateFromPesel(pesel: string): string | null {
   const year = century + Number(pesel.slice(0, 2));
   const dd = Number(pesel.slice(4, 6));
   const date = new Date(Date.UTC(year, mm - 1, dd));
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== mm - 1 || date.getUTCDate() !== dd) return null;
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== mm - 1 || date.getUTCDate() !== dd)
+    return null;
   return date.toISOString().slice(0, 10);
 }
 
@@ -36,7 +46,8 @@ export function ageFromPesel(pesel: string, today = new Date()): number | null {
   if (!birth) return null;
   const [y, m, d] = birth.split('-').map(Number) as [number, number, number];
   let age = today.getUTCFullYear() - y;
-  if (today.getUTCMonth() + 1 < m || (today.getUTCMonth() + 1 === m && today.getUTCDate() < d)) age -= 1;
+  if (today.getUTCMonth() + 1 < m || (today.getUTCMonth() + 1 === m && today.getUTCDate() < d))
+    age -= 1;
   return age;
 }
 
@@ -47,7 +58,13 @@ export const MIN_VOLUNTEER_AGE_HINT = 13;
 
 export type Relation = 'rodzic' | 'opiekun prawny';
 
-export type GuardianInput = { firstName: string; lastName: string; email: string; phone: string; relation: Relation | '' };
+export type GuardianInput = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  relation: Relation | '';
+};
 
 export type ApplicationInput = {
   kind: AgreementKind;
@@ -64,7 +81,17 @@ export type ApplicationInput = {
   guardian: GuardianInput;
 };
 
-export type ApplicationErrors = Partial<Record<Exclude<keyof ApplicationInput, 'kind' | 'guardian'> | 'guardianFirstName' | 'guardianLastName' | 'guardianEmail' | 'guardianPhone' | 'guardianRelation', string>>;
+export type ApplicationErrors = Partial<
+  Record<
+    | Exclude<keyof ApplicationInput, 'kind' | 'guardian'>
+    | 'guardianFirstName'
+    | 'guardianLastName'
+    | 'guardianEmail'
+    | 'guardianPhone'
+    | 'guardianRelation',
+    string
+  >
+>;
 
 export function validateApplication(i: ApplicationInput): ApplicationErrors {
   const e: ApplicationErrors = {};
@@ -77,15 +104,19 @@ export function validateApplication(i: ApplicationInput): ApplicationErrors {
 
   const age = ageFromPesel(i.pesel);
   if (age === null) e.pesel = 'Podaj poprawny numer PESEL.';
-  else if (age < 18 && i.kind === 'mandate') e.pesel = 'Umowa zlecenie jest dostępna wyłącznie dla osób pełnoletnich.';
-  else if (age < MIN_VOLUNTEER_AGE_HINT) e.pesel = `Wolontariuszem może być osoba, która ukończyła ${MIN_VOLUNTEER_AGE_HINT} lat. W sprawie młodszej osoby napisz do fundacji.`;
+  else if (age < 18 && i.kind === 'mandate')
+    e.pesel = 'Umowa zlecenie jest dostępna wyłącznie dla osób pełnoletnich.';
+  else if (age < MIN_VOLUNTEER_AGE_HINT)
+    e.pesel = `Wolontariuszem może być osoba, która ukończyła ${MIN_VOLUNTEER_AGE_HINT} lat. W sprawie młodszej osoby napisz do fundacji.`;
 
   if (age !== null && age < 18) {
     const g = i.guardian;
     if (!g.firstName.trim()) e.guardianFirstName = 'Podaj imię rodzica lub opiekuna.';
     if (!g.lastName.trim()) e.guardianLastName = 'Podaj nazwisko rodzica lub opiekuna.';
-    if (!EMAIL_RE.test(g.email.trim())) e.guardianEmail = 'Podaj poprawny adres e-mail rodzica lub opiekuna.';
-    if (g.phone.replaceAll(/[^\d+ ]/g, '').length < 5) e.guardianPhone = 'Podaj numer telefonu rodzica lub opiekuna.';
+    if (!EMAIL_RE.test(g.email.trim()))
+      e.guardianEmail = 'Podaj poprawny adres e-mail rodzica lub opiekuna.';
+    if (g.phone.replaceAll(/[^\d+ ]/g, '').length < 5)
+      e.guardianPhone = 'Podaj numer telefonu rodzica lub opiekuna.';
     if (!g.relation) e.guardianRelation = 'Wskaż, kim jest osoba składająca zgodę.';
   }
 
@@ -99,31 +130,65 @@ export function validateApplication(i: ApplicationInput): ApplicationErrors {
 
 // --- komunikacja z API ----------------------------------------------------------------------------
 
-export async function submitApplication(input: ApplicationInput, website: string, captchaToken: string | null): Promise<void> {
+export async function submitApplication(
+  input: ApplicationInput,
+  website: string,
+  captchaToken: string | null,
+): Promise<void> {
   const age = ageFromPesel(input.pesel);
   const { guardian, ...rest } = input;
   await postJson('/api/agreement-public', {
-    action: 'submit', ...rest, pesel: input.pesel.replaceAll(/\s/g, ''), email: input.email.trim(),
-    ...(age !== null && age < 18 ? { guardian } : {}), website, captchaToken,
+    action: 'submit',
+    ...rest,
+    pesel: input.pesel.replaceAll(/\s/g, ''),
+    email: input.email.trim(),
+    ...(age !== null && age < 18 ? { guardian } : {}),
+    website,
+    captchaToken,
   });
 }
 
 // --- strona publiczna (po tokenie) ----------------------------------------------------------------
 
 export type ContractorStatement = {
-  postOffice: string; gmina: string; powiat: string; voivodeship: string;
-  taxOffice: string; nfzBranch: string; iban: string;
-  employed: boolean; employedFrom: string; employedTo: string; employedSalary: 'min' | 'below' | '';
-  leave: boolean; leaveType: 'unpaid' | 'parental' | 'maternity' | ''; leaveFrom: string; leaveTo: string;
-  otherContract: boolean; otherContractFrom: string; otherContractTo: string; otherContractExceeds: boolean | null;
-  otherTitle: boolean; otherTitleText: string;
-  pensioner: boolean; pensionDecision: string;
-  disability: boolean; disabilityDegree: 'lekki' | 'umiarkowany' | 'znaczny' | ''; disabilityFrom: string; disabilityTo: string;
-  student: boolean; unemployed: boolean; otherInsurance: boolean;
-  voluntarySickness: boolean; voluntaryPension: boolean;
+  postOffice: string;
+  gmina: string;
+  powiat: string;
+  voivodeship: string;
+  taxOffice: string;
+  nfzBranch: string;
+  iban: string;
+  employed: boolean;
+  employedFrom: string;
+  employedTo: string;
+  employedSalary: 'min' | 'below' | '';
+  leave: boolean;
+  leaveType: 'unpaid' | 'parental' | 'maternity' | '';
+  leaveFrom: string;
+  leaveTo: string;
+  otherContract: boolean;
+  otherContractFrom: string;
+  otherContractTo: string;
+  otherContractExceeds: boolean | null;
+  otherTitle: boolean;
+  otherTitleText: string;
+  pensioner: boolean;
+  pensionDecision: string;
+  disability: boolean;
+  disabilityDegree: 'lekki' | 'umiarkowany' | 'znaczny' | '';
+  disabilityFrom: string;
+  disabilityTo: string;
+  student: boolean;
+  unemployed: boolean;
+  otherInsurance: boolean;
+  voluntarySickness: boolean;
+  voluntaryPension: boolean;
   pitExemption: boolean;
-  taxResidency: boolean; taxResidencyFrom: string; taxResidencyTo: string;
-  authorCostsExceeded: boolean; authorCostsApplied: string;
+  taxResidency: boolean;
+  taxResidencyFrom: string;
+  taxResidencyTo: string;
+  authorCostsExceeded: boolean;
+  authorCostsApplied: string;
 };
 
 export type Declarations = { participation: boolean; rules: boolean; health: boolean };
@@ -177,21 +242,54 @@ export type ConsentsInput = {
 };
 
 export const EMPTY_STATEMENT: ContractorStatement = {
-  postOffice: '', gmina: '', powiat: '', voivodeship: '', taxOffice: '', nfzBranch: '', iban: '',
-  employed: false, employedFrom: '', employedTo: '', employedSalary: '',
-  leave: false, leaveType: '', leaveFrom: '', leaveTo: '',
-  otherContract: false, otherContractFrom: '', otherContractTo: '', otherContractExceeds: null,
-  otherTitle: false, otherTitleText: '', pensioner: false, pensionDecision: '',
-  disability: false, disabilityDegree: '', disabilityFrom: '', disabilityTo: '',
-  student: false, unemployed: false, otherInsurance: false, voluntarySickness: false, voluntaryPension: false,
-  pitExemption: false, taxResidency: false, taxResidencyFrom: '', taxResidencyTo: '', authorCostsExceeded: false, authorCostsApplied: '',
+  postOffice: '',
+  gmina: '',
+  powiat: '',
+  voivodeship: '',
+  taxOffice: '',
+  nfzBranch: '',
+  iban: '',
+  employed: false,
+  employedFrom: '',
+  employedTo: '',
+  employedSalary: '',
+  leave: false,
+  leaveType: '',
+  leaveFrom: '',
+  leaveTo: '',
+  otherContract: false,
+  otherContractFrom: '',
+  otherContractTo: '',
+  otherContractExceeds: null,
+  otherTitle: false,
+  otherTitleText: '',
+  pensioner: false,
+  pensionDecision: '',
+  disability: false,
+  disabilityDegree: '',
+  disabilityFrom: '',
+  disabilityTo: '',
+  student: false,
+  unemployed: false,
+  otherInsurance: false,
+  voluntarySickness: false,
+  voluntaryPension: false,
+  pitExemption: false,
+  taxResidency: false,
+  taxResidencyFrom: '',
+  taxResidencyTo: '',
+  authorCostsExceeded: false,
+  authorCostsApplied: '',
 };
 
-export const publicGet = (token: string) => postJson<PublicView>('/api/agreement-public', { action: 'get', token });
-export const publicPreview = (token: string) => postBlob('/api/agreement-public', { action: 'preview', token });
+export const publicGet = (token: string) =>
+  postJson<PublicView>('/api/agreement-public', { action: 'get', token });
+export const publicPreview = (token: string) =>
+  postBlob('/api/agreement-public', { action: 'preview', token });
 export const publicSave = (token: string, consents: ConsentsInput) =>
   postJson<{ ok: true }>('/api/agreement-public', { action: 'save', token, ...consents });
-export const publicSendCode = (token: string) => postJson<{ ok: true }>('/api/agreement-public', { action: 'otp', token });
+export const publicSendCode = (token: string) =>
+  postJson<{ ok: true }>('/api/agreement-public', { action: 'otp', token });
 export const publicSign = (token: string, code: string) =>
   postJson<{ ok: true }>('/api/agreement-public', { action: 'sign', token, code, accept: true });
 
@@ -267,10 +365,22 @@ export type AgreementRow = {
 export type AgreementEvent = { id: number; at: string; actor: string; event: string };
 
 export type AdminAction =
-  | 'approve' | 'reject' | 'resend-link' | 'verify-krk' | 'verify-rspts' | 'delete-krk' | 'cosign' | 'reveal-pesel';
+  | 'approve'
+  | 'reject'
+  | 'resend-link'
+  | 'verify-krk'
+  | 'verify-rspts'
+  | 'delete-krk'
+  | 'cosign'
+  | 'reveal-pesel';
 
 export type AdminResult = {
-  emailSent?: boolean; emailError?: string; link?: string; completed?: boolean; waitingFor?: string; pesel?: string;
+  emailSent?: boolean;
+  emailError?: string;
+  link?: string;
+  completed?: boolean;
+  waitingFor?: string;
+  pesel?: string;
 };
 
 export type TermsInput = {
@@ -296,13 +406,21 @@ export const formatPln = (grosze: number) =>
   (grosze / 100).toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' });
 
 export async function listAgreements(): Promise<AgreementRow[]> {
-  const { data, error } = await supabase.from('agreements').select('*').order('created_at', { ascending: false }).limit(500);
+  const { data, error } = await supabase
+    .from('agreements')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(500);
   if (error) throw new Error(error.message);
   return (data as AgreementRow[]) ?? [];
 }
 
 export async function listEvents(id: string): Promise<AgreementEvent[]> {
-  const { data, error } = await supabase.from('agreement_events').select('id, at, actor, event').eq('agreement_id', id).order('at');
+  const { data, error } = await supabase
+    .from('agreement_events')
+    .select('id, at, actor, event')
+    .eq('agreement_id', id)
+    .order('at');
   if (error) throw new Error(error.message);
   return (data as AgreementEvent[]) ?? [];
 }
@@ -320,10 +438,24 @@ async function adminToken(): Promise<string> {
   return token;
 }
 
-export async function adminAction(id: string, action: AdminAction, extra: Record<string, unknown> = {}): Promise<AdminResult> {
-  return postJson<AdminResult>('/api/agreement-admin', { id, action, ...extra }, 'Nie udało się wykonać operacji.', await adminToken());
+export async function adminAction(
+  id: string,
+  action: AdminAction,
+  extra: Record<string, unknown> = {},
+): Promise<AdminResult> {
+  return postJson<AdminResult>(
+    '/api/agreement-admin',
+    { id, action, ...extra },
+    'Nie udało się wykonać operacji.',
+    await adminToken(),
+  );
 }
 
 export async function adminPreview(id: string): Promise<Blob> {
-  return postBlob('/api/agreement-admin', { id, action: 'preview' }, 'Nie udało się wczytać podglądu.', await adminToken());
+  return postBlob(
+    '/api/agreement-admin',
+    { id, action: 'preview' },
+    'Nie udało się wczytać podglądu.',
+    await adminToken(),
+  );
 }

@@ -1,0 +1,43 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "jsx-a11y", "oxc"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true
+  },
+  "ignorePatterns": ["dist", "node_modules", "public"],
+  "rules": {
+    "eqeqeq": "error",
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
+    "no-alert": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "typescript/no-non-null-assertion": "warn",
+    "typescript/ban-ts-comment": "error",
+    "typescript/consistent-type-imports": "error",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error",
+    "react/jsx-key": "error",
+    "react/no-unstable-nested-components": "error",
+    "react/react-in-jsx-scope": "off",
+    "jsx-a11y/autocomplete-valid": "off",
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "react/purity": "off",
+    "react/set-state-in-effect": "off",
+    "react/no-did-update-set-state": "off"
+  }
+}

@@ -13,7 +13,12 @@ export type MailerLiteSubscriber = {
  * Dodaje adres do MailerLite. Pole `status` jest pominięte celowo: o podwójnym potwierdzeniu (double opt-in)
  * decyduje ustawienie konta MailerLite, więc adres podany przez osobę trzecią nie staje się aktywny bez potwierdzenia.
  */
-export async function subscribeToMailerLite({ email, name, fields = {}, groups = [] }: MailerLiteSubscriber): Promise<Response> {
+export async function subscribeToMailerLite({
+  email,
+  name,
+  fields = {},
+  groups = [],
+}: MailerLiteSubscriber): Promise<Response> {
   const apiKey = process.env.MAILERLITE_API_KEY;
   if (!apiKey) throw new Error('Brak MAILERLITE_API_KEY.');
 
@@ -22,7 +27,11 @@ export async function subscribeToMailerLite({ email, name, fields = {}, groups =
 
   return fetch(SUBSCRIBERS_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}`, Accept: 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+      Accept: 'application/json',
+    },
     body: JSON.stringify({
       email,
       fields: Object.keys(allFields).length > 0 ? allFields : undefined,

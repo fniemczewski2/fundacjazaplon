@@ -1,9 +1,53 @@
 // Kwota słownie po polsku (do 999 999,99 zł) - do umowy zlecenia ("słownie złotych ...").
 
-const UNITS = ['', 'jeden', 'dwa', 'trzy', 'cztery', 'pięć', 'sześć', 'siedem', 'osiem', 'dziewięć'];
-const TEENS = ['dziesięć', 'jedenaście', 'dwanaście', 'trzynaście', 'czternaście', 'piętnaście', 'szesnaście', 'siedemnaście', 'osiemnaście', 'dziewiętnaście'];
-const TENS = ['', '', 'dwadzieścia', 'trzydzieści', 'czterdzieści', 'pięćdziesiąt', 'sześćdziesiąt', 'siedemdziesiąt', 'osiemdziesiąt', 'dziewięćdziesiąt'];
-const HUNDREDS = ['', 'sto', 'dwieście', 'trzysta', 'czterysta', 'pięćset', 'sześćset', 'siedemset', 'osiemset', 'dziewięćset'];
+const UNITS = [
+  '',
+  'jeden',
+  'dwa',
+  'trzy',
+  'cztery',
+  'pięć',
+  'sześć',
+  'siedem',
+  'osiem',
+  'dziewięć',
+];
+const TEENS = [
+  'dziesięć',
+  'jedenaście',
+  'dwanaście',
+  'trzynaście',
+  'czternaście',
+  'piętnaście',
+  'szesnaście',
+  'siedemnaście',
+  'osiemnaście',
+  'dziewiętnaście',
+];
+const TENS = [
+  '',
+  '',
+  'dwadzieścia',
+  'trzydzieści',
+  'czterdzieści',
+  'pięćdziesiąt',
+  'sześćdziesiąt',
+  'siedemdziesiąt',
+  'osiemdziesiąt',
+  'dziewięćdziesiąt',
+];
+const HUNDREDS = [
+  '',
+  'sto',
+  'dwieście',
+  'trzysta',
+  'czterysta',
+  'pięćset',
+  'sześćset',
+  'siedemset',
+  'osiemset',
+  'dziewięćset',
+];
 
 function below1000(n: number): string {
   const h = Math.floor(n / 100);
@@ -28,7 +72,12 @@ export function integerInWords(n: number): string {
   if (thousands) {
     const last = thousands % 10;
     const lastTwo = thousands % 100;
-    const noun = thousands === 1 ? 'tysiąc' : last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14) ? 'tysiące' : 'tysięcy';
+    const noun =
+      thousands === 1
+        ? 'tysiąc'
+        : last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14)
+          ? 'tysiące'
+          : 'tysięcy';
     parts.push(thousands === 1 ? noun : `${below1000(thousands)} ${noun}`);
   }
   if (rest) parts.push(below1000(rest));
@@ -41,6 +90,11 @@ export function plnInWords(grosze: number): string {
   const gr = grosze % 100;
   const last = zl % 10;
   const lastTwo = zl % 100;
-  const noun = zl === 1 ? 'złoty' : last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14) ? 'złote' : 'złotych';
+  const noun =
+    zl === 1
+      ? 'złoty'
+      : last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14)
+        ? 'złote'
+        : 'złotych';
   return `${integerInWords(zl)} ${noun} ${String(gr).padStart(2, '0')}/100`;
 }

@@ -22,21 +22,11 @@ export async function getAdminCounts(): Promise<AdminCounts> {
     .select('id', { count: 'exact', head: true })
     .is('published_at', null);
 
-  const teamQ = supabase
-    .from('team_members')
-    .select('id', { count: 'exact', head: true });
+  const teamQ = supabase.from('team_members').select('id', { count: 'exact', head: true });
 
-  const oNasQ = supabase
-    .from('single_pages')
-    .select('updated_at')
-    .eq('key', 'o-nas')
-    .single();
+  const oNasQ = supabase.from('single_pages').select('updated_at').eq('key', 'o-nas').single();
 
-  const kontaktQ = supabase
-    .from('single_pages')
-    .select('updated_at')
-    .eq('key', 'kontakt')
-    .single();
+  const kontaktQ = supabase.from('single_pages').select('updated_at').eq('key', 'kontakt').single();
 
   const [pubRes, draftRes, teamRes, oNasRes, kontaktRes] = await Promise.all([
     pubQ,

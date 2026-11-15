@@ -10,7 +10,8 @@ export type SecurityEventType =
   | 'bad_ticket'
   | 'invalid_file_url'
   | 'staff_role_set'
-  | 'staff_role_removed';
+  | 'staff_role_removed'
+  | 'subscription_canceled';
 
 /** Zapisuje zdarzenie istotne dla bezpieczeństwa. Błąd zapisu nigdy nie przerywa obsługi żądania. */
 export async function logSecurityEvent(
@@ -21,7 +22,9 @@ export async function logSecurityEvent(
 ): Promise<void> {
   if (!db) return;
   try {
-    const { error } = await db.from('security_events').insert({ type, ip_hash: hashIp(clientIp(req)), details });
+    const { error } = await db
+      .from('security_events')
+      .insert({ type, ip_hash: hashIp(clientIp(req)), details });
     if (error) console.error('security_events:', error.message);
   } catch (err) {
     console.error('security_events:', shorten(err));

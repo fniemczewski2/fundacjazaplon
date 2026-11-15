@@ -24,8 +24,12 @@ async function getGraphToken(tenant: string, clientId: string, secret: string): 
     signal: AbortSignal.timeout(10_000),
   });
 
-  const data: { access_token?: string; expires_in?: number | string; error?: string; error_description?: string } | null =
-    await res.json().catch(() => null);
+  const data: {
+    access_token?: string;
+    expires_in?: number | string;
+    error?: string;
+    error_description?: string;
+  } | null = await res.json().catch(() => null);
 
   if (!res.ok || !data?.access_token) {
     throw new Error(
@@ -43,13 +47,20 @@ async function getGraphToken(tenant: string, clientId: string, secret: string): 
 export type GraphMail = { to: string; subject: string; html: string; replyTo?: string };
 
 /** Rzuca wyjątek z czytelnym komunikatem, gdy konfiguracja jest niepełna albo Graph odrzuci żądanie. */
-export async function sendGraphMail({ to, subject, html, replyTo: replyToOverride }: GraphMail): Promise<void> {
+export async function sendGraphMail({
+  to,
+  subject,
+  html,
+  replyTo: replyToOverride,
+}: GraphMail): Promise<void> {
   const tenant = process.env.MS_TENANT_ID;
   const clientId = process.env.MS_CLIENT_ID;
   const secret = process.env.MS_CLIENT_SECRET;
   const sender = process.env.MAIL_SENDER;
   if (!tenant || !clientId || !secret || !sender) {
-    throw new Error('Brak konfiguracji Microsoft Graph (MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET, MAIL_SENDER).');
+    throw new Error(
+      'Brak konfiguracji Microsoft Graph (MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET, MAIL_SENDER).',
+    );
   }
 
   const graph = process.env.MS_GRAPH_HOST || 'https://graph.microsoft.com';
@@ -81,7 +92,9 @@ export async function sendGraphMail({ to, subject, html, replyTo: replyToOverrid
       continue;
     }
 
-    const err: { error?: { code?: string; message?: string } } | null = await res.json().catch(() => null);
+    const err: { error?: { code?: string; message?: string } } | null = await res
+      .json()
+      .catch(() => null);
     throw new Error(
       `Microsoft Graph sendMail (${res.status}): ${[err?.error?.code, firstLine(err?.error?.message)].filter(Boolean).join(' - ')}`,
     );

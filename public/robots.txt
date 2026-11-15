@@ -3,6 +3,8 @@ Allow: /
 Disallow: /admin
 Disallow: /rozliczenia
 Disallow: /umowa
+Disallow: /dziekujemy
+Disallow: /subskrypcja
 Disallow: /api/
 
 Sitemap: https://zaplon.org.pl/sitemap.xml

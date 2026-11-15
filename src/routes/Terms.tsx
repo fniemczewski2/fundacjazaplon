@@ -2,7 +2,8 @@
 // import { TERMS_SECTIONS } from '../content/legal';
 
 export default function Terms() {
-  return ( <></>
+  return (
+    <></>
     // <LegalDocument
     //   title="Regulamin serwisu"
     //   path="/regulamin"

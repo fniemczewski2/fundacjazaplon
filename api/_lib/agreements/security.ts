@@ -1,6 +1,7 @@
 import { createHash, createHmac, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
 
-export const sha256Hex = (data: string | Uint8Array) => createHash('sha256').update(data).digest('hex');
+export const sha256Hex = (data: string | Uint8Array) =>
+  createHash('sha256').update(data).digest('hex');
 
 /** Token dostępu do dokumentów: 256 bitów losowości. W bazie trzymamy wyłącznie skrót. */
 export function newToken(): { token: string; hash: string } {
@@ -28,10 +29,12 @@ export function safeEqualHex(a: string, b: string): boolean {
 }
 
 /** Skrót adresu IP do kluczy limitów i dziennika zdarzeń: surowy adres nie trafia do bazy. */
-export const hashIp = (ip: string) => createHmac('sha256', otpKey()).update(`ip:${ip}`).digest('hex').slice(0, 32);
+export const hashIp = (ip: string) =>
+  createHmac('sha256', otpKey()).update(`ip:${ip}`).digest('hex').slice(0, 32);
 
 // Bilet wydawany po weryfikacji captcha i honorowany przy zapisie rozliczenia (id.rodzaj.wygaśnięcie.podpis).
-const ticketMac = (payload: string) => createHmac('sha256', otpKey()).update(`ticket:${payload}`).digest('base64url');
+const ticketMac = (payload: string) =>
+  createHmac('sha256', otpKey()).update(`ticket:${payload}`).digest('base64url');
 
 export function newTicket(id: string, kind: string, ttlMs: number): string {
   const payload = `${id}.${kind}.${Date.now() + ttlMs}`;

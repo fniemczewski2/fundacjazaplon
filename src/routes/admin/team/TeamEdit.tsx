@@ -138,7 +138,6 @@ export default function TeamEdit() {
 
       <div className="grid md:grid-cols-3 gap-4 items-start">
         <div className="md:col-span-2 space-y-3">
-
           <input
             className="border p-2 rounded w-full"
             placeholder="Imię i nazwisko"
@@ -233,12 +232,7 @@ export default function TeamEdit() {
       </div>
 
       <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={saving}
-          className="btn btn-primary"
-        >
+        <button type="button" onClick={handleSave} disabled={saving} className="btn btn-primary">
           {saving ? 'Zapisywanie…' : 'Zapisz'}
         </button>
         {!isNew && can('admin') && (

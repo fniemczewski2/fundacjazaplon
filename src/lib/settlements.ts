@@ -34,7 +34,10 @@ export function validateSettlement(input: SettlementInput): FieldErrors {
     if (!input.file) errors.invoice = 'Dołącz plik PDF z fakturą.';
     else if (input.file.size > MAX_INVOICE_SIZE_MB * 1024 * 1024) {
       errors.invoice = `Plik jest za duży (maks. ${MAX_INVOICE_SIZE_MB} MB).`;
-    } else if (input.file.type !== 'application/pdf' && !/\.pdf$/i.test(input.fileName ?? (input.file as File).name ?? '')) {
+    } else if (
+      input.file.type !== 'application/pdf' &&
+      !/\.pdf$/i.test(input.fileName ?? (input.file as File).name ?? '')
+    ) {
       errors.invoice = 'Dozwolony jest wyłącznie plik PDF.';
     }
   }
@@ -56,7 +59,10 @@ const API = '/api/submit-settlement';
  * 1) prepare: weryfikacja captcha, bilet i jednorazowy adres wysyłki pliku,
  * 2) commit: walidacja po stronie serwera i zapis (plik trafia do magazynu bezpośrednio, z pominięciem limitu rozmiaru funkcji).
  */
-export async function submitSettlement(input: SettlementInput, captchaToken: string | null): Promise<void> {
+export async function submitSettlement(
+  input: SettlementInput,
+  captchaToken: string | null,
+): Promise<void> {
   const prepared = await postJson<PrepareResponse>(
     API,
     { action: 'prepare', kind: input.kind, captchaToken },
@@ -67,7 +73,9 @@ export async function submitSettlement(input: SettlementInput, captchaToken: str
     if (!input.file || !prepared.upload) throw new Error('Brak pliku faktury.');
     const { error } = await supabase.storage
       .from(SETTLEMENT_BUCKET)
-      .uploadToSignedUrl(prepared.upload.path, prepared.upload.token, input.file, { contentType: 'application/pdf' });
+      .uploadToSignedUrl(prepared.upload.path, prepared.upload.token, input.file, {
+        contentType: 'application/pdf',
+      });
     if (error) throw error;
   }
 

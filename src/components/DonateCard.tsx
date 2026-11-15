@@ -70,7 +70,7 @@ export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
   };
 
   return (
-    <div className="card relative overflow-hidden p-6 md:p-10" id="donate" >
+    <div className="card relative overflow-hidden p-6 md:p-10" id="donate">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-8 -right-8 w-40 opacity-10 md:w-52"
@@ -170,13 +170,29 @@ export default function DonateCard({ title = 'Wspieram' }: Readonly<Props>) {
             <div className="space-y-4">
               <Field label="Imię">
                 {(a11y) => (
-                  <input {...a11y} type="text" required autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} className="input-text" />
+                  <input
+                    {...a11y}
+                    type="text"
+                    required
+                    autoComplete="given-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="input-text"
+                  />
                 )}
               </Field>
 
               <Field label="Adres e-mail">
                 {(a11y) => (
-                  <input {...a11y} type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-text" />
+                  <input
+                    {...a11y}
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-text"
+                  />
                 )}
               </Field>
 

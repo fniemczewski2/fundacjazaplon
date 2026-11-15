@@ -5,17 +5,24 @@ import { fmtDate } from './documents.js';
 
 const shell = (body: string) => `${body}\n<p>Fundacja „Zapłon”</p>`;
 
-export function invitationMail(link: string, expiresAt: Date, needsKrk: boolean, minorName?: string) {
+export function invitationMail(
+  link: string,
+  expiresAt: Date,
+  needsKrk: boolean,
+  minorName?: string,
+) {
   return {
     subject: 'Dokumenty do podpisania | Fundacja „Zapłon”',
     html: shell(
       [
         '<p>Dzień dobry,</p>',
-        (minorName
+        minorName
           ? `<p>Zgłoszenie ${esc(minorName)} do wolontariatu w Fundacji „Zapłon” zostało zaakceptowane. Jako rodzic lub opiekun prawny podpisujesz dokumenty w imieniu małoletniego. Otwórz poniższy link, zapoznaj się z dokumentami, wypełnij zgody i oświadczenia i podpisz je kodem jednorazowym.</p>`
           : '<p>Twoje zgłoszenie zostało zaakceptowane. Żeby dokończyć formalności, otwórz poniższy link, zapoznaj się z dokumentami, wypełnij zgody i oświadczenia' +
-          (needsKrk ? ', dołącz zaświadczenie o niekaralności z Krajowego Rejestru Karnego' : '') +
-          ' i podpisz dokumenty kodem jednorazowym.</p>'),
+            (needsKrk
+              ? ', dołącz zaświadczenie o niekaralności z Krajowego Rejestru Karnego'
+              : '') +
+            ' i podpisz dokumenty kodem jednorazowym.</p>',
         `<p><a href="${esc(link)}">${esc(link)}</a></p>`,
         `<p>Link jest osobisty i ważny do ${esc(fmtDate(expiresAt.toISOString()))}. Nie przekazuj go innym osobom.</p>`,
       ].join('\n'),

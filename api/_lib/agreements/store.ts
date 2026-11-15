@@ -6,20 +6,33 @@ export const BUCKET = 'agreements';
 export type AgreementStatus = 'submitted' | 'approved' | 'rejected' | 'signed' | 'completed';
 
 export async function logEvent(
-  db: SupabaseClient, agreementId: string, actor: string, event: string, details?: Record<string, unknown>,
+  db: SupabaseClient,
+  agreementId: string,
+  actor: string,
+  event: string,
+  details?: Record<string, unknown>,
 ) {
-  const { error } = await db.from('agreement_events').insert({ agreement_id: agreementId, actor, event, details: details ?? null });
+  const { error } = await db
+    .from('agreement_events')
+    .insert({ agreement_id: agreementId, actor, event, details: details ?? null });
   // Brak wpisu audytowego nie może cofać operacji, która już się udała - tylko ślad w logach serwera.
   if (error) console.error('agreements: nie zapisano zdarzenia audytowego:', event, error.message);
 }
 
 export async function loadFoundation(db: SupabaseClient): Promise<Foundation> {
-  const { data } = await db.from('contact_info').select('*').order('updated_at', { ascending: false }).limit(1).maybeSingle();
+  const { data } = await db
+    .from('contact_info')
+    .select('*')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
   return foundationFromContact(data as Record<string, unknown> | null);
 }
 
 export async function uploadPdf(db: SupabaseClient, path: string, bytes: Uint8Array) {
-  const { error } = await db.storage.from(BUCKET).upload(path, bytes, { contentType: 'application/pdf', upsert: true });
+  const { error } = await db.storage
+    .from(BUCKET)
+    .upload(path, bytes, { contentType: 'application/pdf', upsert: true });
   if (error) throw error;
 }
 
@@ -57,4 +70,5 @@ export type FullRow = AgreementRow & {
 export const withPlainPesel = (row: FullRow): FullRow => ({ ...row, pesel: decryptPii(row.pesel) });
 
 /** Wiadomości (zaproszenie, kod, dokumenty) idą do osoby, która podpisuje: dla małoletniego to rodzic / opiekun prawny. */
-export const recipientOf = (row: FullRow): string => (row.is_minor ? String(row.guardian_email) : row.email);
+export const recipientOf = (row: FullRow): string =>
+  row.is_minor ? String(row.guardian_email) : row.email;

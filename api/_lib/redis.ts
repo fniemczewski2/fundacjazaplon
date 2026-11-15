@@ -15,7 +15,8 @@ export function getRedis(): Redis {
   if (client) return client;
   const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-  if (!url || !token) throw new RedisUnavailableError('Brak UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN.');
+  if (!url || !token)
+    throw new RedisUnavailableError('Brak UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN.');
   client = new Redis({ url, token, retry: { retries: 1, backoff: () => 100 } });
   return client;
 }
@@ -33,11 +34,19 @@ return {count, ttl}
 `;
 
 /** Zwiększa licznik `key` (okno `windowSec` sekund od pierwszego trafienia). Zwraca bieżącą wartość i pozostały czas. */
-export async function incrementWindow(key: string, windowSec: number): Promise<{ count: number; ttlSec: number }> {
+export async function incrementWindow(
+  key: string,
+  windowSec: number,
+): Promise<{ count: number; ttlSec: number }> {
   try {
-    const result = await getRedis().eval<[string], [number, number]>(INCR_SCRIPT, [key], [String(windowSec)]);
+    const result = await getRedis().eval<[string], [number, number]>(
+      INCR_SCRIPT,
+      [key],
+      [String(windowSec)],
+    );
     const [count, ttl] = result;
-    if (typeof count !== 'number' || typeof ttl !== 'number') throw new Error('Nieoczekiwana odpowiedź Redis.');
+    if (typeof count !== 'number' || typeof ttl !== 'number')
+      throw new Error('Nieoczekiwana odpowiedź Redis.');
     return { count, ttlSec: ttl };
   } catch (err) {
     if (err instanceof RedisUnavailableError) throw err;

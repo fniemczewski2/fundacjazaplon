@@ -54,12 +54,7 @@ export default function JoinUsEdit() {
         />
       </label>
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={saving}
-        className="btn btn-primary"
-      >
+      <button type="button" onClick={save} disabled={saving} className="btn btn-primary">
         {saving ? 'Zapisywanie…' : 'Zapisz'}
       </button>
     </div>

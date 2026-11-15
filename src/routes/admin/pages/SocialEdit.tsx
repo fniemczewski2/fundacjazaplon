@@ -49,7 +49,9 @@ export default function SocialEdit() {
     for (const { key, label } of FIELDS) {
       const value = links[key];
       if (value && !isValidHttpUrl(value)) {
-        setMsg(`Nieprawidłowy adres URL w polu „${label}”. Podaj pełny link zaczynający się od http:// lub https://`);
+        setMsg(
+          `Nieprawidłowy adres URL w polu „${label}”. Podaj pełny link zaczynający się od http:// lub https://`,
+        );
         return;
       }
     }
@@ -87,12 +89,7 @@ export default function SocialEdit() {
         />
       ))}
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={saving}
-        className="btn btn-primary"
-      >
+      <button type="button" onClick={save} disabled={saving} className="btn btn-primary">
         {saving ? 'Zapisywanie…' : 'Zapisz'}
       </button>
 

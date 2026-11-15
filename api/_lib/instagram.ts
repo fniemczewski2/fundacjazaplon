@@ -18,11 +18,17 @@ type GraphResult = { items: GraphItem[] | null; status: number | null; error: st
 
 /** Wartość zmiennej środowiskowej bez białych znaków i cudzysłowów wklejonych z pliku .env. */
 function envValue(name: string): string | undefined {
-  const raw = process.env[name]?.trim().replace(/^(['"])(.*)\1$/, '$2').trim();
+  const raw = process.env[name]
+    ?.trim()
+    .replace(/^(['"])(.*)\1$/, '$2')
+    .trim();
   return raw || undefined;
 }
 
-const config = () => ({ token: envValue('INSTAGRAM_ACCESS_TOKEN'), id: envValue('INSTAGRAM_BUSINESS_ACCOUNT_ID') });
+const config = () => ({
+  token: envValue('INSTAGRAM_ACCESS_TOKEN'),
+  id: envValue('INSTAGRAM_BUSINESS_ACCOUNT_ID'),
+});
 
 const mediaUrl = (id: string) =>
   `https://graph.facebook.com/${INSTAGRAM.graphVersion}/${encodeURIComponent(id)}/media` +
@@ -34,7 +40,10 @@ async function fetchGraph(url: string, token: string): Promise<GraphResult> {
       headers: { Authorization: `Bearer ${token}` },
       signal: AbortSignal.timeout(INSTAGRAM.timeoutMs),
     });
-    const json = (await res.json().catch(() => null)) as { data?: unknown; error?: Record<string, unknown> } | null;
+    const json = (await res.json().catch(() => null)) as {
+      data?: unknown;
+      error?: Record<string, unknown>;
+    } | null;
 
     if (!res.ok) {
       // Graph API podaje przyczynę w polu error (np. wygasły token = kod 190, brak uprawnień = 10 lub 200).
@@ -45,7 +54,11 @@ async function fetchGraph(url: string, token: string): Promise<GraphResult> {
       console.warn(`[instagram] Graph API zwróciło status ${res.status} (${error})`);
       return { items: null, status: res.status, error };
     }
-    return { items: Array.isArray(json?.data) ? (json.data as GraphItem[]) : [], status: res.status, error: null };
+    return {
+      items: Array.isArray(json?.data) ? (json.data as GraphItem[]) : [],
+      status: res.status,
+      error: null,
+    };
   } catch (err) {
     const reason = err instanceof Error ? err.name : 'UnknownError';
     console.warn(`[instagram] pobranie postów nie powiodło się (${reason})`);
@@ -53,7 +66,8 @@ async function fetchGraph(url: string, token: string): Promise<GraphResult> {
   }
 }
 
-const isInstagramHost = (host: string) => host === 'instagram.com' || host.endsWith('.instagram.com');
+const isInstagramHost = (host: string) =>
+  host === 'instagram.com' || host.endsWith('.instagram.com');
 const isCdnHost = (host: string) =>
   host === 'cdninstagram.com' || host.endsWith('.cdninstagram.com') || host.endsWith('.fbcdn.net');
 
@@ -79,7 +93,10 @@ function mapItems(items: GraphItem[]): InstagramPost[] {
     const permalink = safeUrl(item.permalink, isInstagramHost);
     if (!permalink) continue;
     // Dla VIDEO (w tym rolek) media_url wskazuje plik .mp4, więc używamy miniatury.
-    const image = safeUrl(item.media_type === 'VIDEO' ? item.thumbnail_url : item.media_url, isCdnHost);
+    const image = safeUrl(
+      item.media_type === 'VIDEO' ? item.thumbnail_url : item.media_url,
+      isCdnHost,
+    );
     posts.push({
       id: item.id,
       caption: (item.caption ?? '').slice(0, INSTAGRAM.captionMax),
@@ -114,10 +131,16 @@ async function cacheSet(key: string, posts: InstagramPost[], ttlSec: number): Pr
  * Ostatnie posty konta (świeże z cache, a przy błędzie Graph API ostatnia dobra kopia).
  * `configured = false`, gdy brak zmiennych środowiskowych: sekcja na stronie jest wtedy ukrywana.
  */
-export async function getRecentInstagramPosts(): Promise<{ configured: boolean; posts: InstagramPost[] }> {
+export async function getRecentInstagramPosts(): Promise<{
+  configured: boolean;
+  posts: InstagramPost[];
+}> {
   const { token, id } = config();
   if (!token || !id) {
-    if (!!token !== !!id) console.warn('[instagram] ustawiono tylko jedną ze zmiennych INSTAGRAM_ACCESS_TOKEN / INSTAGRAM_BUSINESS_ACCOUNT_ID.');
+    if (!!token !== !!id)
+      console.warn(
+        '[instagram] ustawiono tylko jedną ze zmiennych INSTAGRAM_ACCESS_TOKEN / INSTAGRAM_BUSINESS_ACCOUNT_ID.',
+      );
     return { configured: false, posts: [] };
   }
 
@@ -141,8 +164,12 @@ export async function getRecentInstagramPosts(): Promise<{ configured: boolean; 
 /** Diagnostyka dla panelu: odpytuje Graph API na żywo (bez cache). */
 export async function checkInstagramConnection(): Promise<InstagramConnectionStatus> {
   const { token, id } = config();
-  const missing = [!token && 'INSTAGRAM_ACCESS_TOKEN', !id && 'INSTAGRAM_BUSINESS_ACCOUNT_ID'].filter((v): v is string => !!v);
-  if (!token || !id) return { configured: false, missing, ok: false, status: null, error: null, postCount: null };
+  const missing = [
+    !token && 'INSTAGRAM_ACCESS_TOKEN',
+    !id && 'INSTAGRAM_BUSINESS_ACCOUNT_ID',
+  ].filter((v): v is string => !!v);
+  if (!token || !id)
+    return { configured: false, missing, ok: false, status: null, error: null, postCount: null };
 
   const result = await fetchGraph(mediaUrl(id), token);
   return {

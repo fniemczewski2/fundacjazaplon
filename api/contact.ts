@@ -19,9 +19,14 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
   const message = asString(body.message, CONTACT_MESSAGE_MAX + 1);
 
   if (!name) return sendJson(res, 400, { error: 'Podaj imię i nazwisko.' });
-  if (!EMAIL_RE.test(email) || email.length > MAX_EMAIL_LENGTH) return sendJson(res, 400, { error: 'Podaj poprawny adres e-mail.' });
-  if (message.length < MIN_MESSAGE_LENGTH) return sendJson(res, 400, { error: 'Napisz kilka słów wiadomości.' });
-  if (message.length > CONTACT_MESSAGE_MAX) return sendJson(res, 400, { error: `Wiadomość może mieć maksymalnie ${CONTACT_MESSAGE_MAX} znaków.` });
+  if (!EMAIL_RE.test(email) || email.length > MAX_EMAIL_LENGTH)
+    return sendJson(res, 400, { error: 'Podaj poprawny adres e-mail.' });
+  if (message.length < MIN_MESSAGE_LENGTH)
+    return sendJson(res, 400, { error: 'Napisz kilka słów wiadomości.' });
+  if (message.length > CONTACT_MESSAGE_MAX)
+    return sendJson(res, 400, {
+      error: `Wiadomość może mieć maksymalnie ${CONTACT_MESSAGE_MAX} znaków.`,
+    });
 
   // Pole-pułapka: człowiek go nie widzi. Botowi udajemy sukces.
   if (typeof body.website === 'string' && body.website) return sendJson(res, 200, { ok: true });
@@ -44,6 +49,8 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
     return sendJson(res, 200, { ok: true });
   } catch (err) {
     console.error('contact: wysyłka nie powiodła się:', shorten(err));
-    return sendJson(res, 502, { error: 'Nie udało się wysłać wiadomości. Spróbuj ponownie za chwilę.' });
+    return sendJson(res, 502, {
+      error: 'Nie udało się wysłać wiadomości. Spróbuj ponownie za chwilę.',
+    });
   }
 }

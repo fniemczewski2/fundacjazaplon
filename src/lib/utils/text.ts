@@ -1,5 +1,6 @@
 export function toSafeSlug(input: string, opts: { keepDots?: boolean } = {}): string {
   const base = input
+    .replace(/ł/gi, (c) => (c === 'ł' ? 'l' : 'L'))
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[’'"]/g, '')
@@ -10,11 +11,7 @@ export function toSafeSlug(input: string, opts: { keepDots?: boolean } = {}): st
 
   const disallowed = opts.keepDots ? /[^a-z0-9._-]/g : /[^a-z0-9-]/g;
 
-  return base
-    .replace(disallowed, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+/, '')
-    .replace(/-+$/, '');
+  return base.replace(disallowed, '-').replace(/-+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
 }
 
 /** Wariant dedykowany nazwom plików - zawsze zwraca niepustą wartość. */

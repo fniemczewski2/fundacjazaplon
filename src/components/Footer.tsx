@@ -59,8 +59,8 @@ export default function Footer() {
               className="mb-4 h-16 w-auto"
             />
             <p className="max-w-xs text-sm text-on-brand/80">
-              Wspieramy osoby, które działają społecznie, żeby zapał nie kończył się na
-              pierwszym projekcie.
+              Wspieramy osoby, które działają społecznie, żeby zapał nie kończył się na pierwszym
+              projekcie.
             </p>
             <Link href="/wplacam" className="btn btn-ember mt-5 inline-flex">
               Wspieram
@@ -144,7 +144,10 @@ export default function Footer() {
               <PrivacyPolicyLink />
             </li>
             <li>
-              <Link href="/regulamin" className="text-sm underline-offset-4 transition-colors hover:underline">
+              <Link
+                href="/regulamin"
+                className="text-sm underline-offset-4 transition-colors hover:underline"
+              >
                 Regulamin
               </Link>
             </li>

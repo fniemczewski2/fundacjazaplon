@@ -58,31 +58,52 @@ export default async function handler(req: ApiRequest, res: ServerResponse) {
     const superEmail = superAdminEmail();
 
     if (action === 'list') {
-      const { data, error } = await db.from('staff_roles').select('email, role, granted_by, granted_at').order('email');
+      const { data, error } = await db
+        .from('staff_roles')
+        .select('email, role, granted_by, granted_at')
+        .order('email');
       if (error) throw error;
       const rows = (data ?? []) as StaffRow[];
       const pending = await pendingUsers(db, new Set(rows.map((r) => r.email)));
       return sendJson(res, 200, {
-        staff: rows.map((r) => ({ email: r.email, role: r.role, grantedBy: r.granted_by, grantedAt: r.granted_at })),
+        staff: rows.map((r) => ({
+          email: r.email,
+          role: r.role,
+          grantedBy: r.granted_by,
+          grantedAt: r.granted_at,
+        })),
         pending,
       });
     }
 
     const email = targetEmail(body.email);
     if (!email) return sendJson(res, 400, { error: 'Podaj adres e-mail w domenie organizacji.' });
-    if (email === superEmail) return sendJson(res, 409, { error: 'Roli super administratora nie można zmienić w panelu.' });
+    if (email === superEmail)
+      return sendJson(res, 409, { error: 'Roli super administratora nie można zmienić w panelu.' });
 
     if (action === 'set') {
-      if (!isAssignableRole(body.role)) return sendJson(res, 400, { error: 'Dozwolone role: administrator, redaktor.' });
+      if (!isAssignableRole(body.role))
+        return sendJson(res, 400, { error: 'Dozwolone role: administrator, redaktor.' });
       const { error } = await db
         .from('staff_roles')
-        .upsert({ email, role: body.role, granted_by: adminEmail, granted_at: new Date().toISOString() }, { onConflict: 'email' });
+        .upsert(
+          { email, role: body.role, granted_by: adminEmail, granted_at: new Date().toISOString() },
+          { onConflict: 'email' },
+        );
       if (error) throw error;
-      await logSecurityEvent(db, req, 'staff_role_set', { by: adminEmail, target: email, role: body.role });
+      await logSecurityEvent(db, req, 'staff_role_set', {
+        by: adminEmail,
+        target: email,
+        role: body.role,
+      });
       return sendJson(res, 200, { ok: true });
     }
 
-    const { error } = await db.from('staff_roles').delete().eq('email', email).neq('role', 'super_admin');
+    const { error } = await db
+      .from('staff_roles')
+      .delete()
+      .eq('email', email)
+      .neq('role', 'super_admin');
     if (error) throw error;
     await logSecurityEvent(db, req, 'staff_role_removed', { by: adminEmail, target: email });
     return sendJson(res, 200, { ok: true });

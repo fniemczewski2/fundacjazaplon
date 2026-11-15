@@ -59,7 +59,8 @@ export default function Links() {
 
   // Okno otwarte kliknięciem ma pierwszeństwo; linki /wplacam i /newsletter otwierają je od razu po wejściu.
   const [openedModal, setOpenedModal] = useState<ModalKind>(null);
-  const deepLinkModal: ModalKind = pathname === '/wplacam' ? 'donate' : pathname === '/newsletter' ? 'newsletter' : null;
+  const deepLinkModal: ModalKind =
+    pathname === '/wplacam' ? 'donate' : pathname === '/newsletter' ? 'newsletter' : null;
   const activeModal = openedModal ?? deepLinkModal;
 
   const closeModal = () => {
@@ -69,7 +70,12 @@ export default function Links() {
 
   const links = (items ?? []).flatMap((item): LinkItem[] => {
     if (!item.active) return [];
-    const base = { id: item.id, title: item.title, description: item.description ?? undefined, icon: ICONS[item.icon] };
+    const base = {
+      id: item.id,
+      title: item.title,
+      description: item.description ?? undefined,
+      icon: ICONS[item.icon],
+    };
     switch (item.kind) {
       case 'donate':
         return [{ ...base, onClick: () => setOpenedModal('donate') }];

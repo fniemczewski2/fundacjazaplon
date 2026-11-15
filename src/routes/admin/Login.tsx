@@ -41,9 +41,14 @@ export default function AdminLogin() {
       }}
     >
       <p className="text-sm text-ink-muted">
-        Zaloguj się kontem Microsoft w domenie @{STAFF_DOMAIN}. Zakres dostępu zależy od roli nadanej przez super administratora.
+        Zaloguj się kontem Microsoft w domenie @{STAFF_DOMAIN}. Zakres dostępu zależy od roli
+        nadanej przez super administratora.
       </p>
-      {err && <p className="field-error" role="alert">{err}</p>}
+      {err && (
+        <p className="field-error" role="alert">
+          {err}
+        </p>
+      )}
       <button type="submit" className="btn btn-primary w-full" disabled={loading}>
         {loading ? 'Przekierowanie…' : 'Zaloguj przez Microsoft'}
       </button>

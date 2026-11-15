@@ -1,4 +1,3 @@
-
 export default function Loader({ size = 40 }: Readonly<{ size?: number }>) {
   return (
     <div className="flex items-center justify-center w-full py-12">

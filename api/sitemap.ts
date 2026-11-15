@@ -18,7 +18,9 @@ export default async function handler(_req: ApiRequest, res: ServerResponse) {
 
   const env = supabaseEnv();
   if (env) {
-    const db = createClient(env.url, env.anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
+    const db = createClient(env.url, env.anonKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
     const { data, error } = await db
       .from('posts')
       .select('slug, updated_at, published_at')
@@ -26,12 +28,19 @@ export default async function handler(_req: ApiRequest, res: ServerResponse) {
       .order('published_at', { ascending: false });
     if (error) console.error('sitemap:', error.message);
     for (const post of (data as PostRow[] | null) ?? []) {
-      entries.push(urlEntry(`${base}/aktualnosci/${encodeURIComponent(post.slug)}`, post.updated_at ?? post.published_at));
+      entries.push(
+        urlEntry(
+          `${base}/aktualnosci/${encodeURIComponent(post.slug)}`,
+          post.updated_at ?? post.published_at,
+        ),
+      );
     }
   }
 
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   res.setHeader('Cache-Control', `public, s-maxage=${CACHE_SECONDS}, stale-while-revalidate`);
-  res.end(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`);
+  res.end(
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`,
+  );
 }

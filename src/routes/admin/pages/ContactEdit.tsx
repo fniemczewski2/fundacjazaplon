@@ -26,7 +26,12 @@ const empty: Model = {
   online_address: '',
 };
 
-type InputFieldProps = { label: string; value: string; onChange: (v: string) => void; type?: string };
+type InputFieldProps = {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+};
 
 function InputField({ label, value, onChange, type = 'text' }: Readonly<InputFieldProps>) {
   return (
@@ -67,19 +72,22 @@ export default function ContactEdit() {
           phone: data.phone ?? '',
           email: data.email ?? '',
           account_number: data.account_number ?? '',
-          online_address: data.online_address ??  '',
+          online_address: data.online_address ?? '',
         });
       } else {
         setM(empty);
       }
       setLoading(false);
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const save = async () => {
     setSaving(true);
-    setErr(null); setOk(null);
+    setErr(null);
+    setOk(null);
     try {
       await saveContact(m);
       setOk('Zapisano.');
@@ -90,7 +98,7 @@ export default function ContactEdit() {
     }
   };
 
-  if (loading) return <Loader/>;
+  if (loading) return <Loader />;
 
   return (
     <div className="p-6 space-y-4 max-w-3xl">
@@ -106,26 +114,42 @@ export default function ContactEdit() {
             className="border p-2 rounded w-full"
             rows={3}
             value={m.address}
-            onChange={(e) => setM(s => ({ ...s, address: e.target.value }))}
+            onChange={(e) => setM((s) => ({ ...s, address: e.target.value }))}
             placeholder="np. ul. Przykładowa 10, 00-000 Miasto"
           />
         </label>
 
-        <InputField label="KRS" value={m.krs} onChange={(v) => setM(s => ({ ...s, krs: v }))} />
-        <InputField label="NIP" value={m.nip} onChange={(v) => setM(s => ({ ...s, nip: v }))} />
-        <InputField label="REGON" value={m.regon} onChange={(v) => setM(s => ({ ...s, regon: v }))} />
-        <InputField label="Telefon" value={m.phone} onChange={(v) => setM(s => ({ ...s, phone: v }))} />
-        <InputField label="Email" value={m.email} onChange={(v) => setM(s => ({ ...s, email: v }))} type="email" />
-        <InputField label="Numer konta" value={m.account_number} onChange={(v) => setM(s => ({ ...s, account_number: v }))} />
-        <InputField label="E-doręczenia" value={m.online_address} onChange={(v) => setM(s => ({ ...s, online_address: v }))} />
+        <InputField label="KRS" value={m.krs} onChange={(v) => setM((s) => ({ ...s, krs: v }))} />
+        <InputField label="NIP" value={m.nip} onChange={(v) => setM((s) => ({ ...s, nip: v }))} />
+        <InputField
+          label="REGON"
+          value={m.regon}
+          onChange={(v) => setM((s) => ({ ...s, regon: v }))}
+        />
+        <InputField
+          label="Telefon"
+          value={m.phone}
+          onChange={(v) => setM((s) => ({ ...s, phone: v }))}
+        />
+        <InputField
+          label="Email"
+          value={m.email}
+          onChange={(v) => setM((s) => ({ ...s, email: v }))}
+          type="email"
+        />
+        <InputField
+          label="Numer konta"
+          value={m.account_number}
+          onChange={(v) => setM((s) => ({ ...s, account_number: v }))}
+        />
+        <InputField
+          label="E-doręczenia"
+          value={m.online_address}
+          onChange={(v) => setM((s) => ({ ...s, online_address: v }))}
+        />
       </div>
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={saving}
-        className="btn btn-primary"
-      >
+      <button type="button" onClick={save} disabled={saving} className="btn btn-primary">
         {saving ? 'Zapisywanie…' : 'Zapisz'}
       </button>
     </div>

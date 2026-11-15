@@ -21,13 +21,18 @@ export function encryptPii(plain: string): string {
   const iv = randomBytes(12);
   const cipher = createCipheriv(ALGORITHM, key(), iv);
   const data = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
-  return PREFIX + [iv, cipher.getAuthTag(), data].map((part) => part.toString('base64url')).join('.');
+  return (
+    PREFIX + [iv, cipher.getAuthTag(), data].map((part) => part.toString('base64url')).join('.')
+  );
 }
 
 /** Wartości zapisane przed wdrożeniem szyfrowania (jawny tekst) zwraca bez zmian. */
 export function decryptPii(stored: string): string {
   if (!isEncrypted(stored)) return stored;
-  const [iv, tag, data] = stored.slice(PREFIX.length).split('.').map((part) => Buffer.from(part, 'base64url'));
+  const [iv, tag, data] = stored
+    .slice(PREFIX.length)
+    .split('.')
+    .map((part) => Buffer.from(part, 'base64url'));
   if (!iv || !tag || !data) throw new Error('Uszkodzona wartość zaszyfrowana.');
   const decipher = createDecipheriv(ALGORITHM, key(), iv);
   decipher.setAuthTag(tag);

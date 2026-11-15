@@ -13,7 +13,8 @@ let warned = false;
 export async function verifyCaptcha(token: unknown, ip: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
-    if (!warned) console.error('captcha: brak TURNSTILE_SECRET_KEY, weryfikacja captcha jest wyłączona.');
+    if (!warned)
+      console.error('captcha: brak TURNSTILE_SECRET_KEY, weryfikacja captcha jest wyłączona.');
     warned = true;
     return true;
   }

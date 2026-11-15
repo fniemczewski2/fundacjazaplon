@@ -45,5 +45,8 @@ export async function listMediaFiles(): Promise<MediaFile[]> {
     .list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
   if (error) throw error;
   // getPublicUrl tylko buduje adres (bez sieci), więc nie wymaga async.
-  return (data ?? []).map((f) => ({ name: f.name, url: supabase.storage.from(MEDIA_BUCKET).getPublicUrl(f.name).data.publicUrl }));
+  return (data ?? []).map((f) => ({
+    name: f.name,
+    url: supabase.storage.from(MEDIA_BUCKET).getPublicUrl(f.name).data.publicUrl,
+  }));
 }

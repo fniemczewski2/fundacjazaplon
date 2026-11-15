@@ -9,10 +9,20 @@ import { useStaff } from '../../../app/staffContext';
 
 type MaterialForm = Omit<Material, 'id' | 'created_at'>;
 
-const EMPTY_FORM: MaterialForm = { title: '', description: '', file_url: '', cover_image: '', format: 'PDF' };
+const EMPTY_FORM: MaterialForm = {
+  title: '',
+  description: '',
+  file_url: '',
+  cover_image: '',
+  format: 'PDF',
+};
 
 export default function MaterialsAdmin() {
-  const { data: materials, error: listError, reload: fetchMaterials } = useAsyncData(listMaterials, [] as Material[], 'Nie udało się wczytać materiałów.');
+  const {
+    data: materials,
+    error: listError,
+    reload: fetchMaterials,
+  } = useAsyncData(listMaterials, [] as Material[], 'Nie udało się wczytać materiałów.');
   const [form, setForm] = useState<MaterialForm>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const confirm = useConfirm();
@@ -36,10 +46,13 @@ export default function MaterialsAdmin() {
   };
 
   const handleDelete = async (id: string) => {
-    const confirmed = await confirm('Na pewno usunąć ten materiał? Tej operacji nie można cofnąć.', {
-      title: 'Usuń materiał',
-      confirmLabel: 'Usuń',
-    });
+    const confirmed = await confirm(
+      'Na pewno usunąć ten materiał? Tej operacji nie można cofnąć.',
+      {
+        title: 'Usuń materiał',
+        confirmLabel: 'Usuń',
+      },
+    );
     if (!confirmed) return;
 
     const { error } = await supabase.from('materials').delete().eq('id', id);
@@ -54,7 +67,11 @@ export default function MaterialsAdmin() {
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-ink">Materiały do pobrania</h1>
 
-      {listError && <p role="alert" className="field-error mb-4">{listError}</p>}
+      {listError && (
+        <p role="alert" className="field-error mb-4">
+          {listError}
+        </p>
+      )}
 
       <div className="bg-surface-raised p-6 rounded-lg shadow-md mb-8">
         <h2 className="text-xl font-bold mb-4">Dodaj nowy materiał</h2>
@@ -95,15 +112,12 @@ export default function MaterialsAdmin() {
           />
 
           <div className="md:col-span-2 mt-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="btn btn-primary"
-            >
+            <button type="submit" disabled={saving} className="btn btn-primary">
               {saving ? 'Dodawanie…' : 'Dodaj materiał'}
             </button>
             <p className="text-xs text-ink-muted mt-2">
-              Po dodaniu materiału, użytkownicy po pobraniu automatycznie otrzymają e-mail z wybranym linkiem (dzięki globalnej automatyzacji MailerLite).
+              Po dodaniu materiału, użytkownicy po pobraniu automatycznie otrzymają e-mail z
+              wybranym linkiem (dzięki globalnej automatyzacji MailerLite).
             </p>
           </div>
         </form>
@@ -111,12 +125,19 @@ export default function MaterialsAdmin() {
 
       <div className="grid grid-cols-1 gap-4">
         {materials.map((mat) => (
-          <div key={mat.id} className="bg-surface-raised p-4 rounded shadow-sm flex justify-between items-center">
+          <div
+            key={mat.id}
+            className="bg-surface-raised p-4 rounded shadow-sm flex justify-between items-center"
+          >
             <div className="pr-4">
               <h3 className="font-bold">
-                {mat.title} <span className="text-sm font-normal text-ink-muted">({mat.format})</span>
+                {mat.title}{' '}
+                <span className="text-sm font-normal text-ink-muted">({mat.format})</span>
               </h3>
-              <p className="text-sm text-danger truncate max-w-[250px] sm:max-w-md lg:max-w-xl" title={mat.file_url}>
+              <p
+                className="text-sm text-danger truncate max-w-[250px] sm:max-w-md lg:max-w-xl"
+                title={mat.file_url}
+              >
                 <FiLink aria-hidden="true" className="mr-1 inline size-3.5" />
                 {mat.file_url}
               </p>

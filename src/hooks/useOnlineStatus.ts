@@ -10,5 +10,9 @@ const subscribe = (onChange: () => void) => {
 };
 
 export function useOnlineStatus(): boolean {
-  return useSyncExternalStore(subscribe, () => navigator.onLine, () => true);
+  return useSyncExternalStore(
+    subscribe,
+    () => navigator.onLine,
+    () => true,
+  );
 }

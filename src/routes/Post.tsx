@@ -26,7 +26,9 @@ export default function Post() {
         <Seo title="Nie znaleziono wpisu | Fundacja „Zapłon”" noindex />
         <h1 className="section-title">Nie znaleźliśmy tego wpisu</h1>
         <p className="lead mt-4">
-          {error ? getErrorMessage(error, 'Nie udało się wczytać wpisu.') : 'Adres mógł się zmienić albo wpis został usunięty.'}
+          {error
+            ? getErrorMessage(error, 'Nie udało się wczytać wpisu.')
+            : 'Adres mógł się zmienić albo wpis został usunięty.'}
         </p>
         <Link to="/aktualnosci" className="btn btn-primary mt-8">
           <FaArrowLeft aria-hidden="true" />

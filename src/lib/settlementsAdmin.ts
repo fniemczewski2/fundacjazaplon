@@ -67,6 +67,7 @@ export async function decideSettlement(
   const data: { error?: string; emailSent?: boolean; emailError?: string } | null =
     contentType.includes('application/json') ? await response.json() : null;
 
-  if (!response.ok) throw new Error(data?.error ?? `Serwer odpowiedział błędem (${response.status}).`);
+  if (!response.ok)
+    throw new Error(data?.error ?? `Serwer odpowiedział błędem (${response.status}).`);
   return { emailSent: data?.emailSent === true, emailError: data?.emailError };
 }

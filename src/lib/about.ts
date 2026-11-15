@@ -13,7 +13,7 @@ export type Pillar = {
   order_index: number;
   title: string | null;
   body_md: string | null;
-  image_url: string | null; 
+  image_url: string | null;
   updated_at: string;
 };
 
@@ -44,13 +44,19 @@ export async function upsertAbout(description_md: string, id?: string) {
   return data as AboutInfo;
 }
 
-export async function savePillar(p: { id?: string; order_index: number; title: string | null; body_md: string | null; image_url: string | null }) {
+export async function savePillar(p: {
+  id?: string;
+  order_index: number;
+  title: string | null;
+  body_md: string | null;
+  image_url: string | null;
+}) {
   const row = {
     id: p.id ?? undefined,
     order_index: p.order_index,
     title: p.title ?? null,
     body_md: p.body_md ?? null,
-    image_url: p.image_url ?? null, 
+    image_url: p.image_url ?? null,
   };
   const { data, error } = await supabase
     .from('about_pillars')
@@ -61,15 +67,23 @@ export async function savePillar(p: { id?: string; order_index: number; title: s
   return data as Pillar;
 }
 
-export async function savePillarsBatch(pillars: Array<{ id?: string; order_index: number; title: string | null; body_md: string | null; image_url: string | null }>) {
-  const rows = pillars.map(p => ({
+export async function savePillarsBatch(
+  pillars: Array<{
+    id?: string;
+    order_index: number;
+    title: string | null;
+    body_md: string | null;
+    image_url: string | null;
+  }>,
+) {
+  const rows = pillars.map((p) => ({
     id: p.id ?? undefined,
     order_index: p.order_index,
     title: p.title ?? null,
     body_md: p.body_md ?? null,
-    image_url: p.image_url ?? null, 
+    image_url: p.image_url ?? null,
   }));
-  
+
   const { error } = await supabase
     .from('about_pillars')
     .upsert(rows, { onConflict: 'order_index' });
