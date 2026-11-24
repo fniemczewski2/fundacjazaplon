@@ -1,5 +1,6 @@
 // src/lib/media.ts
 import { supabase } from './supabase';
+import { optimizeImage } from './imageOptimize';
 import { toSafeFileName } from './utils/text';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_MB, MEDIA_BUCKET } from './config';
 
@@ -14,8 +15,9 @@ function assertValidImage(file: File) {
   }
 }
 
-export async function uploadToMedia(folder: string, file: File): Promise<string> {
-  assertValidImage(file);
+export async function uploadToMedia(folder: string, original: File): Promise<string> {
+  assertValidImage(original);
+  const file = await optimizeImage(original);
 
   const safeName = toSafeFileName(file.name || `file-${Date.now()}`);
   const path = folder ? `${folder}/${safeName}` : safeName;

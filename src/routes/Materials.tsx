@@ -91,6 +91,8 @@ export default function Materials() {
                       src={mat.cover_image}
                       alt=""
                       aria-hidden="true"
+                      width={640}
+                      height={360}
                       className="aspect-video w-full border-b object-cover"
                       loading="lazy"
                     />

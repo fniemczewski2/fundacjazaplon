@@ -5,7 +5,6 @@ import apiDevServer from './vite-plugin-api-dev.ts';
 
 const VENDOR_CHUNKS: ReadonlyArray<[chunk: string, match: string]> = [
   ['supabase', 'node_modules/@supabase/'],
-  ['markdown', 'node_modules/react-markdown/'],
   ['react', 'node_modules/react-dom/'],
 ];
 

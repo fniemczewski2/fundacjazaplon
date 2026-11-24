@@ -92,6 +92,8 @@ export default function Post() {
           <img
             src={`${cover_url}?width=1200&quality=80`}
             alt={title}
+            width={1200}
+            height={675}
             className="mt-8 aspect-video w-full rounded-2xl object-cover"
             loading="lazy"
           />
