@@ -1,15 +1,15 @@
 import type { ServerResponse } from 'node:http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ApiRequest } from './_lib/http';
+import type { ApiRequest } from '../_lib/http';
 
 const retrieve = vi.fn();
 const createPortal = vi.fn();
 const rateLimited = vi.fn();
 let stripeConfigured = true;
 
-vi.mock('./_lib/auth', () => ({ serviceClient: vi.fn(), supabaseEnv: () => null }));
-vi.mock('./_lib/rateLimit', () => ({ rateLimited: (...args: unknown[]) => rateLimited(...args) }));
-vi.mock('./_lib/stripe', async (importOriginal) => ({
+vi.mock('../_lib/auth', () => ({ serviceClient: vi.fn(), supabaseEnv: () => null }));
+vi.mock('../_lib/rateLimit', () => ({ rateLimited: (...args: unknown[]) => rateLimited(...args) }));
+vi.mock('../_lib/stripe', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   getStripe: () =>
     stripeConfigured
@@ -31,7 +31,7 @@ const call = async (method: string, body?: unknown) => {
       this.body = b;
     },
   };
-  const { default: handler } = await import('./stripe-portal');
+  const { default: handler } = await import('../stripe-portal');
   await handler({ method, body } as unknown as ApiRequest, res as unknown as ServerResponse);
   return {
     status: res.statusCode,
