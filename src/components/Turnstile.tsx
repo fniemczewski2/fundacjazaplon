@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TURNSTILE_SITE_KEY } from '../lib/config';
 import { logger } from '../lib/logger';
 
@@ -52,13 +52,36 @@ export default function Turnstile({ onToken, resetKey = 0 }: Readonly<Props>) {
   const container = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | null>(null);
   const onTokenRef = useRef(onToken);
+  // Skrypt Cloudflare (ciasteczka, wyzwanie w tle) wczytujemy dopiero, gdy formularz zbliża się do widoku,
+  // a nie przy każdym wejściu na stronę.
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     onTokenRef.current = onToken;
   }, [onToken]);
 
   useEffect(() => {
-    if (!TURNSTILE_SITE_KEY || !container.current) return;
+    const el = container.current;
+    if (!TURNSTILE_SITE_KEY || !el) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !visible || !container.current) return;
     const el = container.current;
     let cancelled = false;
 
@@ -82,7 +105,7 @@ export default function Turnstile({ onToken, resetKey = 0 }: Readonly<Props>) {
       if (api && widgetId.current) api.remove(widgetId.current);
       widgetId.current = null;
     };
-  }, []);
+  }, [visible]);
 
   useEffect(() => {
     if (resetKey === 0) return;
